@@ -1,0 +1,45 @@
+{
+  "name": "sound-deck-core",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/sound-deck-core/src",
+  "projectType": "library",
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/packages/sound-deck-core",
+        "tsConfig": "packages/sound-deck-core/tsconfig.lib.json",
+        "packageJson": "packages/sound-deck-core/package.json",
+        "main": "packages/sound-deck-core/src/index.ts",
+        "assets": ["packages/sound-deck-core/*.md"]
+      }
+    },
+    "publish": {
+      "command": "node tools/scripts/publish.mjs sound-deck-core {args.ver} {args.tag}",
+      "dependsOn": ["build"]
+    },
+    "lint": {
+      "executor": "@nx/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["packages/sound-deck-core/**/*.ts"]
+      }
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "packages/sound-deck-core/jest.config.ts",
+        "passWithNoTests": true
+      },
+      "configurations": {
+        "ci": {
+          "ci": true,
+          "codeCoverage": true
+        }
+      }
+    }
+  },
+  "tags": []
+}
