@@ -1,4 +1,12 @@
 {
   "name": "sound-deck",
-  "version": "0.0.1"
+  "version": "0.0.2",
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dblatcher/sound-deck/tree/main/packages/sound-deck-core"
+  },
+  "author": "David Blatcher"
 }
