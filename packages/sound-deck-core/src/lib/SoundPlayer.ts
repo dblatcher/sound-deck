@@ -39,7 +39,7 @@ class SoundPlayer {
     savedNoises: Map<string, ToneConfigInput>
     tonesPlaying: Map<string, OscillatorNode>
 
-    constructor(sounds: any, elements: SoundPlayerElements = {}) {
+    constructor(sounds: Record<string, string | undefined>, elements: SoundPlayerElements = {}) {
 
         this.audioElements = new Map();
         this.sources = new Map();
@@ -47,7 +47,7 @@ class SoundPlayer {
         this.audioCtx = AudioContext ? new AudioContext() : null;
         this.elements = elements
 
-        for (let soundName in sounds) {
+        for (const soundName in sounds) {
             const audioElement = document.createElement('audio');
             audioElement.setAttribute('src', sounds[soundName]);
             audioElement.setAttribute('soundName', soundName);
@@ -112,7 +112,7 @@ class SoundPlayer {
             this.tonesPlaying.set(label, tone);
         }
         tone.onended = () => {
-            if (label) {this.tonesPlaying.delete(label)}
+            if (label) { this.tonesPlaying.delete(label) }
             tone.disconnect();
             gainNode.disconnect();
         }
@@ -130,7 +130,7 @@ class SoundPlayer {
         if (!this.isEnabled && !this.elements.toggleButton && !!this.audioCtx) {
             this.enable()
                 .then(() => this.play(soundName, options))
-                .catch(() => { });
+                .catch((e) => { console.warn(e) });
         }
 
         if (this.isEnabled === false) { return }
