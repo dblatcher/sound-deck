@@ -3,6 +3,7 @@ import { useState } from "react"
 import { SoundControl, SoundDeck } from "sound-deck"
 import { FrequencyRange } from "./FrequencyRange"
 import { ToneTypeOptions } from "./ToneTypeOptions"
+import { DurationControl } from "./DurationControl"
 
 export const TonePlayer = () => {
     const [soundDeck] = useState(new SoundDeck())
@@ -28,14 +29,7 @@ export const TonePlayer = () => {
     return (
         <div>
             <h2>TonePlayer</h2>
-            <div>
-                <label>duration</label>
-                <input type="number" value={duration}
-                    step={.1}
-                    onChange={e => {
-                        setDuration(Number(e.target.value))
-                    }} />
-            </div>
+            <DurationControl value={duration} change={setDuration} />
             <FrequencyRange label="start frequency" value={frequency} change={setFrequency} />
             <FrequencyRange label="end frequency" value={endFrequency} change={setEndFrequency} />
             <ToneTypeOptions value={toneType} change={setToneType} radioName="tone-type" />
