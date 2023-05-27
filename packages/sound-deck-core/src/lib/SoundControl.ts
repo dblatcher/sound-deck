@@ -31,14 +31,14 @@ class SoundControl {
             this.sourceNode.volume = value;
             return
         }
-        this.gainNode.gain.setValueAtTime(value, 0)
+        this.gainNode?.gain.setValueAtTime(value, 0)
     }
 
     get volume(): number {
         if (this.sourceNode instanceof HTMLAudioElement) {
             return this.sourceNode.volume
         }
-        return this.gainNode?.gain.value
+        return this.gainNode?.gain.value ?? 0
     }
 
     set loop(value: boolean) {
@@ -47,7 +47,7 @@ class SoundControl {
     }
 
     get loop() {
-        if (this.sourceNode instanceof OscillatorNode) { return undefined }
+        if (this.sourceNode instanceof OscillatorNode) { return true }
         return (this.sourceNode as SourceWithLoop).loop
     }
 }

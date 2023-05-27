@@ -34,7 +34,7 @@ class SoundPlayer {
 
     audioElements: Map<string, HTMLAudioElement>
     sources: Map<string, MediaElementAudioSourceNode>
-    audioCtx: AudioContext
+    audioCtx?: AudioContext
     elements: SoundPlayerElements
     savedNoises: Map<string, ToneConfigInput>
     tonesPlaying: Map<string, OscillatorNode>
@@ -44,18 +44,18 @@ class SoundPlayer {
         this.audioElements = new Map();
         this.sources = new Map();
 
-        this.audioCtx = AudioContext ? new AudioContext() : null;
+        this.audioCtx = AudioContext ? new AudioContext() : undefined;
         this.elements = elements
 
         for (const soundName in sounds) {
             const audioElement = document.createElement('audio');
-            audioElement.setAttribute('src', sounds[soundName]);
+            audioElement.setAttribute('src', sounds[soundName] ?? '');
             audioElement.setAttribute('soundName', soundName);
             this.audioElements.set(soundName, audioElement);
 
             if (this.audioCtx) {
                 this.sources.set(soundName, this.audioCtx.createMediaElementSource(audioElement));
-                this.sources.get(soundName).connect(this.audioCtx.destination);
+                this.sources.get(soundName)?.connect(this.audioCtx.destination);
             }
         }
 
@@ -79,17 +79,18 @@ class SoundPlayer {
         this.savedNoises.set(name, configInput);
     }
 
-    playTone(input: ToneConfigInput | string, label: string = null) {
+    playTone(input: ToneConfigInput | string, label?: string) {
         if (!this.audioCtx) { return }
 
         let config: ToneConfig;
 
         if (typeof input == 'string') {
-            if (!this.savedNoises.has(input)) {
+            const savedNoise: ToneConfigInput | undefined = this.savedNoises.get(input)
+            if (!savedNoise) {
                 console.warn(`no saved tone called ${input}`);
                 return
             }
-            config = new ToneConfig(this.savedNoises.get(input))
+            config = new ToneConfig(savedNoise)
         } else {
             config = new ToneConfig(input as ToneConfigInput)
         }
@@ -160,7 +161,7 @@ class SoundPlayer {
     }
 
     enable() {
-        if (!this.audioCtx) { return }
+        if (!this.audioCtx) { return Promise.resolve()}
         if (this.elements.toggleButton) {
             this.elements.toggleButton.setAttribute('data-sound-enabled', 'true');
         }
