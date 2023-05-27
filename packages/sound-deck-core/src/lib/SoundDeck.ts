@@ -21,14 +21,14 @@ interface NoiseParams {
 
 class SoundDeck {
 
-    audioCtx: AudioContext
-    protected masterGain: GainNode
+    audioCtx: AudioContext | undefined
+    protected masterGain: GainNode | null
     protected volumeWhenNotMute: number
     audioElements: Map<string, HTMLAudioElement>
     sampleBuffers: Map<string, AudioBuffer>
 
     constructor() {
-        this.audioCtx = AudioContext ? new AudioContext() : null;
+        this.audioCtx = AudioContext ? new AudioContext() : undefined;
         this.audioElements = new Map();
         this.sampleBuffers = new Map();
         this.volumeWhenNotMute = 1;
@@ -47,6 +47,7 @@ class SoundDeck {
     async loadAudioBuffer(src: string): Promise<AudioBuffer | null> {
 
         let audioBuffer: AudioBuffer;
+        if (!this.audioCtx) { return null }
 
         try {
             const response = await fetch(src);
@@ -81,7 +82,7 @@ class SoundDeck {
 
     playSampleWithoutContext(soundName: string, options: PlayOptions = {}): SoundControl | null {
         const audioElement = this.audioElements.get(soundName);
-        if (!audioElement) { return }
+        if (!audioElement) { return null }
 
         const { volume = 1 } = options
         if (volume >= 0 && volume <= 1) { audioElement.volume = volume }
@@ -99,7 +100,7 @@ class SoundDeck {
 
         const { audioCtx, sampleBuffers, masterGain } = this
 
-        if (!audioCtx) {
+        if (!audioCtx || !masterGain) {
             this.playSampleWithoutContext(soundName, options)
             return null
         }
@@ -109,8 +110,8 @@ class SoundDeck {
 
         const audioBuffer = sampleBuffers.get(soundName);
         const gainNode = audioCtx.createGain()
-        let sourceNode = this.audioCtx.createBufferSource();
-        sourceNode.buffer = audioBuffer;
+        const sourceNode = audioCtx.createBufferSource();
+        sourceNode.buffer = audioBuffer ?? null;
 
         const { loop = false, volume = 1 } = options;
 
@@ -122,11 +123,13 @@ class SoundDeck {
         return new SoundControl(sourceNode, gainNode);
     }
 
-    makeNoiseSourceNodeAndFilter(params: NoiseParams): [AudioBufferSourceNode, BiquadFilterNode] | null {
+    makeNoiseSourceNodeAndFilter(params: NoiseParams): [AudioBufferSourceNode, BiquadFilterNode] | [null, null] {
+        const { audioCtx } = this
+        if (!audioCtx) { return [null, null] }
         const { duration = 1, frequency = 1000 } = params;
-        const bufferSize = this.audioCtx.sampleRate * duration; // set the time of the note
-        const buffer = this.audioCtx.createBuffer(1, bufferSize, this.audioCtx.sampleRate); // create an empty buffer
-        let data = buffer.getChannelData(0); // get data
+        const bufferSize = audioCtx.sampleRate * duration; // set the time of the note
+        const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate); // create an empty buffer
+        const data = buffer.getChannelData(0); // get data
 
         // fill the buffer with noise
         for (let i = 0; i < bufferSize; i++) {
@@ -134,10 +137,10 @@ class SoundDeck {
         }
 
         // create a buffer source for our created data
-        let noiseNode = this.audioCtx.createBufferSource();
+        const noiseNode = audioCtx.createBufferSource();
         noiseNode.buffer = buffer;
 
-        let bandpass = this.audioCtx.createBiquadFilter();
+        const bandpass = audioCtx.createBiquadFilter();
         bandpass.type = 'bandpass';
         bandpass.frequency.value = frequency
 
@@ -146,15 +149,16 @@ class SoundDeck {
 
     playNoise(params: NoiseParams = {}, options: PlayOptions = {}): SoundControl | null {
         const { audioCtx, masterGain } = this
-        if (!audioCtx) { return null }
+        if (!audioCtx || !masterGain) { return null }
 
         const { loop = false, volume = 1 } = options;
         const gainNode = audioCtx.createGain()
         const [noiseNode, bandpass] = this.makeNoiseSourceNodeAndFilter(params)
+        if (!noiseNode || !bandpass) { return null }
 
         noiseNode.connect(bandpass).connect(gainNode).connect(masterGain);
 
-        gainNode.gain.setValueAtTime(volume, this.audioCtx.currentTime)
+        gainNode.gain.setValueAtTime(volume, audioCtx.currentTime)
         noiseNode.loop = loop;
         noiseNode.start(0);
 
@@ -164,7 +168,7 @@ class SoundDeck {
     playTone(params: ToneParams, options: PlayOptions = {}): SoundControl | null {
         const { audioCtx, masterGain } = this
 
-        if (!audioCtx) { return null }
+        if (!audioCtx || !masterGain) { return null }
 
         const { loop = false, volume = 1 } = options;
         const { frequency = 1000, type = "sine", duration = 1 } = params;
@@ -196,19 +200,23 @@ class SoundDeck {
     }
 
     mute() {
+        if (!this.masterGain) { return }
         this.volumeWhenNotMute = this.masterGain.gain.value;
         this.masterGain.gain.value = 0;
     }
 
     unmute() {
+        if (!this.masterGain) { return }
         this.masterGain.gain.value = this.volumeWhenNotMute;
     }
 
-    get masterVolume () {
+    get masterVolume() {
+        if (!this.masterGain) { return 0 }
         return this.masterGain.gain.value
     }
 
-    set masterVolume(value:number) {
+    set masterVolume(value: number) {
+        if (!this.masterGain) { return }
         this.masterGain.gain.value = value;
         this.volumeWhenNotMute = value;
     }
