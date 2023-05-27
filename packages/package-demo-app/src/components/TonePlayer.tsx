@@ -1,6 +1,8 @@
 
 import { useState } from "react"
 import { SoundControl, SoundDeck } from "sound-deck"
+import { FrequencyRange } from "./FrequencyRange"
+import { ToneTypeOptions } from "./ToneTypeOptions"
 
 export const TonePlayer = () => {
     const [soundDeck] = useState(new SoundDeck())
@@ -34,42 +36,9 @@ export const TonePlayer = () => {
                         setDuration(Number(e.target.value))
                     }} />
             </div>
-            <div>
-                <label>start frequency</label>
-                <input type="range"
-                    value={frequency}
-                    step={20}
-                    min={100}
-                    max={3000}
-                    onChange={e => {
-                        setFrequency(Number(e.target.value))
-                    }} />
-                <label>{frequency}</label>
-            </div>
-            <div>
-                <label>end frequency</label>
-                <input type="range"
-                    value={endFrequency}
-                    step={20}
-                    min={100}
-                    max={3000}
-                    onChange={e => {
-                        setEndFrequency(Number(e.target.value))
-                    }} />
-                <label>{endFrequency}</label>
-            </div>
-
-            <fieldset>
-                <legend>tone type</legend>
-                <label>sawtooth</label>
-                <input type="radio" checked={toneType === 'sawtooth'} name="toneType" onChange={() => { setToneType('sawtooth') }} />
-                <label>sine</label>
-                <input type="radio" checked={toneType === 'sine'} name="toneType" onChange={() => { setToneType('sine') }}/>
-                <label>square</label>
-                <input type="radio" checked={toneType === 'square'} name="toneType" onChange={() => { setToneType('square') }}/>
-                <label>triangle</label>
-                <input type="radio" checked={toneType === 'triangle'} name="toneType" onChange={() => { setToneType('triangle') }}/>
-            </fieldset>
+            <FrequencyRange label="start frequency" value={frequency} change={setFrequency} />
+            <FrequencyRange label="end frequency" value={endFrequency} change={setEndFrequency} />
+            <ToneTypeOptions value={toneType} change={setToneType} radioName="tone-type" />
 
             <div>
                 <button onClick={playTone} disabled={!!tone}>play tone</button>
