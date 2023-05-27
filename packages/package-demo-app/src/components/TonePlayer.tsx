@@ -7,7 +7,7 @@ import { DurationControl } from "./DurationControl"
 
 export const TonePlayer = () => {
     const [soundDeck] = useState(new SoundDeck())
-    const [radioNamePrefix] = useState(Math.floor(Math.random()*10^8))
+    const [radioNamePrefix] = useState(Math.floor(Math.random()*(10**8)))
     const [tone, setTone] = useState<SoundControl | null>(null)
     const [frequency, setFrequency] = useState(500)
     const [endFrequency, setEndFrequency] = useState(600)
