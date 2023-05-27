@@ -7,6 +7,7 @@ import { DurationControl } from "./DurationControl"
 
 export const TonePlayer = () => {
     const [soundDeck] = useState(new SoundDeck())
+    const [radioNamePrefix] = useState(Math.floor(Math.random()*10^8))
     const [tone, setTone] = useState<SoundControl | null>(null)
     const [frequency, setFrequency] = useState(500)
     const [endFrequency, setEndFrequency] = useState(600)
@@ -32,7 +33,7 @@ export const TonePlayer = () => {
             <DurationControl value={duration} change={setDuration} />
             <FrequencyRange label="start frequency" value={frequency} change={setFrequency} />
             <FrequencyRange label="end frequency" value={endFrequency} change={setEndFrequency} />
-            <ToneTypeOptions value={toneType} change={setToneType} radioName="tone-type" />
+            <ToneTypeOptions value={toneType} change={setToneType} radioName={`${radioNamePrefix}-tone-type`} />
 
             <div>
                 <button onClick={playTone} disabled={!!tone}>play tone</button>

@@ -12,6 +12,7 @@ export function App() {
     <StyledApp>
       <h1>sound-deck demo app</h1>
       <TonePlayer/>
+      <TonePlayer/>
       <NoisePlayer/>
     </StyledApp>
   );
