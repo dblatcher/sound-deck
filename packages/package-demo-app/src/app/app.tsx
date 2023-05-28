@@ -1,10 +1,10 @@
 import styled from '@emotion/styled';
 import { TonePlayer } from '../components/TonePlayer';
-import { SoundDeckContext } from '../SoundDeckContext';
 import { SoundDeck } from 'sound-deck';
 import { NoisePlayer } from '../components/NoisePlayer';
 import { MasterGain } from '../components/MasterGain';
 import { useState } from 'react';
+import { SoundDeckProvider } from '../components/SoundDeckProvider';
 
 
 const StyledApp = styled.div`
@@ -34,10 +34,11 @@ export function App() {
 
       <h2>using context to share a sound deck</h2>
       <section>
-        <SoundDeckContext.Provider value={sharedSoundDeck}>
+        <SoundDeckProvider value={sharedSoundDeck}>
           <MasterGain />
           <NoisePlayer />
-        </SoundDeckContext.Provider>
+        </SoundDeckProvider>
+
       </section>
     </StyledApp>
   );

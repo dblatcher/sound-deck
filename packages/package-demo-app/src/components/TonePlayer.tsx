@@ -1,13 +1,13 @@
 
-import { useContext, useState } from "react"
+import { useState } from "react"
 import { SoundControl } from "sound-deck"
+import { DurationControl } from "./DurationControl"
 import { FrequencyRange } from "./FrequencyRange"
 import { ToneTypeOptions } from "./ToneTypeOptions"
-import { DurationControl } from "./DurationControl"
-import { SoundDeckContext } from "../SoundDeckContext"
+import { useSoundDeck } from "./SoundDeckProvider"
 
 export const TonePlayer = () => {
-    const soundDeck = useContext(SoundDeckContext)
+    const soundDeck = useSoundDeck()
     const [radioNamePrefix] = useState(Math.floor(Math.random() * (10 ** 8)))
     const [tone, setTone] = useState<SoundControl | null>(null)
     const [frequency, setFrequency] = useState(500)

@@ -1,9 +1,10 @@
 
-import { useState, useContext } from "react"
-import { SoundDeckContext } from "../SoundDeckContext"
+import { useState } from "react"
+import { useSoundDeck } from "./SoundDeckProvider"
+
 
 export const MasterGain = () => {
-    const soundDeck = useContext(SoundDeckContext)
+    const soundDeck = useSoundDeck()
     const [volume, setVolume] = useState(soundDeck.masterVolume)
     const [isMuted, setIsMuted] = useState(soundDeck.isMuted)
 
