@@ -44,7 +44,7 @@ class SoundDeck {
         this.loadAudioBuffer = this.loadAudioBuffer.bind(this)
     }
 
-    async loadAudioBuffer(src: string): Promise<AudioBuffer | null> {
+    private async loadAudioBuffer(src: string): Promise<AudioBuffer | null> {
 
         let audioBuffer: AudioBuffer;
         if (!this.audioCtx) { return null }
@@ -80,7 +80,7 @@ class SoundDeck {
         return true;
     }
 
-    playSampleWithoutContext(soundName: string, options: PlayOptions = {}): SoundControl | null {
+    private playSampleWithoutContext(soundName: string, options: PlayOptions = {}): SoundControl | null {
         const audioElement = this.audioElements.get(soundName);
         if (!audioElement) { return null }
 
@@ -123,7 +123,7 @@ class SoundDeck {
         return new SoundControl(sourceNode, gainNode);
     }
 
-    makeNoiseSourceNodeAndFilter(params: NoiseParams): [AudioBufferSourceNode, BiquadFilterNode] | [null, null] {
+    private makeNoiseSourceNodeAndFilter(params: NoiseParams): [AudioBufferSourceNode, BiquadFilterNode] | [null, null] {
         const { audioCtx } = this
         if (!audioCtx) { return [null, null] }
         const { duration = 1, frequency = 1000 } = params;
@@ -211,7 +211,7 @@ class SoundDeck {
     }
 
     get isMuted() {
-        if (!this.masterGain) { return false}
+        if (!this.masterGain) { return false }
         return this.masterGain.gain.value === 0
     }
 
@@ -231,24 +231,22 @@ class SoundDeck {
     }
 
     toggle() {
-        if (this.isEnabled === undefined) { return }
+        if (this.isEnabled === undefined) { return Promise.resolve() }
         if (this.isEnabled === false) { return this.enable() }
         if (this.isEnabled === true) { return this.disable() }
     }
 
     enable() {
-        if (!this.audioCtx) { return }
+        if (!this.audioCtx) { return Promise.resolve() }
         return this.audioCtx.resume();
     }
 
     disable() {
-        if (!this.audioCtx) { return }
-
+        if (!this.audioCtx) { return Promise.resolve() }
         this.audioElements.forEach(element => {
             element.pause()
             element.currentTime = 0
         })
-
         return this.audioCtx.suspend();
     }
 
