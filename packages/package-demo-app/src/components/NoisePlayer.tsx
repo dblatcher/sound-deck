@@ -1,11 +1,12 @@
 
-import { useState } from "react"
-import { SoundControl, SoundDeck } from "sound-deck"
+import { useState, useContext} from "react"
+import { SoundControl } from "sound-deck"
 import { FrequencyRange } from "./FrequencyRange"
 import { DurationControl } from "./DurationControl"
+import { SoundDeckContext } from "../SoundDeckContext"
 
 export const NoisePlayer = () => {
-    const [soundDeck] = useState(new SoundDeck())
+    const soundDeck = useContext(SoundDeckContext)
     const [noise, setNoise] = useState<SoundControl | null>(null)
     const [frequency, setFrequency] = useState(500)
     const [duration, setDuration] = useState(2)
@@ -25,7 +26,7 @@ export const NoisePlayer = () => {
 
     return (
         <div>
-            <h2>NoisePlayer</h2>
+            <h3>NoisePlayer</h3>
             <DurationControl value={duration} change={setDuration} />
             <FrequencyRange label="start frequency" value={frequency} change={setFrequency} />
             <div>

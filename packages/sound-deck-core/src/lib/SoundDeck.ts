@@ -210,6 +210,11 @@ class SoundDeck {
         this.masterGain.gain.value = this.volumeWhenNotMute;
     }
 
+    get isMuted() {
+        if (!this.masterGain) { return false}
+        return this.masterGain.gain.value === 0
+    }
+
     get masterVolume() {
         if (!this.masterGain) { return 0 }
         return this.masterGain.gain.value
@@ -219,6 +224,10 @@ class SoundDeck {
         if (!this.masterGain) { return }
         this.masterGain.gain.value = value;
         this.volumeWhenNotMute = value;
+    }
+
+    get masterVolumnIfNotMuted() {
+        return this.volumeWhenNotMute
     }
 
     toggle() {
