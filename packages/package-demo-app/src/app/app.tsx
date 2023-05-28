@@ -3,8 +3,9 @@ import { TonePlayer } from '../components/TonePlayer';
 import { SoundDeck } from 'sound-deck';
 import { NoisePlayer } from '../components/NoisePlayer';
 import { MasterGain } from '../components/MasterGain';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { SoundDeckProvider } from '../components/SoundDeckProvider';
+import { SamplePlayer } from '../components/SamplePlayer';
 
 
 const StyledApp = styled.div`
@@ -37,8 +38,8 @@ export function App() {
         <SoundDeckProvider value={sharedSoundDeck}>
           <MasterGain />
           <NoisePlayer />
+          <SamplePlayer src='/assets/beep.mp3' />
         </SoundDeckProvider>
-
       </section>
     </StyledApp>
   );
