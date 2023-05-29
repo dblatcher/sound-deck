@@ -1,25 +1,25 @@
 import { SoundControl } from "./SoundControl"
 
 
-interface PlayOptions {
+export interface PlayOptions {
     volume?: number
     loop?: boolean
 }
 
-interface ToneParams {
+export interface ToneParams {
     frequency?: number
     endFrequency?: number
     type?: OscillatorType
     duration?: number
 }
 
-interface NoiseParams {
+export interface NoiseParams {
     duration?: number
     frequency?: number
 }
 
 
-class SoundDeck {
+export class SoundDeck {
 
     audioCtx: AudioContext | undefined
     protected masterGain: GainNode | null
@@ -251,6 +251,3 @@ class SoundDeck {
     }
 
 }
-
-export type { ToneParams, NoiseParams, PlayOptions }
-export { SoundDeck }

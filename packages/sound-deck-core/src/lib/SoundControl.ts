@@ -3,7 +3,7 @@ type SourceWithLoop = AudioBufferSourceNode | HTMLAudioElement;
 
 
 
-class SoundControl {
+export class SoundControl {
     sourceNode: Readonly<SupportedAudioNode | HTMLAudioElement>
     gainNode?: Readonly<GainNode>
     whenEnded: Promise<SoundControl>
@@ -51,5 +51,3 @@ class SoundControl {
         return (this.sourceNode as SourceWithLoop).loop
     }
 }
-
-export { SoundControl }

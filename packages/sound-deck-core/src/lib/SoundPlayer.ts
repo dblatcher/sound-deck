@@ -6,7 +6,7 @@ interface PlayOptions {
     volume?: number
 }
 
-interface ToneConfigInput {
+export interface ToneConfigInput {
     frequency?: number
     endFrequency?: number
     duration?: number
@@ -14,7 +14,7 @@ interface ToneConfigInput {
     volume?: number
 }
 
-class ToneConfig implements ToneConfigInput {
+export class ToneConfig implements ToneConfigInput {
     frequency: number
     endFrequency: number
     duration: number
@@ -30,7 +30,7 @@ class ToneConfig implements ToneConfigInput {
     }
 }
 
-class SoundPlayer {
+export class SoundPlayer {
 
     audioElements: Map<string, HTMLAudioElement>
     sources: Map<string, MediaElementAudioSourceNode>
@@ -183,5 +183,3 @@ class SoundPlayer {
     }
 
 }
-
-export { SoundPlayer, ToneConfigInput, ToneConfig }
