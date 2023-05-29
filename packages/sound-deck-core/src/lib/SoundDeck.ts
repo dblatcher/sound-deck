@@ -18,7 +18,12 @@ export interface NoiseParams {
     frequency?: number
 }
 
-
+/**
+ * A class that presents a convenient API for producing sounds.
+ * 
+ * Uses the AudioContext interface. Some features have a fallback to
+ * work in envirornements where the AudioContext is not available.
+ */
 export class SoundDeck {
 
     audioCtx: AudioContext | undefined
@@ -27,6 +32,18 @@ export class SoundDeck {
     audioElements: Map<string, HTMLAudioElement>
     sampleBuffers: Map<string, AudioBuffer>
 
+    /** 
+     * Note that the AudioContext for the SoundDeck may start in a 'suspended' state 
+     * depening on the policy of the browser.
+     * 
+     * E.G. on chrome, an AudioContext cannot resume before the user has interacted with the document.
+     * https://developer.chrome.com/blog/autoplay/
+     * 
+     * It may be necessary to call `SoundDeck.enable` to resume the AudioContext 
+     * before sounds can be played. You **can** do this by attaching event listeners to the document
+     * to enable sound as soon as the user interacts in a relevant way, **but** it may be better to
+     * add an explicit "enable sound" button so the user can decide it they want sound or not.
+    */
     constructor() {
         this.audioCtx = AudioContext ? new AudioContext() : undefined;
         this.audioElements = new Map();
@@ -61,7 +78,18 @@ export class SoundDeck {
         return audioBuffer
     }
 
-    async defineSampleBuffer(name: string, src: string): Promise<boolean> {
+    /**
+     * Loads an audio file and assigns it a name, making it available to be
+     * played by the `SoundDeck`.
+     * 
+     * Returns a promise resolving to whether the sample creation was successful
+     */
+    async defineSampleBuffer(
+        /** the name used to access to sample in calls to `playSample` */
+        name: string,
+        /** the URL of the audio file to be loaded*/
+        src: string
+    ): Promise<boolean> {
 
         const { loadAudioBuffer, audioElements, sampleBuffers, audioCtx } = this
 
@@ -96,7 +124,21 @@ export class SoundDeck {
         return new SoundControl(audioElement)
     }
 
-    playSample(soundName: string, options: PlayOptions = {}): SoundControl | null {
+    /**
+     * Play a sample previously loaded into the SoundDeck.
+     * 
+     * Returns a `SoundControl` representing the playing of the sample or null if the 
+     * command fails.
+     * 
+     * If used in an enviroment without the AudioContext, the sample can play, but the function
+     * will return null.
+     */
+    playSample(
+        /** the name assigned to sample in a prior call to `defineSampleBuffer`*/
+        soundName: string,
+        /** the options for this particular playing of the sample. */
+        options: PlayOptions = {}
+    ): SoundControl | null {
 
         const { audioCtx, sampleBuffers, masterGain } = this
 
@@ -147,7 +189,18 @@ export class SoundDeck {
         return [noiseNode, bandpass]
     }
 
-    playNoise(params: NoiseParams = {}, options: PlayOptions = {}): SoundControl | null {
+    /**
+     * Produce a randomly generated noise with the given parameters.
+     * 
+     * Returns a `SoundControl` representing the noise or null if the 
+     * command fails
+     */
+    playNoise(
+        /**the paramters describing the noise to produce */
+        params: NoiseParams = {},
+        /** the options for playing the noise*/
+        options: PlayOptions = {}
+    ): SoundControl | null {
         const { audioCtx, masterGain } = this
         if (!audioCtx || !masterGain) { return null }
 
@@ -165,7 +218,18 @@ export class SoundDeck {
         return new SoundControl(noiseNode, gainNode);
     }
 
-    playTone(params: ToneParams, options: PlayOptions = {}): SoundControl | null {
+    /**
+     * Produce a tone with the given parameters.
+     * 
+     * Returns a `SoundControl` representing the tone or null if the 
+     * command fails
+     */
+    playTone(
+        /**the paramters describing the tone to produce */
+        params: ToneParams,
+        /** the options for playing the tone*/
+        options: PlayOptions = {}
+    ): SoundControl | null {
         const { audioCtx, masterGain } = this
 
         if (!audioCtx || !masterGain) { return null }
@@ -199,12 +263,14 @@ export class SoundDeck {
         return this.audioCtx.state == 'running';
     }
 
+    /**Set the masterGain for the SoundDeck to 0. */
     mute() {
         if (!this.masterGain) { return }
         this.volumeWhenNotMute = this.masterGain.gain.value;
         this.masterGain.gain.value = 0;
     }
 
+    /**Restore the masterGain for the SoundDeck the value is was before the call to mute. */
     unmute() {
         if (!this.masterGain) { return }
         this.masterGain.gain.value = this.volumeWhenNotMute;
@@ -230,17 +296,25 @@ export class SoundDeck {
         return this.volumeWhenNotMute
     }
 
+    /** Toggle the SoundDeck between 'enabled' and 'disabled'. */
     toggle() {
         if (this.isEnabled === undefined) { return Promise.resolve() }
         if (this.isEnabled === false) { return this.enable() }
         if (this.isEnabled === true) { return this.disable() }
     }
 
+    /** 
+     * Resume the SoundDeck's audio context, allowing any sounds to be produced.
+     */
     enable() {
         if (!this.audioCtx) { return Promise.resolve() }
         return this.audioCtx.resume();
     }
 
+    /** 
+     * Suspend the SoundDeck's audio context, preventing any sounds being produced until it 
+     * is resumed with the `enable` or `toggle`
+     */
     disable() {
         if (!this.audioCtx) { return Promise.resolve() }
         this.audioElements.forEach(element => {
