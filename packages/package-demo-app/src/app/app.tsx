@@ -7,6 +7,7 @@ import { useEffect, useState } from 'react';
 import { AutoEnableSoundDeckProvider, SoundDeckProvider } from '../components/SoundDeckProvider';
 import { SamplePlayer } from '../components/SamplePlayer';
 import { EnableToggle } from '../components/EnableToggle';
+import { NotePlayer } from '../components/NotePlayer';
 
 
 const StyledApp = styled.div`
@@ -56,6 +57,10 @@ export function App() {
           <TonePlayer />
           <SamplePlayer src='/assets/beep.mp3' />
           <SamplePlayer src='/assets/beep.mp3' attemptAutoEnable/>
+
+          <NotePlayer octive={5} note='C'/>
+          <NotePlayer octive={5} note='E'/>
+          <NotePlayer octive={5} note='G'/>
         </AutoEnableSoundDeckProvider>
       </section>
     </StyledApp>
