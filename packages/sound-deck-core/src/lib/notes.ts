@@ -53,4 +53,18 @@ export class PitchedNote {
         }
         return new PitchedNote(newNote, newOctiveNumber)
     }
+
+    static majorTriad(note: Note, octive: Octive = 4): PitchedNote[] {
+        const tonic = new PitchedNote(note, octive)
+        const third = tonic.transpose(4)
+        const fifth = third?.transpose(3)
+        return [tonic,third,fifth].filter(note => !!note) as PitchedNote[]
+    }
+
+    static minorTriad(note: Note, octive: Octive = 4): PitchedNote[] {
+        const tonic = new PitchedNote(note, octive)
+        const third = tonic.transpose(3)
+        const fifth = third?.transpose(4)
+        return [tonic,third,fifth].filter(note => !!note) as PitchedNote[]
+    }
 }

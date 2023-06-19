@@ -9,23 +9,37 @@ interface Props {
     octive: Octive
 }
 
-export const NotePlayer = ({note, octive}:Props) => {
+export const NotePlayer = ({ note, octive }: Props) => {
     const soundDeck = useSoundDeck()
     const [radioNamePrefix] = useState(Math.floor(Math.random() * (10 ** 8)))
-    const [tone, setTone] = useState<SoundControl | null>(null)
     const [toneType, setToneType] = useState<OscillatorType>('sawtooth')
+    const [chordTones, setChordTones] = useState<(SoundControl | null)[]>([])
+    const pitchedNote = new PitchedNote(note, octive)
 
-    const pitchedNote = new PitchedNote(note,octive)
-
-    const playTone = () => {
-        if (tone) {
+    const playChord = (type: 'single' | 'major' | 'minor') => {
+        if (chordTones.length !== 0) {
             return
         }
-        const newTone = soundDeck.playTone({ frequency:pitchedNote.pitch, duration:.5, type: toneType })
-        setTone(newTone)
-        if (newTone) {
-            newTone.whenEnded.then(() => {
-                setTone(null)
+
+        const chord = []
+        switch (type) {
+            case "single":
+                chord.push(new PitchedNote(note, octive))
+                break
+            case "major":
+                chord.push(...PitchedNote.majorTriad(note, octive))
+                break
+            case "minor":
+                chord.push(...PitchedNote.minorTriad(note, octive))
+                break
+        }
+
+        const tones = chord.map(note => soundDeck.playTone({ frequency: note.pitch, duration: .5, type: toneType }))
+        setChordTones(tones)
+        const [firstTone] = tones
+        if (firstTone) {
+            firstTone.whenEnded.then(() => {
+                setChordTones([])
             })
         }
     }
@@ -33,13 +47,15 @@ export const NotePlayer = ({note, octive}:Props) => {
     return (
         <div>
             <h3>NotePlayer: {pitchedNote.name}</h3>
-
             <ToneTypeOptions value={toneType} change={setToneType} radioName={`${radioNamePrefix}-tone-type`} />
-
             <div>
-                <button onClick={playTone} disabled={!!tone}>play {pitchedNote.name}</button>
-                {tone && (
-                    <span>tone is playing</span>
+                <button onClick={() => playChord('single')} disabled={!!chordTones.length}>play {pitchedNote.name}</button>
+                <button onClick={() => playChord('major')} disabled={!!chordTones.length}>play {pitchedNote.name} major</button>
+                <button onClick={() => playChord('minor')} disabled={!!chordTones.length}>play {pitchedNote.name} minor</button>
+            </div>
+            <div>
+                {chordTones.length > 0 && (
+                    <span>playing</span>
                 )}
             </div>
         </div >
