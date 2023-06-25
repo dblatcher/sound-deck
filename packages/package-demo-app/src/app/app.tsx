@@ -3,7 +3,7 @@ import { TonePlayer } from '../components/TonePlayer';
 import { SoundDeck } from 'sound-deck';
 import { NoisePlayer } from '../components/NoisePlayer';
 import { MasterGain } from '../components/MasterGain';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { AutoEnableSoundDeckProvider, SoundDeckProvider } from '../components/SoundDeckProvider';
 import { SamplePlayer } from '../components/SamplePlayer';
 import { EnableToggle } from '../components/EnableToggle';
@@ -16,6 +16,7 @@ const StyledApp = styled.div`
    padding : .5rem;
    border: 1px solid black;
    display:flex;
+   flex-wrap: wrap;
    > div {
     margin-right: 2rem;
    }
@@ -44,7 +45,7 @@ export function App() {
           <NoisePlayer />
           <TonePlayer />
           <SamplePlayer src='/assets/beep.mp3' />
-          <SamplePlayer src='/assets/beep.mp3' attemptAutoEnable/>
+          <SamplePlayer src='/assets/beep.mp3' attemptAutoEnable />
         </SoundDeckProvider>
       </section>
 
@@ -56,11 +57,11 @@ export function App() {
           <NoisePlayer />
           <TonePlayer />
           <SamplePlayer src='/assets/beep.mp3' />
-          <SamplePlayer src='/assets/beep.mp3' attemptAutoEnable/>
+          <SamplePlayer src='/assets/beep.mp3' attemptAutoEnable />
 
-          <NotePlayer octive={5} note='C'/>
-          <NotePlayer octive={5} note='E'/>
-          <NotePlayer octive={5} note='G'/>
+          <NotePlayer octive={5} note='C' />
+          <NotePlayer octive={5} note='E' />
+          <NotePlayer octive={5} note='G' />
         </AutoEnableSoundDeckProvider>
       </section>
     </StyledApp>

@@ -27,10 +27,10 @@ export const NotePlayer = ({ note, octive }: Props) => {
                 chord.push(new PitchedNote(note, octive))
                 break
             case "major":
-                chord.push(...PitchedNote.majorTriad(note, octive))
+                chord.push(...new PitchedNote(note, octive).majorTriad)
                 break
             case "minor":
-                chord.push(...PitchedNote.minorTriad(note, octive))
+                chord.push(... new PitchedNote(note, octive).minorTriad)
                 break
         }
 
@@ -49,9 +49,21 @@ export const NotePlayer = ({ note, octive }: Props) => {
             <h3>NotePlayer: {pitchedNote.name}</h3>
             <ToneTypeOptions value={toneType} change={setToneType} radioName={`${radioNamePrefix}-tone-type`} />
             <div>
-                <button onClick={() => playChord('single')} disabled={!!chordTones.length}>play {pitchedNote.name}</button>
-                <button onClick={() => playChord('major')} disabled={!!chordTones.length}>play {pitchedNote.name} major</button>
-                <button onClick={() => playChord('minor')} disabled={!!chordTones.length}>play {pitchedNote.name} minor</button>
+                <button style={{ display: 'block' }}
+                    onClick={() => playChord('single')}
+                    disabled={!!chordTones.length}>
+                    play {pitchedNote.name}
+                </button>
+                <button style={{ display: 'block' }}
+                    onClick={() => playChord('major')}
+                    disabled={!!chordTones.length}>
+                    play {pitchedNote.name} major
+                </button>
+                <button style={{ display: 'block' }}
+                    onClick={() => playChord('minor')}
+                    disabled={!!chordTones.length}>
+                    play {pitchedNote.name} minor
+                </button>
             </div>
             <div>
                 {chordTones.length > 0 && (
