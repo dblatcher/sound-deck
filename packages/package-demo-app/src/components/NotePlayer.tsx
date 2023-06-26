@@ -1,6 +1,6 @@
 
 import { useState } from "react"
-import { Note, Octive, PitchedNote, SoundControl } from "sound-deck"
+import { Note, Octive, PitchedNote, SoundControl, makeOrganWave } from "sound-deck"
 import { ToneTypeOptions } from "./ToneTypeOptions"
 import { useSoundDeck } from "./SoundDeckProvider"
 
@@ -34,7 +34,14 @@ export const NotePlayer = ({ note, octive }: Props) => {
                 break
         }
 
-        const tones = chord.map(note => soundDeck.playTone({ frequency: note.pitch, duration: .5, type: toneType }))
+        const customWaveform = (toneType === 'custom' && soundDeck.audioCtx) ? makeOrganWave(soundDeck.audioCtx) : undefined
+
+        const tones = chord.map(note => soundDeck.playTone({
+            frequency: note.pitch,
+            duration: .5,
+            type: toneType === 'custom' ? undefined : toneType,
+            periodicWave: customWaveform
+        }))
         setChordTones(tones)
         const [firstTone] = tones
         if (firstTone) {

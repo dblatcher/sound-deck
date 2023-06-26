@@ -1,6 +1,6 @@
 
 import { useState } from "react"
-import { SoundControl } from "sound-deck"
+import { SoundControl, makeOrganWave } from "sound-deck"
 import { DurationControl } from "./DurationControl"
 import { FrequencyRange } from "./FrequencyRange"
 import { ToneTypeOptions } from "./ToneTypeOptions"
@@ -19,7 +19,8 @@ export const TonePlayer = () => {
         if (tone) {
             return
         }
-        const newTone = soundDeck.playTone({ frequency, endFrequency, duration, type: toneType })
+        const customWaveform = (toneType === 'custom' && soundDeck.audioCtx) ? makeOrganWave (soundDeck.audioCtx) : undefined
+        const newTone = soundDeck.playTone({ frequency, endFrequency, duration, type: toneType, periodicWave: customWaveform })
         setTone(newTone)
         if (newTone) {
             newTone.whenEnded.then(() => {

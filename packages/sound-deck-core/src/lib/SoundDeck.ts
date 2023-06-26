@@ -11,6 +11,7 @@ export interface ToneParams {
     endFrequency?: number
     type?: OscillatorType
     duration?: number
+    periodicWave?: PeriodicWave
 }
 
 export interface NoiseParams {
@@ -235,14 +236,17 @@ export class SoundDeck {
         if (!audioCtx || !masterGain) { return null }
 
         const { loop = false, volume = 1 } = options;
-        const { frequency = 1000, type = "sine", duration = 1 } = params;
-
+        const { frequency = 1000, type = "sine", duration = 1, periodicWave } = params;
         const endFrequency = params.endFrequency || frequency;
 
         const oscillatorNode = audioCtx.createOscillator()
+        if (periodicWave) {
+            oscillatorNode.setPeriodicWave(periodicWave)
+        } else {
+            oscillatorNode.type = type === 'custom' ? 'sine' : type;
+        }
         oscillatorNode.frequency.setValueAtTime(frequency, audioCtx.currentTime);
         oscillatorNode.frequency.linearRampToValueAtTime(endFrequency, audioCtx.currentTime + duration);
-        oscillatorNode.type = type;
 
         const gainNode = audioCtx.createGain()
         gainNode.gain.setValueAtTime(volume, audioCtx.currentTime)
@@ -252,7 +256,6 @@ export class SoundDeck {
         if (!loop) {
             oscillatorNode.stop(audioCtx.currentTime + duration);
         }
-
 
         return new SoundControl(oscillatorNode, gainNode);
     }
