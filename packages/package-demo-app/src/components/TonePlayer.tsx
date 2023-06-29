@@ -1,6 +1,6 @@
 
 import { useState } from "react"
-import { SoundControl, makeOrganWave } from "sound-deck"
+import { SoundControl } from "sound-deck"
 import { DurationControl } from "./DurationControl"
 import { FrequencyRange } from "./FrequencyRange"
 import { ToneTypeOptions } from "./ToneTypeOptions"
@@ -21,9 +21,8 @@ export const TonePlayer = () => {
         if (tone) {
             return
         }
-        const customWaveform = (toneType === 'custom' && soundDeck.audioCtx) ? makeOrganWave (soundDeck.audioCtx) : undefined
 
-        const newTone = soundDeck.playTone({ frequency, endFrequency, duration, type: toneType, periodicWave: customWaveform, customWaveName:customWave })
+        const newTone = soundDeck.playTone({ frequency, endFrequency, duration, type: toneType, customWaveName:customWave })
         setTone(newTone)
         if (newTone) {
             newTone.whenEnded.then(() => {
@@ -39,7 +38,6 @@ export const TonePlayer = () => {
             <FrequencyRange label="start frequency" value={frequency} change={setFrequency} />
             <FrequencyRange label="end frequency" value={endFrequency} change={setEndFrequency} />
             <ToneTypeOptions value={toneType} change={setToneType} radioName={`${radioNamePrefix}-tone-type`} />
-
             <CustomWaveOptions value={customWave} change={setCustomWave} radioName={`${radioNamePrefix}-wave-name`} />
 
             <div>

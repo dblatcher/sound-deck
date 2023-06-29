@@ -1,10 +1,3 @@
-export const makeAirhornWave = (audioContext: AudioContext) => {
-    const real = new Float32Array([0, 0.4, 0.4, 1, 1, 1, 0.3, 0.7, 0.6, 0.5, 0.9, 0.8]);
-    const imag = new Float32Array(real.length);
-    const customWaveform = audioContext.createPeriodicWave(real, imag);
-    return customWaveform
-}
-
 const makeOrganTable = () => {
     const tables = {
         'real': [
@@ -4117,11 +4110,10 @@ const makeOrganTable = () => {
     }
     return { real, imag }
 }
+const organTable = makeOrganTable()
+const airHornReal = new Float32Array([0, 0.4, 0.4, 1, 1, 1, 0.3, 0.7, 0.6, 0.5, 0.9, 0.8])
 
-export const organTable = makeOrganTable()
-
-export const makeOrganWave = (audioContext: AudioContext) => {
-    return audioContext.createPeriodicWave(organTable.real, organTable.imag);
+export const waveTables = {
+    organ: organTable,
+    airHorn: { real: airHornReal, imag: new Float32Array(airHornReal.length) }
 }
-
-

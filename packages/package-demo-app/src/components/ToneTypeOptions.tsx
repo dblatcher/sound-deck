@@ -5,7 +5,7 @@ interface Props {
 }
 
 const ocsillatorTypes: OscillatorType[] = [
-    'sawtooth', 'sine', 'square', 'triangle', 'custom'
+    'sawtooth', 'sine', 'square', 'triangle'
 ]
 
 export const ToneTypeOptions = ({ value, change, radioName }: Props) => (
