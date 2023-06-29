@@ -5,6 +5,7 @@ import { DurationControl } from "./DurationControl"
 import { FrequencyRange } from "./FrequencyRange"
 import { ToneTypeOptions } from "./ToneTypeOptions"
 import { useSoundDeck } from "./SoundDeckProvider"
+import { CustomWaveOptions } from "./CustomWaveOptions"
 
 export const TonePlayer = () => {
     const soundDeck = useSoundDeck()
@@ -14,13 +15,15 @@ export const TonePlayer = () => {
     const [endFrequency, setEndFrequency] = useState(600)
     const [duration, setDuration] = useState(2)
     const [toneType, setToneType] = useState<OscillatorType>('sawtooth')
+    const [customWave, setCustomWave] = useState<string|undefined>(undefined)
 
     const playTone = () => {
         if (tone) {
             return
         }
         const customWaveform = (toneType === 'custom' && soundDeck.audioCtx) ? makeOrganWave (soundDeck.audioCtx) : undefined
-        const newTone = soundDeck.playTone({ frequency, endFrequency, duration, type: toneType, periodicWave: customWaveform })
+
+        const newTone = soundDeck.playTone({ frequency, endFrequency, duration, type: toneType, periodicWave: customWaveform, customWaveName:customWave })
         setTone(newTone)
         if (newTone) {
             newTone.whenEnded.then(() => {
@@ -36,6 +39,8 @@ export const TonePlayer = () => {
             <FrequencyRange label="start frequency" value={frequency} change={setFrequency} />
             <FrequencyRange label="end frequency" value={endFrequency} change={setEndFrequency} />
             <ToneTypeOptions value={toneType} change={setToneType} radioName={`${radioNamePrefix}-tone-type`} />
+
+            <CustomWaveOptions value={customWave} change={setCustomWave} radioName={`${radioNamePrefix}-wave-name`} />
 
             <div>
                 <button onClick={playTone} disabled={!!tone}>play tone</button>

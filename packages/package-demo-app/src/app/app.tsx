@@ -1,6 +1,6 @@
 import styled from '@emotion/styled';
 import { TonePlayer } from '../components/TonePlayer';
-import { SoundDeck } from 'sound-deck';
+import { SoundDeck, organTable } from 'sound-deck';
 import { NoisePlayer } from '../components/NoisePlayer';
 import { MasterGain } from '../components/MasterGain';
 import { useState } from 'react';
@@ -26,6 +26,9 @@ const StyledApp = styled.div`
 export function App() {
   const [sharedSoundDeck] = useState(new SoundDeck())
   const [sharedSoundDeck2] = useState(new SoundDeck())
+
+  sharedSoundDeck.defineCustomWaveForm('organ', organTable.real, organTable.imag)
+
   return (
     <StyledApp>
       <h1>sound-deck demo app</h1>

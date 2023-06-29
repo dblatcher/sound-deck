@@ -4118,7 +4118,7 @@ const makeOrganTable = () => {
     return { real, imag }
 }
 
-const organTable = makeOrganTable()
+export const organTable = makeOrganTable()
 
 export const makeOrganWave = (audioContext: AudioContext) => {
     return audioContext.createPeriodicWave(organTable.real, organTable.imag);

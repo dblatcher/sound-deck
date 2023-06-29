@@ -12,6 +12,7 @@ export interface ToneParams {
     type?: OscillatorType
     duration?: number
     periodicWave?: PeriodicWave
+    customWaveName?: string
 }
 
 export interface NoiseParams {
@@ -32,6 +33,7 @@ export class SoundDeck {
     protected volumeWhenNotMute: number
     audioElements: Map<string, HTMLAudioElement>
     sampleBuffers: Map<string, AudioBuffer>
+    customWaveforms: Map<string, PeriodicWave>
 
     /** 
      * Note that the AudioContext for the SoundDeck may start in a 'suspended' state 
@@ -49,6 +51,7 @@ export class SoundDeck {
         this.audioCtx = AudioContext ? new AudioContext() : undefined;
         this.audioElements = new Map();
         this.sampleBuffers = new Map();
+        this.customWaveforms = new Map();
         this.volumeWhenNotMute = 1;
 
         if (this.audioCtx) {
@@ -107,6 +110,17 @@ export class SoundDeck {
 
         sampleBuffers.set(name, audioBuffer);
         return true;
+    }
+
+    defineCustomWaveForm(name: string, real: Float32Array, imag: Float32Array): PeriodicWave | undefined {
+        const { audioCtx, customWaveforms } = this
+        if (real.length !== imag.length || !audioCtx) {
+            return undefined
+        }
+
+        const waveform = audioCtx.createPeriodicWave(real, imag)
+        customWaveforms.set(name, waveform)
+        return waveform
     }
 
     private playSampleWithoutContext(soundName: string, options: PlayOptions = {}): SoundControl | null {
@@ -231,17 +245,23 @@ export class SoundDeck {
         /** the options for playing the tone*/
         options: PlayOptions = {}
     ): SoundControl | null {
-        const { audioCtx, masterGain } = this
+        const { audioCtx, masterGain, customWaveforms } = this
 
         if (!audioCtx || !masterGain) { return null }
 
         const { loop = false, volume = 1 } = options;
-        const { frequency = 1000, type = "sine", duration = 1, periodicWave } = params;
+        const { frequency = 1000, type = "sine", duration = 1, periodicWave, customWaveName } = params;
         const endFrequency = params.endFrequency || frequency;
 
         const oscillatorNode = audioCtx.createOscillator()
+
         if (periodicWave) {
             oscillatorNode.setPeriodicWave(periodicWave)
+        } else if (customWaveName && customWaveforms.has(customWaveName)) {
+            const wave = customWaveforms.get(customWaveName)
+            if (wave) {
+                oscillatorNode.setPeriodicWave(wave)
+            }
         } else {
             oscillatorNode.type = type === 'custom' ? 'sine' : type;
         }
