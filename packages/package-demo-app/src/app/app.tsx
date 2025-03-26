@@ -63,7 +63,7 @@ export function App() {
           <SamplePlayer src='/assets/beep.mp3' />
           <SamplePlayer src='/assets/beep.mp3' attemptAutoEnable />
 
-          <NotePlayer octive={5} note='C' />
+          <NotePlayer octive={4} note='C' />
           <NotePlayer octive={5} note='E' />
           <NotePlayer octive={5} note='G' />
         </AutoEnableSoundDeckProvider>

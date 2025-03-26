@@ -9,13 +9,16 @@ export const NoisePlayer = () => {
     const soundDeck = useSoundDeck()
     const [noise, setNoise] = useState<SoundControl | null>(null)
     const [frequency, setFrequency] = useState(500)
+    const [endFrequency, setEndFrequency] = useState(500)
     const [duration, setDuration] = useState(2)
 
     const playNoise = () => {
         if (noise) {
             return
         }
-        const newNoise = soundDeck.playNoise({ frequency, duration })
+        const newNoise = soundDeck.playNoise({ frequency, duration, endFrequency }, {
+            volumePattern: []
+        },)
         setNoise(newNoise)
         if (newNoise) {
             newNoise.whenEnded.then(() => {
@@ -29,6 +32,7 @@ export const NoisePlayer = () => {
             <h3>NoisePlayer</h3>
             <DurationControl value={duration} change={setDuration} />
             <FrequencyRange label="start frequency" value={frequency} change={setFrequency} />
+            <FrequencyRange label="end frequency" value={endFrequency} change={setEndFrequency} />
             <div>
                 <button onClick={playNoise} disabled={!!noise}>play noise</button>
                 {noise && (

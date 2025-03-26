@@ -12,17 +12,22 @@ export const TonePlayer = () => {
     const [radioNamePrefix] = useState(Math.floor(Math.random() * (10 ** 8)))
     const [tone, setTone] = useState<SoundControl | null>(null)
     const [frequency, setFrequency] = useState(500)
-    const [endFrequency, setEndFrequency] = useState(600)
-    const [duration, setDuration] = useState(2)
+    const [endFrequency, setEndFrequency] = useState(500)
+    const [duration, setDuration] = useState(4)
     const [toneType, setToneType] = useState<OscillatorType>('sawtooth')
-    const [customWave, setCustomWave] = useState<string|undefined>(undefined)
+    const [customWave, setCustomWave] = useState<string | undefined>(undefined)
 
     const playTone = () => {
         if (tone) {
             return
         }
 
-        const newTone = soundDeck.playTone({ frequency, endFrequency, duration, type: toneType, customWaveName:customWave })
+        const newTone = soundDeck.playTone(
+            { frequency, endFrequency, duration, type: toneType, customWaveName: customWave },
+            {
+                volumePattern: []
+            },
+        )
         setTone(newTone)
         if (newTone) {
             newTone.whenEnded.then(() => {

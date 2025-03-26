@@ -34,11 +34,22 @@ export const NotePlayer = ({ note, octive }: Props) => {
                 break
         }
 
-        const tones = chord.map(note => soundDeck.playTone({
-            frequency: note.pitch,
-            duration: .5,
-            type: toneType === 'custom' ? undefined : toneType,
-        }))
+        const tones = chord.map(note => soundDeck.playTone(
+            {
+                frequency: note.pitch,
+                duration: 1,
+                type: toneType === 'custom' ? undefined : toneType,
+            },
+            {
+                volumePattern: [
+                    [0, .1],
+                    [.2, .5],
+                    [.3, 1],
+                    [.4, .5],
+                    [1, 0]
+                ]
+            }
+        ))
         setChordTones(tones)
         const [firstTone] = tones
         if (firstTone) {
