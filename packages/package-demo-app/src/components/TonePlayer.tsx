@@ -1,11 +1,12 @@
 
 import { useState } from "react"
-import { SoundControl } from "sound-deck"
+import { PlayPattern, SoundControl } from "sound-deck"
 import { DurationControl } from "./DurationControl"
 import { FrequencyRange } from "./FrequencyRange"
 import { ToneTypeOptions } from "./ToneTypeOptions"
 import { useSoundDeck } from "./SoundDeckProvider"
 import { CustomWaveOptions } from "./CustomWaveOptions"
+import { PlayPatternControl } from "./PlayPatternControl"
 
 export const TonePlayer = () => {
     const soundDeck = useSoundDeck()
@@ -16,6 +17,7 @@ export const TonePlayer = () => {
     const [duration, setDuration] = useState(1)
     const [toneType, setToneType] = useState<OscillatorType>('sawtooth')
     const [customWave, setCustomWave] = useState<string | undefined>(undefined)
+    const [playPattern, setPlayPattern] = useState<PlayPattern>([])
 
     const playTone = () => {
         if (tone) {
@@ -29,7 +31,7 @@ export const TonePlayer = () => {
                 duration, 
                 type: toneType, 
                 customWaveName: customWave,
-                playPattern: []
+                playPattern,
             },
         )
         setTone(newTone)
@@ -48,6 +50,7 @@ export const TonePlayer = () => {
             <FrequencyRange label="end frequency" value={endFrequency} change={setEndFrequency} />
             <ToneTypeOptions value={toneType} change={setToneType} radioName={`${radioNamePrefix}-tone-type`} />
             <CustomWaveOptions value={customWave} change={setCustomWave} radioName={`${radioNamePrefix}-wave-name`} />
+            <PlayPatternControl pattern={playPattern} setPattern={setPlayPattern} />
 
             <div>
                 <button onClick={playTone} disabled={!!tone}>play tone</button>

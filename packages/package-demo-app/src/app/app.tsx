@@ -21,6 +21,15 @@ const StyledApp = styled.div`
     margin-right: 2rem;
    }
   }
+
+  fieldset {
+    > ul {
+      margin: 0;
+      list-style: none;
+      padding-inline-start: 10px;
+    }
+  }
+
 `;
 
 export function App() {

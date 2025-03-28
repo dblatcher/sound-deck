@@ -1,13 +1,15 @@
 
-type PlayPatternStep = {
+export type PlayPatternStep = {
     time: number,
     vol: number
 }
 
+export type PlayPattern = PlayPatternStep[] 
+
 export type PlayOptions = {
     volume?: number
     loop?: boolean
-    playPattern?: PlayPatternStep[]
+    playPattern?: PlayPattern
 }
 
 export type NoiseConfig = PlayOptions & {

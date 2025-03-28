@@ -151,7 +151,7 @@ export class SoundDeck {
         const sourceNode = audioCtx.createBufferSource();
         sourceNode.buffer = audioBuffer ?? null;
 
-        const gainNode = this.makeGainWithOptions(audioCtx, audioBuffer.duration, options)
+        const gainNode = this.makeGainWithPattern(audioCtx, audioBuffer.duration, options)
         sourceNode.loop = options.loop ?? false;
 
         sourceNode.connect(gainNode).connect(masterGain)
@@ -184,19 +184,19 @@ export class SoundDeck {
         return [noiseNode, bandpass]
     }
 
-    private makeGainWithOptions(audioCtx: AudioContext, duration: number, { volume = 1, playPattern = [] }: PlayOptions) {
+    private makeGainWithPattern(audioCtx: AudioContext, duration: number, { volume = 1, playPattern = [] }: PlayOptions) {
         const gainNode = audioCtx.createGain()
         gainNode.gain.setValueAtTime(volume, audioCtx.currentTime)
-        playPattern.forEach(({time: relTime, vol}) => {
-            if (relTime < 0 || relTime > 1) {
+        playPattern.forEach(({time: time, vol}) => {
+            if (time < 0 || time > 1) {
                 return
             }
             if (vol <= 0) {
                 vol = 0.0001
             }
-            const time = audioCtx.currentTime + (relTime * (duration ?? 1))
+            const timeAt = audioCtx.currentTime + (time * (duration ?? 1))
             const adjustedVolume = vol * volume
-            gainNode.gain.exponentialRampToValueAtTime(adjustedVolume, time)
+            gainNode.gain.exponentialRampToValueAtTime(adjustedVolume, timeAt)
         })
         return gainNode
     }
@@ -216,7 +216,7 @@ export class SoundDeck {
         const [noiseNode, bandpass] = this.makeNoiseSourceNodeAndFilter(config)
         if (!noiseNode || !bandpass) { return null }
 
-        const gainNode = this.makeGainWithOptions(audioCtx, config.duration ?? 1, config)
+        const gainNode = this.makeGainWithPattern(audioCtx, config.duration ?? 1, config)
         noiseNode.connect(bandpass).connect(gainNode).connect(masterGain);
         noiseNode.loop = config.loop ?? false;
         noiseNode.start(0);
@@ -253,7 +253,7 @@ export class SoundDeck {
         oscillatorNode.frequency.setValueAtTime(frequency, audioCtx.currentTime);
         oscillatorNode.frequency.linearRampToValueAtTime(endFrequency, audioCtx.currentTime + duration);
 
-        const gainNode = this.makeGainWithOptions(audioCtx, config.duration ?? 1, config)
+        const gainNode = this.makeGainWithPattern(audioCtx, config.duration ?? 1, config)
 
         oscillatorNode.connect(gainNode).connect(masterGain);
         oscillatorNode.start();
