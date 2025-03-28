@@ -1,19 +1,21 @@
 import { SoundControl } from "./SoundControl"
 
 
-export interface PlayOptions {
+type PlayOptions = {
     volume?: number
     loop?: boolean
     volumePattern?: [number, number][]
 }
 
-export interface NoiseParams {
+
+export type NoiseConfig = PlayOptions & {
     duration?: number
     frequency?: number
     endFrequency?: number
 }
 
-export type ToneParams = NoiseParams & {
+
+export type ToneConfig = NoiseConfig & {
     type?: OscillatorType
     periodicWave?: PeriodicWave
     customWaveName?: string
@@ -163,27 +165,24 @@ export class SoundDeck {
         }
 
         if (this.isEnabled === false) { return null }
-        if (!sampleBuffers.has(soundName)) { return null }
 
         const audioBuffer = sampleBuffers.get(soundName);
-        const gainNode = audioCtx.createGain()
+        if (!audioBuffer) { return null }
         const sourceNode = audioCtx.createBufferSource();
         sourceNode.buffer = audioBuffer ?? null;
 
-        const { loop = false, volume = 1 } = options;
-
-        gainNode.gain.value = volume;
-        sourceNode.loop = loop
+        const gainNode = this.makeGainWithOptions(audioCtx, audioBuffer.duration, options)
+        sourceNode.loop = options.loop ?? false;
 
         sourceNode.connect(gainNode).connect(masterGain)
         sourceNode.start()
         return new SoundControl(sourceNode, gainNode);
     }
 
-    private makeNoiseSourceNodeAndFilter(params: NoiseParams): [AudioBufferSourceNode, BiquadFilterNode] | [null, null] {
+    private makeNoiseSourceNodeAndFilter(config: NoiseConfig): [AudioBufferSourceNode, BiquadFilterNode] | [null, null] {
         const { audioCtx } = this
         if (!audioCtx) { return [null, null] }
-        const { duration = 1, frequency = 1000, endFrequency = frequency } = params;
+        const { duration = 1, frequency = 1000, endFrequency = frequency } = config;
         const bufferSize = audioCtx.sampleRate * duration; // set the time of the note
         const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate); // create an empty buffer
         const data = buffer.getChannelData(0); // get data
@@ -229,20 +228,17 @@ export class SoundDeck {
      * command fails
      */
     playNoise(
-        /**the paramters describing the noise to produce */
-        params: NoiseParams = {},
-        /** the options for playing the noise*/
-        options: PlayOptions = {}
+        config: NoiseConfig = {},
     ): SoundControl | null {
         const { audioCtx, masterGain } = this
         if (!audioCtx || !masterGain) { return null }
 
-        const [noiseNode, bandpass] = this.makeNoiseSourceNodeAndFilter(params)
+        const [noiseNode, bandpass] = this.makeNoiseSourceNodeAndFilter(config)
         if (!noiseNode || !bandpass) { return null }
 
-        const gainNode = this.makeGainWithOptions(audioCtx, params.duration ?? 1, options)
+        const gainNode = this.makeGainWithOptions(audioCtx, config.duration ?? 1, config)
         noiseNode.connect(bandpass).connect(gainNode).connect(masterGain);
-        noiseNode.loop = options.loop ?? false;
+        noiseNode.loop = config.loop ?? false;
         noiseNode.start(0);
         return new SoundControl(noiseNode, gainNode);
     }
@@ -254,16 +250,13 @@ export class SoundDeck {
      * command fails
      */
     playTone(
-        /**the paramters describing the tone to produce */
-        params: ToneParams,
-        /** the options for playing the tone*/
-        options: PlayOptions = {}
+        config: ToneConfig
     ): SoundControl | null {
         const { audioCtx, masterGain, customWaveforms } = this
         if (!audioCtx || !masterGain) { return null }
 
-        const { frequency = 1000, type = "sine", duration = 1, periodicWave, customWaveName } = params;
-        const endFrequency = params.endFrequency || frequency;
+        const { frequency = 1000, type = "sine", duration = 1, periodicWave, customWaveName } = config;
+        const endFrequency = config.endFrequency || frequency;
 
         const oscillatorNode = audioCtx.createOscillator()
 
@@ -280,11 +273,11 @@ export class SoundDeck {
         oscillatorNode.frequency.setValueAtTime(frequency, audioCtx.currentTime);
         oscillatorNode.frequency.linearRampToValueAtTime(endFrequency, audioCtx.currentTime + duration);
 
-        const gainNode = this.makeGainWithOptions(audioCtx, params.duration ?? 1, options)
+        const gainNode = this.makeGainWithOptions(audioCtx, config.duration ?? 1, config)
 
         oscillatorNode.connect(gainNode).connect(masterGain);
         oscillatorNode.start();
-        if (!options.loop) {
+        if (!config.loop) {
             oscillatorNode.stop(audioCtx.currentTime + duration);
         }
 

@@ -37,13 +37,11 @@ export const NotePlayer = ({ note, octive }: Props) => {
         const tones = chord.map(note => soundDeck.playTone(
             {
                 frequency: note.pitch,
-                duration: 1,
+                duration: .5,
                 type: toneType === 'custom' ? undefined : toneType,
-            },
-            {
                 volumePattern: [
                     [0, .1],
-                    [.2, .5],
+                    [.2, 1],
                     [.3, 1],
                     [.4, .5],
                     [1, 0]

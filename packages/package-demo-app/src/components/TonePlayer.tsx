@@ -13,7 +13,7 @@ export const TonePlayer = () => {
     const [tone, setTone] = useState<SoundControl | null>(null)
     const [frequency, setFrequency] = useState(500)
     const [endFrequency, setEndFrequency] = useState(500)
-    const [duration, setDuration] = useState(4)
+    const [duration, setDuration] = useState(1)
     const [toneType, setToneType] = useState<OscillatorType>('sawtooth')
     const [customWave, setCustomWave] = useState<string | undefined>(undefined)
 
@@ -23,8 +23,12 @@ export const TonePlayer = () => {
         }
 
         const newTone = soundDeck.playTone(
-            { frequency, endFrequency, duration, type: toneType, customWaveName: customWave },
             {
+                frequency, 
+                endFrequency, 
+                duration, 
+                type: toneType, 
+                customWaveName: customWave,
                 volumePattern: []
             },
         )

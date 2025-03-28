@@ -49,6 +49,7 @@ export function App() {
           <NoisePlayer />
           <TonePlayer />
           <SamplePlayer src='/assets/beep.mp3' />
+          <SamplePlayer src='/assets/birds-short.mp3' />
           <SamplePlayer src='/assets/beep.mp3' attemptAutoEnable />
         </SoundDeckProvider>
       </section>

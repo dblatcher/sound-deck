@@ -30,8 +30,7 @@ const mySoundDeck = new SoundDeck();
 
 console.log('starting 5 second tone');
 const tone = mySoundDeck.playTone(
-  { type: 'sawtooth', frequency: 600, duration: 5 },
-  { volume: 0.5 }
+  { type: 'sawtooth', frequency: 600, duration: 5, volume: 0.5 }
 );
 
 if (tone) {
