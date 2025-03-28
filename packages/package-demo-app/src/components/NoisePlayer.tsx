@@ -16,7 +16,7 @@ export const NoisePlayer = () => {
         if (noise) {
             return
         }
-        const newNoise = soundDeck.playNoise({ frequency, duration, endFrequency, volumePattern: [] })
+        const newNoise = soundDeck.playNoise({ frequency, duration, endFrequency, playPattern: [] })
         setNoise(newNoise)
         if (newNoise) {
             newNoise.whenEnded.then(() => {

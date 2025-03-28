@@ -1,25 +1,5 @@
+import { NoiseConfig, PlayOptions, ToneConfig } from "./input-types"
 import { SoundControl } from "./SoundControl"
-
-
-type PlayOptions = {
-    volume?: number
-    loop?: boolean
-    volumePattern?: [number, number][]
-}
-
-
-export type NoiseConfig = PlayOptions & {
-    duration?: number
-    frequency?: number
-    endFrequency?: number
-}
-
-
-export type ToneConfig = NoiseConfig & {
-    type?: OscillatorType
-    periodicWave?: PeriodicWave
-    customWaveName?: string
-}
 
 
 /**
@@ -204,18 +184,18 @@ export class SoundDeck {
         return [noiseNode, bandpass]
     }
 
-    private makeGainWithOptions(audioCtx: AudioContext, duration: number, { volume = 1, volumePattern = [] }: PlayOptions) {
+    private makeGainWithOptions(audioCtx: AudioContext, duration: number, { volume = 1, playPattern = [] }: PlayOptions) {
         const gainNode = audioCtx.createGain()
         gainNode.gain.setValueAtTime(volume, audioCtx.currentTime)
-        volumePattern.forEach(([durationPart, volumePart]) => {
-            if (durationPart < 0 || durationPart > 1) {
+        playPattern.forEach(({time: relTime, vol}) => {
+            if (relTime < 0 || relTime > 1) {
                 return
             }
-            if (volumePart <= 0) {
-                volumePart = 0.0001
+            if (vol <= 0) {
+                vol = 0.0001
             }
-            const time = audioCtx.currentTime + (durationPart * (duration ?? 1))
-            const adjustedVolume = volumePart * volume
+            const time = audioCtx.currentTime + (relTime * (duration ?? 1))
+            const adjustedVolume = vol * volume
             gainNode.gain.exponentialRampToValueAtTime(adjustedVolume, time)
         })
         return gainNode

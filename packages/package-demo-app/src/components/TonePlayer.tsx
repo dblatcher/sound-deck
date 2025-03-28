@@ -29,7 +29,7 @@ export const TonePlayer = () => {
                 duration, 
                 type: toneType, 
                 customWaveName: customWave,
-                volumePattern: []
+                playPattern: []
             },
         )
         setTone(newTone)

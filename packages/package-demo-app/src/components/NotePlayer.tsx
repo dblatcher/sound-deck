@@ -3,6 +3,7 @@ import { useState } from "react"
 import { Note, Octive, PitchedNote, SoundControl } from "sound-deck"
 import { ToneTypeOptions } from "./ToneTypeOptions"
 import { useSoundDeck } from "./SoundDeckProvider"
+import { CustomWaveOptions } from "./CustomWaveOptions"
 
 interface Props {
     note: Note
@@ -14,6 +15,7 @@ export const NotePlayer = ({ note, octive }: Props) => {
     const [radioNamePrefix] = useState(Math.floor(Math.random() * (10 ** 8)))
     const [toneType, setToneType] = useState<OscillatorType>('sawtooth')
     const [chordTones, setChordTones] = useState<(SoundControl | null)[]>([])
+    const [customWave, setCustomWave] = useState<string | undefined>(undefined)
     const pitchedNote = new PitchedNote(note, octive)
 
     const playChord = (type: 'single' | 'major' | 'minor') => {
@@ -37,14 +39,14 @@ export const NotePlayer = ({ note, octive }: Props) => {
         const tones = chord.map(note => soundDeck.playTone(
             {
                 frequency: note.pitch,
-                duration: .5,
-                type: toneType === 'custom' ? undefined : toneType,
-                volumePattern: [
-                    [0, .1],
-                    [.2, 1],
-                    [.3, 1],
-                    [.4, .5],
-                    [1, 0]
+                duration: .75,
+                type: toneType,
+                customWaveName: customWave,
+                playPattern: [
+                    { time: 0, vol: .1 },
+                    { time: .2, vol: 1 },
+                    { time: .25, vol: 1 },
+                    { time: 1, vol: 0 },
                 ]
             }
         ))
@@ -61,6 +63,7 @@ export const NotePlayer = ({ note, octive }: Props) => {
         <div>
             <h3>NotePlayer: {pitchedNote.name}</h3>
             <ToneTypeOptions value={toneType} change={setToneType} radioName={`${radioNamePrefix}-tone-type`} />
+            <CustomWaveOptions value={customWave} change={setCustomWave} radioName={`${radioNamePrefix}-wave-name`} />
             <div>
                 <button style={{ display: 'block' }}
                     onClick={() => playChord('single')}

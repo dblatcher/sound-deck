@@ -51,6 +51,9 @@ export function App() {
           <SamplePlayer src='/assets/beep.mp3' />
           <SamplePlayer src='/assets/birds-short.mp3' />
           <SamplePlayer src='/assets/beep.mp3' attemptAutoEnable />
+          <NotePlayer octive={4} note='C' />
+          <NotePlayer octive={5} note='E' />
+          <NotePlayer octive={5} note='G' />
         </SoundDeckProvider>
       </section>
 
@@ -64,9 +67,7 @@ export function App() {
           <SamplePlayer src='/assets/beep.mp3' />
           <SamplePlayer src='/assets/beep.mp3' attemptAutoEnable />
 
-          <NotePlayer octive={4} note='C' />
-          <NotePlayer octive={5} note='E' />
-          <NotePlayer octive={5} note='G' />
+
         </AutoEnableSoundDeckProvider>
       </section>
     </StyledApp>
