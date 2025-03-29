@@ -2,7 +2,10 @@
   "name": "sound-deck",
   "version": "0.0.0",
   "license": "MIT",
-  "scripts": {},
+  "scripts": {
+    "dev": "nx run package-demo-app:serve:development",
+    "build": "nx build sound-deck-core"
+  },
   "private": true,
   "devDependencies": {
     "@babel/preset-react": "^7.14.5",
