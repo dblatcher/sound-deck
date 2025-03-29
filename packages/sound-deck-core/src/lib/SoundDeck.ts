@@ -1,3 +1,5 @@
+import { tone439HzDataUrl } from "./fallback-tone"
+import { fallbackWhiteNoise } from "./fallback-whitenoise"
 import { NoiseConfig, PlayOptions, ToneConfig } from "./input-types"
 import { SoundControl } from "./SoundControl"
 
@@ -16,6 +18,8 @@ export class SoundDeck {
     audioElements: Map<string, HTMLAudioElement>
     sampleBuffers: Map<string, AudioBuffer>
     customWaveforms: Map<string, PeriodicWave>
+    fallbackToneAudioElement: HTMLAudioElement
+    fallbackNoiseAudioElement: HTMLAudioElement
 
     /** 
      * Note that the AudioContext for the SoundDeck may start in a 'suspended' state 
@@ -42,6 +46,14 @@ export class SoundDeck {
         } else {
             this.masterGain = null
         }
+
+        const fallbackToneAudioElement = document.createElement('audio');
+        fallbackToneAudioElement.src = tone439HzDataUrl;
+        this.fallbackToneAudioElement = fallbackToneAudioElement
+
+        const fallbackNoiseAudioElement = document.createElement('audio');
+        fallbackNoiseAudioElement.src = fallbackWhiteNoise;
+        this.fallbackNoiseAudioElement = fallbackNoiseAudioElement;
 
         this.makeNoiseSourceNodeAndFilter = this.makeNoiseSourceNodeAndFilter.bind(this)
         this.loadAudioBuffer = this.loadAudioBuffer.bind(this)
@@ -140,8 +152,7 @@ export class SoundDeck {
         const { audioCtx, sampleBuffers, masterGain } = this
 
         if (!audioCtx || !masterGain) {
-            this.playSampleWithoutContext(soundName, options)
-            return null
+            return this.playSampleWithoutContext(soundName, options)
         }
 
         if (this.isEnabled === false) { return null }
@@ -187,7 +198,7 @@ export class SoundDeck {
     private makeGainWithPattern(audioCtx: AudioContext, duration: number, { volume = 1, playPattern = [] }: PlayOptions) {
         const gainNode = audioCtx.createGain()
         gainNode.gain.setValueAtTime(volume, audioCtx.currentTime)
-        playPattern.forEach(({time: time, vol}) => {
+        playPattern.forEach(({ time: time, vol }) => {
             if (time < 0 || time > 1) {
                 return
             }
@@ -201,6 +212,26 @@ export class SoundDeck {
         return gainNode
     }
 
+    playFallbackSample(
+        config: NoiseConfig = {},
+        type: 'noise' | 'tone'
+    ): SoundControl {
+        const audioElement = type === 'tone' ? this.fallbackToneAudioElement : this.fallbackNoiseAudioElement
+        const { volume = 1, duration = 1 } = config
+        const requiredRate = audioElement.duration / duration;
+        const rateWithinLimits = Math.max(Math.min(4, requiredRate), .5)
+        audioElement.playbackRate = rateWithinLimits
+        if (volume >= 0 && volume <= 1) { audioElement.volume = volume }
+
+        if (audioElement.paused) {
+            audioElement.play();
+        } else {
+            audioElement.currentTime = 0;
+        }
+
+        return new SoundControl(audioElement)
+    }
+
     /**
      * Produce a randomly generated noise with the given parameters.
      * 
@@ -211,7 +242,11 @@ export class SoundDeck {
         config: NoiseConfig = {},
     ): SoundControl | null {
         const { audioCtx, masterGain } = this
-        if (!audioCtx || !masterGain) { return null }
+        if (!audioCtx || !masterGain) {
+            if (!audioCtx || !masterGain) {
+                return this.playFallbackSample(config, 'noise')
+            }
+        }
 
         const [noiseNode, bandpass] = this.makeNoiseSourceNodeAndFilter(config)
         if (!noiseNode || !bandpass) { return null }
@@ -231,9 +266,11 @@ export class SoundDeck {
      */
     playTone(
         config: ToneConfig
-    ): SoundControl | null {
+    ): SoundControl {
         const { audioCtx, masterGain, customWaveforms } = this
-        if (!audioCtx || !masterGain) { return null }
+        if (!audioCtx || !masterGain) {
+            return this.playFallbackSample(config, 'tone')
+        }
 
         const { frequency = 1000, type = "sine", duration = 1, periodicWave, customWaveName } = config;
         const endFrequency = config.endFrequency || frequency;
