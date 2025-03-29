@@ -8,6 +8,7 @@ import { AutoEnableSoundDeckProvider, SoundDeckProvider } from '../components/So
 import { SamplePlayer } from '../components/SamplePlayer';
 import { EnableToggle } from '../components/EnableToggle';
 import { NotePlayer } from '../components/NotePlayer';
+import { PresetPlayer } from '../components/PresetPlayer';
 
 
 const StyledApp = styled.div`
@@ -63,6 +64,7 @@ export function App() {
           <NotePlayer octive={4} note='C' />
           <NotePlayer octive={5} note='E' />
           <NotePlayer octive={5} note='G' />
+          <PresetPlayer />
         </SoundDeckProvider>
       </section>
 

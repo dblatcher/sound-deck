@@ -5,6 +5,7 @@ import { DurationControl } from "./DurationControl"
 import { FrequencyRange } from "./FrequencyRange"
 import { useSoundDeck } from "./SoundDeckProvider"
 import { PlayPatternControl } from "./PlayPatternControl"
+import { VolumeSymbol } from "./VolumeSymbol"
 
 export const NoisePlayer = () => {
     const soundDeck = useSoundDeck()
@@ -34,7 +35,7 @@ export const NoisePlayer = () => {
 
     return (
         <div>
-            <h3>NoisePlayer</h3>
+            <h3>NoisePlayer <VolumeSymbol on={!!noise}/></h3>
             <DurationControl value={duration} change={setDuration} />
             <FrequencyRange label="start frequency" value={frequency} change={setFrequency} />
             <FrequencyRange label="end frequency" value={endFrequency} change={setEndFrequency} />
@@ -42,9 +43,6 @@ export const NoisePlayer = () => {
             <div>
                 <button onClick={copyConfg}>copy</button>
                 <button onClick={playNoise} disabled={!!noise}>play noise</button>
-                {noise && (
-                    <span>noise is playing</span>
-                )}
             </div>
         </div >
     )

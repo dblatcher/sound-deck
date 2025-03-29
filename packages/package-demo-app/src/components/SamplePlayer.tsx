@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react"
 import { useSoundDeck } from "./SoundDeckProvider"
 import { SoundControl } from "sound-deck";
+import { VolumeSymbol } from "./VolumeSymbol";
 
 interface Props {
     src: string;
@@ -17,7 +18,7 @@ export const SamplePlayer = ({ src, attemptAutoEnable }: Props) => {
         soundDeck.defineSampleBuffer(src, src).then(wasSuccess => {
             setIsReady(wasSuccess)
         })
-    },[soundDeck, src])
+    }, [soundDeck, src])
 
     const play = () => {
         const newSound = soundDeck.playSample(src)
@@ -38,18 +39,20 @@ export const SamplePlayer = ({ src, attemptAutoEnable }: Props) => {
         }
         play()
     }
+    const handleStopButton = () => {
+        soundPlaying?.stop()
+    }
 
     const readyMessage = typeof isReady === 'undefined' ? 'loading' : isReady ? 'loaded' : 'error'
 
     return (
         <div>
-            <h3>{attemptAutoEnable && 'auto enabling '}SamplePlayer: {src}</h3>
-            <div>
-                <span>{readyMessage}</span>
-                <span>{soundPlaying && 'playing'}</span>
-            </div>
+            <h3>{attemptAutoEnable && 'auto enabling '}SamplePlayer <VolumeSymbol on={!!soundPlaying} /></h3>
+            <div><em>{src}</em></div>
+            <div>{readyMessage}</div>
             <div>
                 <button onClick={handlePlayButton}>play sample</button>
+                <button disabled={!soundPlaying} onClick={handleStopButton}>stop sample</button>
             </div>
         </div >
     )

@@ -4,6 +4,7 @@ import { Note, Octive, PitchedNote, SoundControl } from "sound-deck"
 import { ToneTypeOptions } from "./ToneTypeOptions"
 import { useSoundDeck } from "./SoundDeckProvider"
 import { CustomWaveOptions } from "./CustomWaveOptions"
+import { VolumeSymbol } from "./VolumeSymbol"
 
 interface Props {
     note: Note
@@ -61,7 +62,7 @@ export const NotePlayer = ({ note, octive }: Props) => {
 
     return (
         <div>
-            <h3>NotePlayer: {pitchedNote.name}</h3>
+            <h3>NotePlayer: {pitchedNote.name} <VolumeSymbol on={chordTones.length > 0} /> </h3>
             <ToneTypeOptions value={toneType} change={setToneType} radioName={`${radioNamePrefix}-tone-type`} />
             <CustomWaveOptions value={customWave} change={setCustomWave} radioName={`${radioNamePrefix}-wave-name`} />
             <div>
@@ -81,11 +82,6 @@ export const NotePlayer = ({ note, octive }: Props) => {
                     play {pitchedNote.name} minor
                 </button>
             </div>
-            <div>
-                {chordTones.length > 0 && (
-                    <span>playing</span>
-                )}
-            </div>
-        </div >
+          </div >
     )
 }

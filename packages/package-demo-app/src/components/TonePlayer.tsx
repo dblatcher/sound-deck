@@ -7,6 +7,7 @@ import { ToneTypeOptions } from "./ToneTypeOptions"
 import { useSoundDeck } from "./SoundDeckProvider"
 import { CustomWaveOptions } from "./CustomWaveOptions"
 import { PlayPatternControl } from "./PlayPatternControl"
+import { VolumeSymbol } from "./VolumeSymbol"
 
 export const TonePlayer = () => {
     const soundDeck = useSoundDeck()
@@ -56,7 +57,7 @@ export const TonePlayer = () => {
 
     return (
         <div>
-            <h3>TonePlayer</h3>
+            <h3>TonePlayer <VolumeSymbol on={!!tone}/></h3>
             <DurationControl value={duration} change={setDuration} />
             <FrequencyRange label="start frequency" value={frequency} change={setFrequency} />
             <FrequencyRange label="end frequency" value={endFrequency} change={setEndFrequency} />
@@ -67,9 +68,6 @@ export const TonePlayer = () => {
             <div>
                 <button onClick={copyConfg}>copy</button>
                 <button onClick={playTone} disabled={!!tone}>play tone</button>
-                {tone && (
-                    <span>tone is playing</span>
-                )}
             </div>
         </div >
     )
