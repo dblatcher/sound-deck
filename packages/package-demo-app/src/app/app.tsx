@@ -1,6 +1,6 @@
 import styled from '@emotion/styled';
 import { TonePlayer } from '../components/TonePlayer';
-import { SoundDeck, waveTables } from 'sound-deck';
+import { SoundDeck } from 'sound-deck';
 import { NoisePlayer } from '../components/NoisePlayer';
 import { MasterGain } from '../components/MasterGain';
 import { useState } from 'react';
@@ -9,6 +9,7 @@ import { SamplePlayer } from '../components/SamplePlayer';
 import { EnableToggle } from '../components/EnableToggle';
 import { NotePlayer } from '../components/NotePlayer';
 import { PresetPlayer } from '../components/PresetPlayer';
+import { waveTables } from '../customWaves';
 
 
 const StyledApp = styled.div`
