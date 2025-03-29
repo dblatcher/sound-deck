@@ -26,10 +26,10 @@ export const TonePlayer = () => {
 
         const newTone = soundDeck.playTone(
             {
-                frequency, 
-                endFrequency, 
-                duration, 
-                type: toneType, 
+                frequency,
+                endFrequency,
+                duration,
+                type: toneType,
                 customWaveName: customWave,
                 playPattern,
             },
@@ -42,17 +42,30 @@ export const TonePlayer = () => {
         }
     }
 
+    const copyConfg = () => {
+        const json = JSON.stringify({
+            frequency,
+            endFrequency,
+            duration,
+            type: toneType,
+            customWaveName: customWave,
+            playPattern,
+        })
+        navigator.clipboard.writeText(json)
+    }
+
     return (
         <div>
             <h3>TonePlayer</h3>
             <DurationControl value={duration} change={setDuration} />
             <FrequencyRange label="start frequency" value={frequency} change={setFrequency} />
             <FrequencyRange label="end frequency" value={endFrequency} change={setEndFrequency} />
+            <PlayPatternControl pattern={playPattern} setPattern={setPlayPattern} />
             <ToneTypeOptions value={toneType} change={setToneType} radioName={`${radioNamePrefix}-tone-type`} />
             <CustomWaveOptions value={customWave} change={setCustomWave} radioName={`${radioNamePrefix}-wave-name`} />
-            <PlayPatternControl pattern={playPattern} setPattern={setPlayPattern} />
 
             <div>
+                <button onClick={copyConfg}>copy</button>
                 <button onClick={playTone} disabled={!!tone}>play tone</button>
                 {tone && (
                     <span>tone is playing</span>
