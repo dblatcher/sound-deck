@@ -20,6 +20,9 @@ class PresetTones {
             "frequency": 520, "endFrequency": 380, "duration": 0.7, "type": "triangle", "playPattern": [{ "time": 0, "vol": 0.3 }, { "time": 0.3, "vol": 1 }, { "time": 0.4, "vol": 1 }, { "time": 1, "vol": 0.1 }]
         }
     }
+    get SLOW_PULSE(): ToneConfig {
+        return { "frequency": 440, "endFrequency": 440, "duration": 2, "type": "sine", "playPattern": [{ "time": 0, "vol": 0.1 }, { "time": 0.25, "vol": 1 }, { "time": 0.5, "vol": 0.1 }, { "time": 0.75, "vol": 1 }, { "time": 1, "vol": 0.1 }] };
+    }
 }
 
 export const presetTones = new PresetTones()
