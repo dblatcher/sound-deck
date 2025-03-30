@@ -46,6 +46,9 @@ class PresetNoises {
             "frequency": 1200, "duration": 1, "endFrequency": 1200, "playPattern": [{ "time": 0, "vol": 1 }, { "time": 0.6, "vol": 1 }, { "time": 1, "vol": 0.01 }]
         }
     }
+    get WHOOSH(): NoiseConfig {
+        return { "frequency": 320, "duration": 0.7, "endFrequency": 740, "playPattern": [{ "time": 0, "vol": 0.1 }, { "time": 0.1, "vol": 1 }, { "time": 0.125, "vol": 0.9 }, { "time": 0.15, "vol": 1 }, { "time": 0.175, "vol": 0.9 }, { "time": 0.2, "vol": 1 }, { "time": 1, "vol": 0.1 }] }
+    }
 }
 
 export const presetNoises = new PresetNoises()

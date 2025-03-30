@@ -36,15 +36,21 @@ export const PresetPlayer = () => {
     return (
         <div>
             <h3>Presets <VolumeSymbol on={!!sound} /> </h3>
-            <div>
-                <button onClick={() => playNoise(presetNoises.TAP)} disabled={!!sound}>TAP</button>
-                <button onClick={() => playNoise(presetNoises.SNAP)} disabled={!!sound}>SNAP</button>
-                <button onClick={() => playNoise(presetNoises.HISS)} disabled={!!sound}>HISS</button>
-            </div>
-            <div>
-                <button onClick={() => playTone(presetTones.NEGATIVE_BEEP)} disabled={!!sound}>NEGATIVE_BEEP</button>
-                <button onClick={() => playTone(presetTones.NEUTRAL_BELL)} disabled={!!sound}>NEUTRAL_BELL</button>
-                <button onClick={() => playTone(presetTones.SPRINGY_BOUNCE)} disabled={!!sound}>SPRINGY_BOUNCE</button>
+
+
+            <div style={{ display: 'flex' }}>
+                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                    <button onClick={() => playNoise(presetNoises.TAP)} disabled={!!sound}>TAP</button>
+                    <button onClick={() => playNoise(presetNoises.SNAP)} disabled={!!sound}>SNAP</button>
+                    <button onClick={() => playNoise(presetNoises.HISS)} disabled={!!sound}>HISS</button>
+                    <button onClick={() => playNoise(presetNoises.WHOOSH)} disabled={!!sound}>WHOOSH</button>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                    <button onClick={() => playTone(presetTones.NEGATIVE_BEEP)} disabled={!!sound}>NEGATIVE_BEEP</button>
+                    <button onClick={() => playTone(presetTones.NEUTRAL_BELL)} disabled={!!sound}>NEUTRAL_BELL</button>
+                    <button onClick={() => playTone(presetTones.SPRINGY_BOUNCE)} disabled={!!sound}>SPRINGY_BOUNCE</button>
+                    <button onClick={() => playTone(presetTones.SLOW_PULSE)} disabled={!!sound}>SLOW_PULSE</button>
+                </div>
             </div>
         </div >
     )
