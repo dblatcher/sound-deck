@@ -62,8 +62,10 @@ export const TonePlayer = () => {
             <FrequencyRange label="start frequency" value={frequency} change={setFrequency} />
             <FrequencyRange label="end frequency" value={endFrequency} change={setEndFrequency} />
             <PlayPatternControl pattern={playPattern} setPattern={setPlayPattern} />
-            <ToneTypeOptions value={toneType} change={setToneType} radioName={`${radioNamePrefix}-tone-type`} />
-            <CustomWaveOptions value={customWave} change={setCustomWave} radioName={`${radioNamePrefix}-wave-name`} />
+            <div style={{ display: 'flex' }}>
+                <ToneTypeOptions value={toneType} change={setToneType} radioName={`${radioNamePrefix}-tone-type`} />
+                <CustomWaveOptions value={customWave} change={setCustomWave} radioName={`${radioNamePrefix}-wave-name`} />
+            </div>
 
             <div>
                 <button onClick={copyConfg}>copy</button>

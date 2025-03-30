@@ -57,14 +57,18 @@ export const NotePlayer = ({ note, octive }: Props) => {
             firstTone.whenEnded.then(() => {
                 setChordTones([])
             })
+        } else {
+            setChordTones([])
         }
     }
 
     return (
         <div>
             <h3>NotePlayer: {pitchedNote.name} <VolumeSymbol on={chordTones.length > 0} /> </h3>
-            <ToneTypeOptions value={toneType} change={setToneType} radioName={`${radioNamePrefix}-tone-type`} />
-            <CustomWaveOptions value={customWave} change={setCustomWave} radioName={`${radioNamePrefix}-wave-name`} />
+            <div style={{ display: 'flex' }}>
+                <ToneTypeOptions value={toneType} change={setToneType} radioName={`${radioNamePrefix}-tone-type`} />
+                <CustomWaveOptions value={customWave} change={setCustomWave} radioName={`${radioNamePrefix}-wave-name`} />
+            </div>
             <div>
                 <button style={{ display: 'block' }}
                     onClick={() => playChord('single')}
@@ -82,6 +86,6 @@ export const NotePlayer = ({ note, octive }: Props) => {
                     play {pitchedNote.name} minor
                 </button>
             </div>
-          </div >
+        </div >
     )
 }
