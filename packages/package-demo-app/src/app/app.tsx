@@ -36,7 +36,8 @@ const StyledApp = styled.div`
 
 export function App() {
   const [sharedSoundDeck] = useState(new SoundDeck())
-  const [sharedSoundDeck2] = useState(new LegacySoundDeck())
+  const [autoEnabledSharedDeck] = useState(new SoundDeck())
+  const [legacyDeck] = useState(new LegacySoundDeck())
 
   sharedSoundDeck.defineCustomWaveForm('organ', waveTables.organ.real, waveTables.organ.imag)
   sharedSoundDeck.defineCustomWaveForm('airhorn', waveTables.airHorn.real, waveTables.airHorn.imag)
@@ -45,8 +46,9 @@ export function App() {
     <StyledApp>
       <h1>sound-deck demo app</h1>
 
-      <h2>Private contexts</h2>
+      <h2>default contexts</h2>
       <section>
+        <EnableToggle />
         <TonePlayer />
         <TonePlayer />
         <NoisePlayer />
@@ -69,18 +71,26 @@ export function App() {
         </SoundDeckProvider>
       </section>
 
-      <h2>using an auto-enabling context to share a Legacy sound deck </h2>
+      <h2>using an auto-enabling context </h2>
       <section>
-        <AutoEnableSoundDeckProvider value={sharedSoundDeck2}>
+        <AutoEnableSoundDeckProvider value={autoEnabledSharedDeck}>
+          <EnableToggle />
+          <MasterGain />
+          <NoisePlayer />
+          <TonePlayer />
+          <SamplePlayer src='/assets/beep.mp3' />
+        </AutoEnableSoundDeckProvider>
+      </section>
+      <h2>Legacy sound deck </h2>
+      <section>
+        <SoundDeckProvider value={legacyDeck}>
           <EnableToggle />
           <MasterGain />
           <NoisePlayer />
           <TonePlayer />
           <SamplePlayer src='/assets/beep.mp3' />
           <SamplePlayer src='/assets/beep.mp3' attemptAutoEnable />
-
-
-        </AutoEnableSoundDeckProvider>
+        </SoundDeckProvider>
       </section>
     </StyledApp>
   );

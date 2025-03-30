@@ -178,7 +178,7 @@ export class LegacySoundDeck extends AbstractSoundDeck {
 
     enable() {
         this.enabled = true
-        return Promise.resolve()
+        return Promise.resolve(this)
     }
 
     disable() {
@@ -186,7 +186,7 @@ export class LegacySoundDeck extends AbstractSoundDeck {
             element.pause()
         })
         this.enabled = false
-        return Promise.resolve()
+        return Promise.resolve(this)
     }
 
 }

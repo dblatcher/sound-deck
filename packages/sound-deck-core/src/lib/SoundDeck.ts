@@ -1,6 +1,4 @@
 import { AbstractSoundDeck } from "./AbstractSoundDeck"
-import { tone439HzDataUrl } from "./fallback-tone"
-import { fallbackWhiteNoise } from "./fallback-whitenoise"
 import { NoiseConfig, PlayOptions, ToneConfig } from "./input-types"
 import { SoundControl } from "./SoundControl"
 
@@ -14,12 +12,9 @@ import { SoundControl } from "./SoundControl"
  */
 export class SoundDeck extends AbstractSoundDeck {
 
-    audioCtx: AudioContext | undefined
-    protected masterGain: GainNode | null
-    audioElements: Map<string, HTMLAudioElement>
+    audioCtx: AudioContext
+    protected masterGain: GainNode
     sampleBuffers: Map<string, AudioBuffer>
-    fallbackToneAudioElement: HTMLAudioElement
-    fallbackNoiseAudioElement: HTMLAudioElement
 
     /** 
      * Note that the AudioContext for the SoundDeck may start in a 'suspended' state 
@@ -33,37 +28,27 @@ export class SoundDeck extends AbstractSoundDeck {
      * to enable sound as soon as the user interacts in a relevant way, **but** it may be better to
      * add an explicit "enable sound" button so the user can decide it they want sound or not.
     */
-    constructor() {
+    constructor(audioCtx?: AudioContext, startEnabled = false) {
         super()
-        this.audioCtx = AudioContext ? new AudioContext() : undefined;
-        this.audioElements = new Map();
+        this.audioCtx = audioCtx ?? new AudioContext();
         this.sampleBuffers = new Map();
         this.customWaveforms = new Map();
         this.volumeWhenNotMute = 1;
 
-        if (this.audioCtx) {
-            this.masterGain = this.audioCtx.createGain();
-            this.masterGain.connect(this.audioCtx.destination)
-        } else {
-            this.masterGain = null
-        }
-
-        const fallbackToneAudioElement = document.createElement('audio');
-        fallbackToneAudioElement.src = tone439HzDataUrl;
-        this.fallbackToneAudioElement = fallbackToneAudioElement
-
-        const fallbackNoiseAudioElement = document.createElement('audio');
-        fallbackNoiseAudioElement.src = fallbackWhiteNoise;
-        this.fallbackNoiseAudioElement = fallbackNoiseAudioElement;
+        this.masterGain = this.audioCtx.createGain();
+        this.masterGain.connect(this.audioCtx.destination)
 
         this.makeNoiseSourceNodeAndFilter = this.makeNoiseSourceNodeAndFilter.bind(this)
         this.loadAudioBuffer = this.loadAudioBuffer.bind(this)
+        if (startEnabled) {
+            console.log('initial resume')
+            this.audioCtx.resume()
+        }
     }
 
     private async loadAudioBuffer(src: string): Promise<AudioBuffer | null> {
 
         let audioBuffer: AudioBuffer;
-        if (!this.audioCtx) { return null }
 
         try {
             const response = await fetch(src);
@@ -84,15 +69,7 @@ export class SoundDeck extends AbstractSoundDeck {
         src: string
     ): Promise<boolean> {
 
-        const { loadAudioBuffer, audioElements, sampleBuffers, audioCtx } = this
-
-        if (!audioCtx) {
-            const audioElement = document.createElement('audio');
-            audioElement.setAttribute('src', src);
-            audioElement.setAttribute('soundName', name);
-            audioElements.set(name, audioElement);
-            return true
-        }
+        const { loadAudioBuffer, sampleBuffers } = this
 
         const audioBuffer = await loadAudioBuffer(src);
         if (!audioBuffer) { return false }
@@ -103,7 +80,7 @@ export class SoundDeck extends AbstractSoundDeck {
 
     defineCustomWaveForm(name: string, real: Float32Array, imag: Float32Array): PeriodicWave | undefined {
         const { audioCtx, customWaveforms } = this
-        if (real.length !== imag.length || !audioCtx) {
+        if (real.length !== imag.length) {
             return undefined
         }
 
@@ -112,41 +89,19 @@ export class SoundDeck extends AbstractSoundDeck {
         return waveform
     }
 
-    private playSampleWithoutContext(soundName: string, options: PlayOptions = {}): SoundControl | null {
-        const audioElement = this.audioElements.get(soundName);
-        if (!audioElement) { return null }
-
-        const { volume = 1 } = options
-        if (volume >= 0 && volume <= 1) { audioElement.volume = volume }
-
-        if (audioElement.paused) {
-            audioElement.play();
-        } else {
-            audioElement.currentTime = 0;
-        }
-
-        return new SoundControl(audioElement)
-    }
-
     playSample(
         /** the name assigned to sample in a prior call to `defineSampleBuffer`*/
         soundName: string,
         /** the options for this particular playing of the sample. */
         options: PlayOptions = {}
     ): SoundControl | null {
-
         const { audioCtx, sampleBuffers, masterGain } = this
-
-        if (!audioCtx || !masterGain) {
-            return this.playSampleWithoutContext(soundName, options)
-        }
-
         if (this.isEnabled === false) { return null }
 
         const audioBuffer = sampleBuffers.get(soundName);
         if (!audioBuffer) { return null }
         const sourceNode = audioCtx.createBufferSource();
-        sourceNode.buffer = audioBuffer ?? null;
+        sourceNode.buffer = audioBuffer;
 
         const gainNode = this.makeGainWithPattern(audioCtx, audioBuffer.duration, options)
         sourceNode.loop = options.loop ?? false;
@@ -156,9 +111,8 @@ export class SoundDeck extends AbstractSoundDeck {
         return new SoundControl(sourceNode, gainNode);
     }
 
-    private makeNoiseSourceNodeAndFilter(config: NoiseConfig): [AudioBufferSourceNode, BiquadFilterNode] | [null, null] {
+    private makeNoiseSourceNodeAndFilter(config: NoiseConfig): [AudioBufferSourceNode, BiquadFilterNode] {
         const { audioCtx } = this
-        if (!audioCtx) { return [null, null] }
         const { duration = 1, frequency = 1000, endFrequency = frequency } = config;
         const bufferSize = audioCtx.sampleRate * duration; // set the time of the note
         const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate); // create an empty buffer
@@ -198,38 +152,12 @@ export class SoundDeck extends AbstractSoundDeck {
         return gainNode
     }
 
-    private playFallbackSample(
-        config: NoiseConfig = {},
-        type: 'noise' | 'tone'
-    ): SoundControl {
-        const audioElement = type === 'tone' ? this.fallbackToneAudioElement : this.fallbackNoiseAudioElement
-        const { volume = 1, duration = 1 } = config
-        const requiredRate = audioElement.duration / duration;
-        const rateWithinLimits = Math.max(Math.min(4, requiredRate), .5)
-        audioElement.playbackRate = rateWithinLimits
-        if (volume >= 0 && volume <= 1) { audioElement.volume = volume }
-
-        if (audioElement.paused) {
-            audioElement.play();
-        } else {
-            audioElement.currentTime = 0;
-        }
-
-        return new SoundControl(audioElement)
-    }
-
     playNoise(
         config: NoiseConfig = {},
     ): SoundControl | null {
         const { audioCtx, masterGain } = this
-        if (!audioCtx || !masterGain) {
-            if (!audioCtx || !masterGain) {
-                return this.playFallbackSample(config, 'noise')
-            }
-        }
-
+        if (this.isEnabled === false) { return null }
         const [noiseNode, bandpass] = this.makeNoiseSourceNodeAndFilter(config)
-        if (!noiseNode || !bandpass) { return null }
 
         const gainNode = this.makeGainWithPattern(audioCtx, config.duration ?? 1, config)
         noiseNode.connect(bandpass).connect(gainNode).connect(masterGain);
@@ -240,11 +168,9 @@ export class SoundDeck extends AbstractSoundDeck {
 
     playTone(
         config: ToneConfig
-    ): SoundControl {
+    ): SoundControl | null {
         const { audioCtx, masterGain, customWaveforms } = this
-        if (!audioCtx || !masterGain) {
-            return this.playFallbackSample(config, 'tone')
-        }
+        if (this.isEnabled === false) { return null }
 
         const { frequency = 1000, type = "sine", duration = 1, periodicWave, customWaveName } = config;
         const endFrequency = config.endFrequency || frequency;
@@ -277,35 +203,29 @@ export class SoundDeck extends AbstractSoundDeck {
 
 
     get isEnabled() {
-        if (!this.audioCtx) { return false }
         return this.audioCtx.state == 'running';
     }
 
     /**Set the masterGain for the SoundDeck to 0. */
     mute() {
-        if (!this.masterGain) { return }
         this.volumeWhenNotMute = this.masterGain.gain.value;
         this.masterGain.gain.value = 0;
     }
 
     /**Restore the masterGain for the SoundDeck the value is was before the call to mute. */
     unmute() {
-        if (!this.masterGain) { return }
         this.masterGain.gain.value = this.volumeWhenNotMute;
     }
 
     get isMuted() {
-        if (!this.masterGain) { return false }
         return this.masterGain.gain.value === 0
     }
 
     get masterVolume() {
-        if (!this.masterGain) { return 0 }
         return this.masterGain.gain.value
     }
 
     set masterVolume(value: number) {
-        if (!this.masterGain) { return }
         this.masterGain.gain.value = value;
         this.volumeWhenNotMute = value;
     }
@@ -318,8 +238,7 @@ export class SoundDeck extends AbstractSoundDeck {
      * Resume the SoundDeck's audio context, allowing any sounds to be produced.
      */
     enable() {
-        if (!this.audioCtx) { return Promise.resolve() }
-        return this.audioCtx.resume();
+        return this.audioCtx.resume().then(() => this);
     }
 
     /** 
@@ -327,12 +246,6 @@ export class SoundDeck extends AbstractSoundDeck {
      * is resumed with the `enable` or `toggle`
      */
     disable() {
-        if (!this.audioCtx) { return Promise.resolve() }
-        this.audioElements.forEach(element => {
-            element.pause()
-            element.currentTime = 0
-        })
-        return this.audioCtx.suspend();
+        return this.audioCtx.suspend().then(() => this);
     }
-
 }

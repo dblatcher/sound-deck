@@ -82,18 +82,18 @@ export abstract class AbstractSoundDeck {
     abstract get masterVolumnIfNotMuted(): number
 
     /** Toggle the SoundDeck between 'enabled' and 'disabled'. */
-    toggle(): Promise<void> {
+    toggle(): Promise<AbstractSoundDeck> {
         return this.isEnabled ? this.disable() : this.enable()
     }
 
     /** 
      * Resume the SoundDeck's audio context, allowing any sounds to be produced.
      */
-    abstract enable(): Promise<void>
+    abstract enable(): Promise<AbstractSoundDeck>
 
     /** 
      * Suspend the SoundDeck's audio context, preventing any sounds being produced until it 
      * is resumed with the `enable` or `toggle`
      */
-    abstract disable(): Promise<void>
+    abstract disable(): Promise<AbstractSoundDeck>
 }

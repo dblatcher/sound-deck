@@ -1,12 +1,12 @@
 
 import { useState } from "react"
 import { PlayPattern, SoundControl } from "sound-deck"
+import { CustomWaveOptions } from "./CustomWaveOptions"
 import { DurationControl } from "./DurationControl"
 import { FrequencyRange } from "./FrequencyRange"
-import { ToneTypeOptions } from "./ToneTypeOptions"
-import { useSoundDeck } from "./SoundDeckProvider"
-import { CustomWaveOptions } from "./CustomWaveOptions"
 import { PlayPatternControl } from "./PlayPatternControl"
+import { useSoundDeck } from "./SoundDeckProvider"
+import { ToneTypeOptions } from "./ToneTypeOptions"
 import { VolumeSymbol } from "./VolumeSymbol"
 
 export const TonePlayer = () => {
@@ -57,7 +57,7 @@ export const TonePlayer = () => {
 
     return (
         <div>
-            <h3>TonePlayer <VolumeSymbol on={!!tone}/></h3>
+            <h3>TonePlayer <VolumeSymbol on={!!tone} /></h3>
             <DurationControl value={duration} change={setDuration} />
             <FrequencyRange label="start frequency" value={frequency} change={setFrequency} />
             <FrequencyRange label="end frequency" value={endFrequency} change={setEndFrequency} />
