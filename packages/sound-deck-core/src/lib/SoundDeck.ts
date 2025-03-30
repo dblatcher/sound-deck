@@ -16,10 +16,8 @@ export class SoundDeck extends AbstractSoundDeck {
 
     audioCtx: AudioContext | undefined
     protected masterGain: GainNode | null
-    protected volumeWhenNotMute: number
     audioElements: Map<string, HTMLAudioElement>
     sampleBuffers: Map<string, AudioBuffer>
-    customWaveforms: Map<string, PeriodicWave>
     fallbackToneAudioElement: HTMLAudioElement
     fallbackNoiseAudioElement: HTMLAudioElement
 
@@ -314,13 +312,6 @@ export class SoundDeck extends AbstractSoundDeck {
 
     get masterVolumnIfNotMuted() {
         return this.volumeWhenNotMute
-    }
-
-    /** Toggle the SoundDeck between 'enabled' and 'disabled'. */
-    toggle() {
-        if (this.isEnabled === undefined) { return Promise.resolve() }
-        if (this.isEnabled === false) { return this.enable() }
-        if (this.isEnabled === true) { return this.disable() }
     }
 
     /** 

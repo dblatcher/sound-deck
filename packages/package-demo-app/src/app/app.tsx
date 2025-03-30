@@ -1,6 +1,6 @@
 import styled from '@emotion/styled';
 import { TonePlayer } from '../components/TonePlayer';
-import { SoundDeck } from 'sound-deck';
+import { LegacySoundDeck, SoundDeck } from 'sound-deck';
 import { NoisePlayer } from '../components/NoisePlayer';
 import { MasterGain } from '../components/MasterGain';
 import { useState } from 'react';
@@ -36,7 +36,7 @@ const StyledApp = styled.div`
 
 export function App() {
   const [sharedSoundDeck] = useState(new SoundDeck())
-  const [sharedSoundDeck2] = useState(new SoundDeck())
+  const [sharedSoundDeck2] = useState(new LegacySoundDeck())
 
   sharedSoundDeck.defineCustomWaveForm('organ', waveTables.organ.real, waveTables.organ.imag)
   sharedSoundDeck.defineCustomWaveForm('airhorn', waveTables.airHorn.real, waveTables.airHorn.imag)
@@ -69,7 +69,7 @@ export function App() {
         </SoundDeckProvider>
       </section>
 
-      <h2>using an auto-enabling context to share a sound deck </h2>
+      <h2>using an auto-enabling context to share a Legacy sound deck </h2>
       <section>
         <AutoEnableSoundDeckProvider value={sharedSoundDeck2}>
           <EnableToggle />

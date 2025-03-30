@@ -1,9 +1,10 @@
+import { AbstractSoundDeck } from 'packages/sound-deck-core/src/lib/AbstractSoundDeck'
 import { ReactNode, createContext, useContext } from 'react'
 import { SoundDeck } from 'sound-deck'
 
-const SoundDeckContext = createContext(new SoundDeck())
+const SoundDeckContext = createContext<AbstractSoundDeck>(new SoundDeck())
 
-export const AutoEnableSoundDeckProvider = ({ value, children }: { value?: SoundDeck, children: ReactNode }) => {
+export const AutoEnableSoundDeckProvider = ({ value, children }: { value?: AbstractSoundDeck, children: ReactNode }) => {
     const soundDeck = value || new SoundDeck()
     soundDeck.enable()
     if (window) {
@@ -20,7 +21,7 @@ export const AutoEnableSoundDeckProvider = ({ value, children }: { value?: Sound
     )
 }
 
-export const SoundDeckProvider = ({ value, children }: { value?: SoundDeck, children: ReactNode }) => {
+export const SoundDeckProvider = ({ value, children }: { value?: AbstractSoundDeck, children: ReactNode }) => {
     const soundDeck = value || new SoundDeck()
     return (
         <SoundDeckContext.Provider value={soundDeck} >

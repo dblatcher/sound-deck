@@ -3,6 +3,9 @@ import { SoundControl } from "./SoundControl"
 
 
 export abstract class AbstractSoundDeck {
+    customWaveforms: Map<string, PeriodicWave> = new Map()
+    protected volumeWhenNotMute = 1;
+
     /**
       * Loads an audio file and assigns it a name, making it available to be
       * played by the `SoundDeck`.
@@ -58,7 +61,7 @@ export abstract class AbstractSoundDeck {
      */
     abstract playTone(
         config: ToneConfig
-    ): SoundControl
+    ): SoundControl | null
 
     abstract get isEnabled(): boolean
 
@@ -79,17 +82,18 @@ export abstract class AbstractSoundDeck {
     abstract get masterVolumnIfNotMuted(): number
 
     /** Toggle the SoundDeck between 'enabled' and 'disabled'. */
-    abstract toggle(): void
+    toggle(): Promise<void> {
+        return this.isEnabled ? this.disable() : this.enable()
+    }
 
     /** 
      * Resume the SoundDeck's audio context, allowing any sounds to be produced.
      */
-    abstract enable(): void
+    abstract enable(): Promise<void>
 
     /** 
      * Suspend the SoundDeck's audio context, preventing any sounds being produced until it 
      * is resumed with the `enable` or `toggle`
      */
-    abstract disable(): void
-
+    abstract disable(): Promise<void>
 }

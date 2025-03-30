@@ -1,6 +1,7 @@
 
 import { ChangeEventHandler, useState } from "react"
 import { useSoundDeck } from "./SoundDeckProvider"
+import { SoundDeck } from "sound-deck"
 
 
 export const EnableToggle = () => {
@@ -10,13 +11,15 @@ export const EnableToggle = () => {
     const listener: EventListener = (ev: Event) => {
         setEnabledState(soundDeck.isEnabled)
     }
-    soundDeck.audioCtx?.addEventListener('statechange', listener)
+    if (soundDeck instanceof SoundDeck) {
+        soundDeck.audioCtx?.addEventListener('statechange', listener)
+    }
 
     const handleChange:ChangeEventHandler<HTMLInputElement> = (e) => {
         if (e.currentTarget.checked) {
-            soundDeck.enable()
+            soundDeck.enable().then(() => setEnabledState(true))
         } else {
-            soundDeck.disable()
+            soundDeck.disable().then(() => setEnabledState(false))
         }
     }
 
