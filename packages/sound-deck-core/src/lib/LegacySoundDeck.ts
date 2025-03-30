@@ -58,21 +58,16 @@ export class LegacySoundDeck extends AbstractSoundDeck {
     ): Promise<boolean> {
 
         const { audioElements, } = this
-
         const audioElement = document.createElement('audio');
         audioElement.setAttribute('src', src);
         audioElement.setAttribute('soundName', name);
 
-        console.log(audioElement)
-
         return new Promise(resolve => {
-            audioElement.addEventListener('canplay', (loadEvent) => {
-                console.log(name, loadEvent)
+            audioElement.addEventListener('canplay', () => {
                 audioElements.set(name, audioElement);
                 return resolve(true)
             }, { once: true })
-            audioElement.addEventListener('error', (errorEvent) => {
-                console.warn(name, errorEvent)
+            audioElement.addEventListener('error', () => {
                 return resolve(false)
             }, { once: true })
         })
@@ -187,6 +182,10 @@ export class LegacySoundDeck extends AbstractSoundDeck {
     }
 
     disable() {
+        this.audioElements.forEach(element => {
+            element.pause()
+            element.currentTime = 0
+        })
         this.enabled = false
         return Promise.resolve()
     }
