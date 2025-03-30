@@ -1,7 +1,9 @@
+import { AbstractSoundDeck } from "./AbstractSoundDeck"
 import { tone439HzDataUrl } from "./fallback-tone"
 import { fallbackWhiteNoise } from "./fallback-whitenoise"
 import { NoiseConfig, PlayOptions, ToneConfig } from "./input-types"
 import { SoundControl } from "./SoundControl"
+
 
 
 /**
@@ -10,7 +12,7 @@ import { SoundControl } from "./SoundControl"
  * Uses the AudioContext interface. Some features have a fallback to
  * work in envirornements where the AudioContext is not available.
  */
-export class SoundDeck {
+export class SoundDeck extends AbstractSoundDeck {
 
     audioCtx: AudioContext | undefined
     protected masterGain: GainNode | null
@@ -34,6 +36,7 @@ export class SoundDeck {
      * add an explicit "enable sound" button so the user can decide it they want sound or not.
     */
     constructor() {
+        super()
         this.audioCtx = AudioContext ? new AudioContext() : undefined;
         this.audioElements = new Map();
         this.sampleBuffers = new Map();
@@ -76,12 +79,6 @@ export class SoundDeck {
         return audioBuffer
     }
 
-    /**
-     * Loads an audio file and assigns it a name, making it available to be
-     * played by the `SoundDeck`.
-     * 
-     * Returns a promise resolving to whether the sample creation was successful
-     */
     async defineSampleBuffer(
         /** the name used to access to sample in calls to `playSample` */
         name: string,
@@ -133,15 +130,6 @@ export class SoundDeck {
         return new SoundControl(audioElement)
     }
 
-    /**
-     * Play a sample previously loaded into the SoundDeck.
-     * 
-     * Returns a `SoundControl` representing the playing of the sample or null if the 
-     * command fails.
-     * 
-     * If used in an enviroment without the AudioContext, the sample can play, but the function
-     * will return null.
-     */
     playSample(
         /** the name assigned to sample in a prior call to `defineSampleBuffer`*/
         soundName: string,
@@ -212,7 +200,7 @@ export class SoundDeck {
         return gainNode
     }
 
-    playFallbackSample(
+    private playFallbackSample(
         config: NoiseConfig = {},
         type: 'noise' | 'tone'
     ): SoundControl {
@@ -232,12 +220,6 @@ export class SoundDeck {
         return new SoundControl(audioElement)
     }
 
-    /**
-     * Produce a randomly generated noise with the given parameters.
-     * 
-     * Returns a `SoundControl` representing the noise or null if the 
-     * command fails
-     */
     playNoise(
         config: NoiseConfig = {},
     ): SoundControl | null {
@@ -258,12 +240,6 @@ export class SoundDeck {
         return new SoundControl(noiseNode, gainNode);
     }
 
-    /**
-     * Produce a tone with the given parameters.
-     * 
-     * Returns a `SoundControl` representing the tone or null if the 
-     * command fails
-     */
     playTone(
         config: ToneConfig
     ): SoundControl {
@@ -303,7 +279,7 @@ export class SoundDeck {
 
 
     get isEnabled() {
-        if (!this.audioCtx) { return undefined }
+        if (!this.audioCtx) { return false }
         return this.audioCtx.state == 'running';
     }
 
