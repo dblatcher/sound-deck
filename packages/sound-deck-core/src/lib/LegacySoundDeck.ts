@@ -184,7 +184,6 @@ export class LegacySoundDeck extends AbstractSoundDeck {
     disable() {
         this.audioElements.forEach(element => {
             element.pause()
-            element.currentTime = 0
         })
         this.enabled = false
         return Promise.resolve()
