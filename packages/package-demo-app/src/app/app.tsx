@@ -10,6 +10,7 @@ import { EnableToggle } from '../components/EnableToggle';
 import { NotePlayer } from '../components/NotePlayer';
 import { PresetPlayer } from '../components/PresetPlayer';
 import { waveTables } from '../customWaves';
+import { MusicPlayer } from '../components/MusicPlayer';
 
 
 const StyledApp = styled.div`
@@ -74,6 +75,7 @@ export function App() {
       <h2>using an auto-enabling context </h2>
       <section>
         <AutoEnableSoundDeckProvider value={autoEnabledSharedDeck}>
+          <MusicPlayer />
           <EnableToggle />
           <MasterGain />
           <NoisePlayer />
