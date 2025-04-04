@@ -42,6 +42,8 @@ export function App() {
 
   sharedSoundDeck.defineCustomWaveForm('organ', waveTables.organ.real, waveTables.organ.imag)
   sharedSoundDeck.defineCustomWaveForm('airhorn', waveTables.airHorn.real, waveTables.airHorn.imag)
+  autoEnabledSharedDeck.defineCustomWaveForm('organ', waveTables.organ.real, waveTables.organ.imag)
+  autoEnabledSharedDeck.defineCustomWaveForm('airhorn', waveTables.airHorn.real, waveTables.airHorn.imag)
 
   return (
     <StyledApp>

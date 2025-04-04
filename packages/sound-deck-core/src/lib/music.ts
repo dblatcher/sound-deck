@@ -13,19 +13,53 @@ export type TonalInstrument = { soundType: 'tone' } & Omit<ToneConfig, 'duration
 export type PercussiveInstrument = { soundType: 'noise' } & Omit<NoiseConfig, 'duration' | 'frequency' | 'endFrequency'>
 export type Instrument = PercussiveInstrument | TonalInstrument;
 
+export const parseStaveNotes = (input: string): StaveNote[] => {
+    const notesStrings = Array.from(input.matchAll(/[A,B,C,D,E,F,G,-][b,#]?[0-8]?\.*/gm)).map(match => match[0])
+    let currentOctive: Octive = 4
+    const notes = notesStrings.map<StaveNote>(noteString => {
+        const chars = noteString.split('')
+        const noteOrRestSymbol = (chars[1] === 'b' || chars[1] === '#' ? chars.splice(0, 2).join('') : chars.splice(0, 1).join('')) as Note;
+        const nextCharAsNumber = Number(chars[0])
+
+        if (isOctive(nextCharAsNumber)) {
+            currentOctive = nextCharAsNumber
+            chars.shift()
+        }
+        const beats = (1 + chars.length) * .25
+
+        const pitch = isNote(noteOrRestSymbol) ? new PitchedNote(noteOrRestSymbol, currentOctive).pitch : undefined;
+
+        const staveNote: StaveNote = {
+            pitch,
+            beats,
+        }
+
+        return staveNote
+    })
+    return notes
+}
+
+
 class Silence {
     whenEnded: Promise<Silence>
     constructor(duration: number) {
         this.whenEnded = new Promise(resolve => {
             setTimeout(() => {
-                resolve(this)}, duration*1000
+                resolve(this)
+            }, duration * 1000
             )
         })
     }
 }
 
+type Stave = {
+    instrument: Instrument,
+    notes: StaveNote[],
+    volume?: number
+}
 
-export const playStave = (soundDeck: AbstractSoundDeck) => async (instrument: Instrument, notes: StaveNote[], tempo = 2, volume = 1) => {
+
+const playStave = (soundDeck: AbstractSoundDeck, abortSignal?: { aborted: boolean }) => async ({ instrument, notes, volume = 1 }: Stave, tempo = 2) => {
 
     const noteToControl = ({ pitch, beats }: StaveNote): Silence | SoundControl | null => {
         if (typeof pitch !== 'number') {
@@ -53,7 +87,6 @@ export const playStave = (soundDeck: AbstractSoundDeck) => async (instrument: In
 
     return new Promise<boolean>(resolve => {
         const playNext = async (noteIndex = 0) => {
-
             const control = noteToControl(notes[noteIndex])
             if (!control) {
                 resolve(false)
@@ -61,7 +94,9 @@ export const playStave = (soundDeck: AbstractSoundDeck) => async (instrument: In
             }
 
             await control.whenEnded;
-            if (noteIndex < notes.length - 1) {
+            if (abortSignal?.aborted) {
+                resolve(false)
+            } else if (noteIndex < notes.length - 1) {
                 playNext(noteIndex + 1)
             } else {
                 resolve(true)
@@ -72,32 +107,17 @@ export const playStave = (soundDeck: AbstractSoundDeck) => async (instrument: In
 }
 
 
-export const parseStaveNotes = (input: string): StaveNote[] => {
-    const notesStrings = Array.from(input.matchAll(/[A,B,C,D,E,F,G,-][b,#]?[0-8]?\.*/gm)).map(match => match[0])
-    let currentOctive: Octive = 4
-    const notes = notesStrings.map<StaveNote>(noteString => {
-        const chars = noteString.split('')
+export type MusicControl = {
+    stop: { (): void },
+    whenEnded: Promise<boolean>
+}
 
-        
-        const noteOrRestSymbol = (chars[1] === 'b' || chars[1] === '#' ? chars.splice(0, 2).join('') : chars.splice(0, 1).join('')) as Note;
-        
-
-        const nextCharAsNumber = Number(chars[0])
-
-        if (isOctive(nextCharAsNumber)) {
-            currentOctive = nextCharAsNumber
-            chars.shift()
-        }
-        const beats = (1 + chars.length) * .25
-
-        const pitch = isNote(noteOrRestSymbol) ? new PitchedNote(noteOrRestSymbol, currentOctive).pitch : undefined;
-
-        const staveNote: StaveNote = {
-            pitch,
-            beats,
-        }
-
-        return staveNote
-    })
-    return notes
+export const playMusic = (soundeck: AbstractSoundDeck) => (staves: Stave[], tempo = 2): MusicControl => {
+    const abortSignal = { aborted: false };
+    const stop = () => abortSignal.aborted = true
+    const playPromise = Promise.all(staves.map(stave => playStave(soundeck, abortSignal)(stave, tempo))).then(results => results.every(Boolean))
+    return {
+        whenEnded: playPromise,
+        stop,
+    }
 }
