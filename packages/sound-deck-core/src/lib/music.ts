@@ -87,10 +87,17 @@ class EnhancedStave implements Stave {
     }
 }
 
+type BeatCallback = { (beat: number): void }
 
 export type MusicControl = {
     stop: { (): void },
-    whenEnded: Promise<boolean>
+    whenEnded: Promise<boolean>,
+    pause: { (): number },
+    resume: { (): void },
+    musicDuration: number,
+    currentBeat: number,
+    isPaused: boolean,
+    onBeat: { (callback: BeatCallback): void }
 }
 
 const wait = async (seconds: number) => {
@@ -124,9 +131,7 @@ const playNote = (soundDeck: AbstractSoundDeck, { pitch, beats }: StaveNote, ins
 
 export const playMusic = (soundDeck: AbstractSoundDeck) => (staves: Stave[], tempo = 2): MusicControl => {
 
-    const abortSignal = { aborted: false, currentBeat: 0 };
-    const stop = () => abortSignal.aborted = true
-
+    const playState = { aborted: false, currentBeat: 0, paused: false };
     const enhancedStaves = staves.map(stave => new EnhancedStave(stave))
     const musicDuration = Math.max(...enhancedStaves.map(s => s.duration))
 
@@ -134,41 +139,96 @@ export const playMusic = (soundDeck: AbstractSoundDeck) => (staves: Stave[], tem
 
     const eventTarget = new EventTarget()
 
-    const tick = (event: Event) => {
-        if (!(event instanceof MessageEvent)) {
+
+    const stop = () => {
+        playState.aborted = true
+        eventTarget.dispatchEvent(new Event('stopped'))
+    }
+
+    const pause = () => {
+        playState.paused = true
+        return playState.currentBeat
+    }
+
+    const resume = () => {
+        if (!playState.paused) {
             return
         }
-        console.log(event.data)
-    }
-    eventTarget.addEventListener('metronome', tick)
-
-    const nextQuarterBeat = async (time: number): Promise<boolean> => {
-        if (abortSignal.currentBeat % 1 === 0) {
-            eventTarget.dispatchEvent(new MessageEvent<number>('metronome', { data: abortSignal.currentBeat }))
-        }
-        if (abortSignal.currentBeat >= musicDuration) {
-            console.log('finished')
-            eventTarget.removeEventListener('metronome', tick)
-            return true
-        } else if (abortSignal.aborted) {
-            console.log('stopped')
-            eventTarget.removeEventListener('metronome', tick)
-            return false
-        }
-
-        enhancedStaves
-            .flatMap(stave => [stave.indexedNotes.get(time)]
-                .map(note => note ? playNote(soundDeck, note, stave.instrument, stave.volume, tempo) : null)
-            )
-
-        await wait(quarterBeatDuration)
-        abortSignal.currentBeat = time + .25
-        return nextQuarterBeat(abortSignal.currentBeat)
+        playState.paused = false
+        eventTarget.dispatchEvent(new Event('resumed'))
     }
 
+    // TO DO - keep a proper array of callbacks
+    const subscribeToBeat = ((callback: BeatCallback) => {
+        eventTarget.addEventListener('metronome', (event) => {
+            if (!(event instanceof MessageEvent)) {
+                return
+            }
+            const { data } = event
+            if (typeof data !== 'number') {
+                return
+            }
+            callback(data)
+        })
+
+    })
+
+
+    const playUntil = new Promise<boolean>((resolve) => {
+
+
+        const nextQuarterBeat = async (time: number): Promise<void> => {
+
+            if (playState.paused || playState.aborted) {
+                return
+            }
+
+            if (playState.currentBeat % 1 === 0) {
+                eventTarget.dispatchEvent(new MessageEvent<number>('metronome', { data: playState.currentBeat }))
+            }
+
+            if (playState.currentBeat >= musicDuration) {
+                console.log('finished')
+                resolve(true)
+                return
+            }
+
+            enhancedStaves
+                .flatMap(stave => [stave.indexedNotes.get(time)]
+                    .map(note => note ? playNote(soundDeck, note, stave.instrument, stave.volume, tempo) : null)
+                )
+
+            await wait(quarterBeatDuration)
+            playState.currentBeat = time + .25
+            return nextQuarterBeat(playState.currentBeat)
+        }
+
+        eventTarget.addEventListener('stopped', () => {
+            resolve(false)
+            return
+        }, { once: true })
+
+        eventTarget.addEventListener('resumed', () => {
+            nextQuarterBeat(playState.currentBeat)
+        })
+
+        nextQuarterBeat(0)
+    })
 
     return {
-        whenEnded: nextQuarterBeat(0),
+        whenEnded: playUntil,
         stop,
+        pause,
+        resume,
+        get musicDuration() {
+            return musicDuration
+        },
+        get currentBeat() {
+            return playState.currentBeat
+        },
+        get isPaused() {
+            return playState.paused
+        },
+        onBeat: subscribeToBeat
     }
 }
