@@ -44,19 +44,6 @@ export const parseStaveNotes = (input: string): StaveNote[] => {
     return notes
 }
 
-
-class Silence {
-    whenEnded: Promise<Silence>
-    constructor(duration: number) {
-        this.whenEnded = new Promise(resolve => {
-            setTimeout(() => {
-                resolve(this)
-            }, duration * 1000
-            )
-        })
-    }
-}
-
 type Stave = {
     instrument: Instrument,
     notes: StaveNote[],
@@ -88,6 +75,8 @@ class EnhancedStave implements Stave {
 }
 
 type BeatCallback = { (beat: number): void }
+type VoidCallback = { (): void }
+
 
 export type MusicControl = {
     stop: { (): void },
@@ -98,15 +87,16 @@ export type MusicControl = {
     currentBeat: number,
     isPaused: boolean,
     onBeat: { (callback: BeatCallback): void }
+    onFinish: { (callback: VoidCallback): void }
 }
 
 const wait = async (seconds: number) => {
     return new Promise(resolve => setTimeout(resolve, seconds * 1000))
 }
 
-const playNote = (soundDeck: AbstractSoundDeck, { pitch, beats }: StaveNote, instrument: Instrument, volume = 1, tempo = 2): Silence | SoundControl | null => {
+const playNote = (soundDeck: AbstractSoundDeck, { pitch, beats }: StaveNote, instrument: Instrument, volume = 1, tempo = 2): SoundControl | null => {
     if (typeof pitch !== 'number') {
-        return new Silence(beats / tempo)
+        return null
     }
 
     if (instrument.soundType === 'noise') {
@@ -129,14 +119,13 @@ const playNote = (soundDeck: AbstractSoundDeck, { pitch, beats }: StaveNote, ins
 }
 
 
-export const playMusic = (soundDeck: AbstractSoundDeck) => (staves: Stave[], tempo = 2): MusicControl => {
+export const playMusic = (soundDeck: AbstractSoundDeck) => (staves: Stave[], tempo = 2, loop = false): MusicControl => {
 
     const playState = { aborted: false, currentBeat: 0, paused: false };
     const enhancedStaves = staves.map(stave => new EnhancedStave(stave))
     const musicDuration = Math.max(...enhancedStaves.map(s => s.duration))
 
     const quarterBeatDuration = .25 / tempo;
-
     const eventTarget = new EventTarget()
 
 
@@ -173,22 +162,27 @@ export const playMusic = (soundDeck: AbstractSoundDeck) => (staves: Stave[], tem
 
     })
 
+    const subscribeToFinish = ((callback: VoidCallback) => {
+        eventTarget.addEventListener('finished', () => {
+            callback()
+        })
+    })
 
     const playUntil = new Promise<boolean>((resolve) => {
-
-
         const nextQuarterBeat = async (time: number): Promise<void> => {
-
             if (playState.paused || playState.aborted) {
                 return
             }
-
             if (playState.currentBeat % 1 === 0) {
                 eventTarget.dispatchEvent(new MessageEvent<number>('metronome', { data: playState.currentBeat }))
             }
-
             if (playState.currentBeat >= musicDuration) {
-                console.log('finished')
+                if (loop) {
+                    await wait(quarterBeatDuration)
+                    playState.currentBeat = 0
+                    return nextQuarterBeat(playState.currentBeat)
+                }
+                eventTarget.dispatchEvent(new Event('finished'))
                 resolve(true)
                 return
             }
@@ -205,7 +199,6 @@ export const playMusic = (soundDeck: AbstractSoundDeck) => (staves: Stave[], tem
 
         eventTarget.addEventListener('stopped', () => {
             resolve(false)
-            return
         }, { once: true })
 
         eventTarget.addEventListener('resumed', () => {
@@ -220,15 +213,10 @@ export const playMusic = (soundDeck: AbstractSoundDeck) => (staves: Stave[], tem
         stop,
         pause,
         resume,
-        get musicDuration() {
-            return musicDuration
-        },
-        get currentBeat() {
-            return playState.currentBeat
-        },
-        get isPaused() {
-            return playState.paused
-        },
-        onBeat: subscribeToBeat
+        get musicDuration() { return musicDuration },
+        get currentBeat() { return playState.currentBeat },
+        get isPaused() { return playState.paused },
+        onBeat: subscribeToBeat,
+        onFinish: subscribeToFinish
     }
 }

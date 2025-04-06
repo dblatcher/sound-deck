@@ -48,23 +48,21 @@ E5...E...F...G...|G...F...E...D...|C...C...D...E...|E...D...D.......|
  E...E...F...G...|G...F...E...D...|C...C...D...E...|D...C...C.......|
 `)
 const beat = parseStaveNotes("C6...-...F...C...".repeat(8))
-console.log({ odeToJoy, beat })
 
 
 export const MusicPlayer = () => {
     const soundDeck = useSoundDeck()
     const [musicControl, setMusicControl] = useState<MusicControl | undefined>();
-
-
     const [currentBeat, setCurrentBeat] = useState(0)
     const [tempo, setTempo] = useState(4)
+    const [loop, setLoop] = useState(false)
 
     const play = (instrument: Instrument) => {
         const musicControl = playMusic(soundDeck)([
             { instrument, notes: odeToJoy },
             { instrument, notes: odeToJoy5 },
-            { instrument: SNARE, notes: beat, volume: .5 }
-        ], tempo)
+            { instrument: SNARE, notes: beat, volume: 1.75 }
+        ], tempo, true)
         setMusicControl(musicControl)
 
         musicControl.onBeat(setCurrentBeat)
@@ -81,11 +79,22 @@ export const MusicPlayer = () => {
             <div>
                 <label>
                     tempo= {tempo}
-                    <input type="range"
+                    <input
+                        disabled={!!musicControl}
+                        type="range"
                         value={tempo}
                         min={1}
                         max={12}
                         onChange={({ target: { valueAsNumber } }) => setTempo(valueAsNumber)} />
+                </label>
+                <label>
+                    loop
+                    <input
+                        disabled={!!musicControl}
+                        type="checkbox"
+                        checked={loop}
+                        onChange={({ target }) => setLoop(target.checked)}
+                    />
                 </label>
             </div>
             <div>
@@ -100,6 +109,7 @@ export const MusicPlayer = () => {
             </div>
 
             {musicControl && <div>
+                <input readOnly type="range" min={0} max={musicControl.musicDuration} value={currentBeat} />
                 <span>{currentBeat} / </span>
                 <span>{musicControl.musicDuration}</span>
             </div>}
