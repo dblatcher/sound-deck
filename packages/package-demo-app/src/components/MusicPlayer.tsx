@@ -1,7 +1,7 @@
 
 import { useState } from "react"
 import { Instrument, MusicControl, playMusic } from "sound-deck"
-import { beat, odeToJoy, odeToJoy5 } from "../data/songs"
+import { beat, drunkenSailorBase, drunkenSailorBaseHigher, drunkenSailorTreble, odeToJoy, odeToJoy5 } from "../data/songs"
 import { useSoundDeck } from "./SoundDeckProvider"
 import { VolumeSymbol } from "./VolumeSymbol"
 import { SNARE, ORGAN, BELL, BOING } from "../data/instruments"
@@ -14,16 +14,41 @@ export const MusicPlayer = () => {
     const [tempo, setTempo] = useState(4)
     const [loop, setLoop] = useState(false)
 
-    const play = (instrument: Instrument) => {
+    const playOdeToJoy = (instrument: Instrument) => {
         const musicControl = playMusic(soundDeck)([
             { instrument, notes: odeToJoy },
             { instrument, notes: odeToJoy5 },
             { instrument: SNARE, notes: beat, volume: 1.75 }
         ], tempo, loop)
         setMusicControl(musicControl)
-
         musicControl.onBeat(setCurrentBeat)
+        musicControl.whenEnded.then((success) => {
+            console.log({ success })
+            setMusicControl(undefined)
+        })
+    }
 
+    const playDrunkenSailor = () => {
+        const musicControl = playMusic(soundDeck)([
+            { instrument:BELL, notes: drunkenSailorTreble },
+            { instrument:BOING, notes: drunkenSailorBase, volume:.25 },
+            { instrument:BOING, notes: drunkenSailorBaseHigher, volume:.25 },
+        ], tempo, loop)
+        setMusicControl(musicControl)
+        musicControl.onBeat(setCurrentBeat)
+        musicControl.whenEnded.then((success) => {
+            console.log({ success })
+            setMusicControl(undefined)
+        })
+    }
+    const playBgm = () => {
+        const musicControl = playMusic(soundDeck)([
+            { instrument:BOING, notes: drunkenSailorBase, volume:.25 },
+            { instrument:BOING, notes: drunkenSailorBaseHigher, volume:.25 },
+            { instrument: SNARE, notes: beat, volume: 1 }
+        ], tempo, loop)
+        setMusicControl(musicControl)
+        musicControl.onBeat(setCurrentBeat)
         musicControl.whenEnded.then((success) => {
             console.log({ success })
             setMusicControl(undefined)
@@ -61,9 +86,17 @@ export const MusicPlayer = () => {
             </div>
             <div>
                 <h4>ode To Joy</h4>
-                <button disabled={!!musicControl} onClick={() => play(ORGAN)}>play ORGAN</button>
-                <button disabled={!!musicControl} onClick={() => play(BELL)}>play bell</button>
-                <button disabled={!!musicControl} onClick={() => play(BOING)}>play BOING</button>
+                <button disabled={!!musicControl} onClick={() => playOdeToJoy(ORGAN)}>play ORGAN</button>
+                <button disabled={!!musicControl} onClick={() => playOdeToJoy(BELL)}>play bell</button>
+                <button disabled={!!musicControl} onClick={() => playOdeToJoy(BOING)}>play BOING</button>
+            </div>
+            <div>
+                <h4>drunken sailor</h4>
+                <button disabled={!!musicControl} onClick={() => playDrunkenSailor()}>play</button>
+            </div>
+            <div>
+                <h4>BGM</h4>
+                <button disabled={!!musicControl} onClick={() => playBgm()}>play</button>
             </div>
 
             {musicControl && <div>
