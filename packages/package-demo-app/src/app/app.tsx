@@ -9,7 +9,7 @@ import { SamplePlayer } from '../components/SamplePlayer';
 import { EnableToggle } from '../components/EnableToggle';
 import { NotePlayer } from '../components/NotePlayer';
 import { PresetPlayer } from '../components/PresetPlayer';
-import { waveTables } from '../customWaves';
+import { waveTables } from '../data/customWaves';
 import { MusicPlayer } from '../components/MusicPlayer';
 
 

@@ -1,53 +1,10 @@
 
 import { useState } from "react"
-import { Instrument, MusicControl, parseStaveNotes, playMusic, presetNoises, presetTones } from "sound-deck"
+import { Instrument, MusicControl, playMusic } from "sound-deck"
+import { beat, odeToJoy, odeToJoy5 } from "../data/songs"
 import { useSoundDeck } from "./SoundDeckProvider"
 import { VolumeSymbol } from "./VolumeSymbol"
-
-const BELL: Instrument = {
-    soundType: 'tone',
-    type: 'triangle',
-    playPattern: [
-        { time: 0, vol: .1 },
-        { time: .2, vol: 1 },
-        { time: .25, vol: 1 },
-        { time: 1, vol: 0.01 },
-    ]
-}
-
-const ORGAN: Instrument = {
-    soundType: 'tone',
-    type: 'triangle',
-    customWaveName: 'organ',
-    playPattern: [
-        { time: 0, vol: .1 },
-        { time: .1, vol: 1 },
-        { time: .8, vol: 1 },
-        { time: 1, vol: 0.01 },
-    ]
-}
-
-const BOING: Instrument = {
-    soundType: 'tone',
-    ...presetTones.SPRINGY_BOUNCE
-}
-
-const SNARE: Instrument = {
-    soundType: 'noise',
-    ...presetNoises.TAP,
-}
-
-// const melody2 = parseStaveNotes("C... G. E. C. G... C5.. C... G. E. C4. G... C.")
-
-const odeToJoy = parseStaveNotes(`
-E4...E...F...G...|G...F...E...D...|C...C...D...E...|E...D...D.......|
- E...E...F...G...|G...F...E...D...|C...C...D...E...|D...C...C.......|
-`)
-const odeToJoy5 = parseStaveNotes(`
-E5...E...F...G...|G...F...E...D...|C...C...D...E...|E...D...D.......|
- E...E...F...G...|G...F...E...D...|C...C...D...E...|D...C...C.......|
-`)
-const beat = parseStaveNotes("C6...-...F...C...".repeat(8))
+import { SNARE, ORGAN, BELL, BOING } from "../data/instruments"
 
 
 export const MusicPlayer = () => {
@@ -62,7 +19,7 @@ export const MusicPlayer = () => {
             { instrument, notes: odeToJoy },
             { instrument, notes: odeToJoy5 },
             { instrument: SNARE, notes: beat, volume: 1.75 }
-        ], tempo, true)
+        ], tempo, loop)
         setMusicControl(musicControl)
 
         musicControl.onBeat(setCurrentBeat)
@@ -103,6 +60,7 @@ export const MusicPlayer = () => {
                 <button disabled={!musicControl} onClick={musicControl?.resume}>resume</button>
             </div>
             <div>
+                <h4>ode To Joy</h4>
                 <button disabled={!!musicControl} onClick={() => play(ORGAN)}>play ORGAN</button>
                 <button disabled={!!musicControl} onClick={() => play(BELL)}>play bell</button>
                 <button disabled={!!musicControl} onClick={() => play(BOING)}>play BOING</button>
