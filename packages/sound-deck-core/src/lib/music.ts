@@ -83,12 +83,14 @@ export type MusicControl = {
     whenEnded: Promise<boolean>,
     pause: { (): number },
     resume: { (): void },
+    fadeOut: { (seconds: number): void }
     musicDuration: number,
     currentBeat: number,
     isPaused: boolean,
     tempo: number,
     onBeat: { (callback: BeatCallback): void }
     onFinish: { (callback: VoidCallback): void }
+    isFading: boolean,
 }
 
 const wait = async (seconds: number) => {
@@ -120,14 +122,20 @@ const playNote = (soundDeck: AbstractSoundDeck, { pitch, beats }: StaveNote, ins
 }
 
 
-export const playMusic = (soundDeck: AbstractSoundDeck) => (staves: Stave[], tempo = 2, loop = false): MusicControl => {
+type PlayState = {
+    aborted: boolean;
+    currentBeat: number;
+    paused: boolean;
+    tempo: number;
+    volume: number;
+    fadeRate?: number;
+}
 
-    const playState = { aborted: false, currentBeat: 0, paused: false, tempo };
+export const playMusic = (soundDeck: AbstractSoundDeck) => (staves: Stave[], tempo = 2, loop = false): MusicControl => {
+    const playState: PlayState = { aborted: false, currentBeat: 0, paused: false, tempo, volume: 1, fadeRate: undefined };
     const enhancedStaves = staves.map(stave => new EnhancedStave(stave))
     const musicDuration = Math.max(...enhancedStaves.map(s => s.duration))
-
     const eventTarget = new EventTarget()
-
 
     const stop = () => {
         playState.aborted = true
@@ -145,6 +153,11 @@ export const playMusic = (soundDeck: AbstractSoundDeck) => (staves: Stave[], tem
         }
         playState.paused = false
         eventTarget.dispatchEvent(new Event('resumed'))
+    }
+
+    const fadeOut = (seconds: number) => {
+        const validatedSeconds = Math.max(0.1, seconds);
+        playState.fadeRate = 1 / ((4 * validatedSeconds) / playState.tempo)
     }
 
     // TO DO - keep a proper array of callbacks
@@ -176,6 +189,13 @@ export const playMusic = (soundDeck: AbstractSoundDeck) => (staves: Stave[], tem
             if (playState.currentBeat % 1 === 0) {
                 eventTarget.dispatchEvent(new MessageEvent<number>('metronome', { data: playState.currentBeat }))
             }
+
+            if (playState.volume <= 0) {
+                eventTarget.dispatchEvent(new Event('finished'))
+                resolve(true)
+                return
+            }
+
             if (playState.currentBeat >= musicDuration) {
                 if (loop) {
                     playState.currentBeat = 0
@@ -188,9 +208,12 @@ export const playMusic = (soundDeck: AbstractSoundDeck) => (staves: Stave[], tem
 
             enhancedStaves
                 .flatMap(stave => [stave.indexedNotes.get(time)]
-                    .map(note => note ? playNote(soundDeck, note, stave.instrument, stave.volume, tempo) : null)
+                    .map(note => note ? playNote(soundDeck, note, stave.instrument, (stave.volume ?? 1) * playState.volume, tempo) : null)
                 )
 
+            if (playState.fadeRate) {
+                playState.volume -= playState.fadeRate
+            }
             await wait(.25 / playState.tempo)
             playState.currentBeat = time + .25
             return nextQuarterBeat(playState.currentBeat)
@@ -212,12 +235,13 @@ export const playMusic = (soundDeck: AbstractSoundDeck) => (staves: Stave[], tem
         stop,
         pause,
         resume,
+        fadeOut,
         get musicDuration() { return musicDuration },
         get currentBeat() { return playState.currentBeat },
         get isPaused() { return playState.paused },
+        get isFading() { return !!playState.fadeRate },
         onBeat: subscribeToBeat,
         onFinish: subscribeToFinish,
-
         get tempo() {
             return playState.tempo
         },

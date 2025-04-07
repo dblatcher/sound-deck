@@ -86,6 +86,8 @@ export const MusicPlayer = () => {
             </div>
             <div>
                 <button disabled={!musicControl} onClick={musicControl?.stop}>stop</button>
+                <button disabled={!musicControl || musicControl?.isFading} onClick={() => musicControl?.fadeOut(5)}>fade 5s</button>
+                <button disabled={!musicControl || musicControl?.isFading} onClick={() => musicControl?.fadeOut(2)}>fade 2s</button>
                 <button disabled={!musicControl} onClick={musicControl?.pause}>pause</button>
                 <button disabled={!musicControl} onClick={musicControl?.resume}>resume</button>
             </div>
