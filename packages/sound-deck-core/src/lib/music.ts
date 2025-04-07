@@ -125,8 +125,6 @@ export const playMusic = (soundDeck: AbstractSoundDeck) => (staves: Stave[], tem
     const enhancedStaves = staves.map(stave => new EnhancedStave(stave))
     const musicDuration = Math.max(...enhancedStaves.map(s => s.duration))
 
-    console.log(enhancedStaves.map(s => s.duration))
-
     const quarterBeatDuration = .25 / tempo;
     const eventTarget = new EventTarget()
 
