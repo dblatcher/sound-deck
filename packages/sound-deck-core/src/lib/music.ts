@@ -86,6 +86,7 @@ export type MusicControl = {
     musicDuration: number,
     currentBeat: number,
     isPaused: boolean,
+    tempo: number,
     onBeat: { (callback: BeatCallback): void }
     onFinish: { (callback: VoidCallback): void }
 }
@@ -121,11 +122,10 @@ const playNote = (soundDeck: AbstractSoundDeck, { pitch, beats }: StaveNote, ins
 
 export const playMusic = (soundDeck: AbstractSoundDeck) => (staves: Stave[], tempo = 2, loop = false): MusicControl => {
 
-    const playState = { aborted: false, currentBeat: 0, paused: false };
+    const playState = { aborted: false, currentBeat: 0, paused: false, tempo };
     const enhancedStaves = staves.map(stave => new EnhancedStave(stave))
     const musicDuration = Math.max(...enhancedStaves.map(s => s.duration))
 
-    const quarterBeatDuration = .25 / tempo;
     const eventTarget = new EventTarget()
 
 
@@ -191,7 +191,7 @@ export const playMusic = (soundDeck: AbstractSoundDeck) => (staves: Stave[], tem
                     .map(note => note ? playNote(soundDeck, note, stave.instrument, stave.volume, tempo) : null)
                 )
 
-            await wait(quarterBeatDuration)
+            await wait(.25 / playState.tempo)
             playState.currentBeat = time + .25
             return nextQuarterBeat(playState.currentBeat)
         }
@@ -216,6 +216,13 @@ export const playMusic = (soundDeck: AbstractSoundDeck) => (staves: Stave[], tem
         get currentBeat() { return playState.currentBeat },
         get isPaused() { return playState.paused },
         onBeat: subscribeToBeat,
-        onFinish: subscribeToFinish
+        onFinish: subscribeToFinish,
+
+        get tempo() {
+            return playState.tempo
+        },
+        set tempo(value: number) {
+            playState.tempo = Math.max(1, value)
+        }
     }
 }

@@ -30,9 +30,9 @@ export const MusicPlayer = () => {
 
     const playDrunkenSailor = () => {
         const musicControl = playMusic(soundDeck)([
-            { instrument:BELL, notes: drunkenSailorTreble },
-            { instrument:BOING, notes: drunkenSailorBase, volume:.25 },
-            { instrument:BOING, notes: drunkenSailorBaseHigher, volume:.25 },
+            { instrument: BELL, notes: drunkenSailorTreble },
+            { instrument: BOING, notes: drunkenSailorBase, volume: .25 },
+            { instrument: BOING, notes: drunkenSailorBaseHigher, volume: .25 },
         ], tempo, loop)
         setMusicControl(musicControl)
         musicControl.onBeat(setCurrentBeat)
@@ -43,8 +43,8 @@ export const MusicPlayer = () => {
     }
     const playBgm = () => {
         const musicControl = playMusic(soundDeck)([
-            { instrument:BOING, notes: drunkenSailorBase, volume:.25 },
-            { instrument:BOING, notes: drunkenSailorBaseHigher, volume:.25 },
+            { instrument: BOING, notes: drunkenSailorBase, volume: .25 },
+            { instrument: BOING, notes: drunkenSailorBaseHigher, volume: .25 },
             { instrument: SNARE, notes: beat, volume: 1 }
         ], tempo, loop)
         setMusicControl(musicControl)
@@ -60,14 +60,19 @@ export const MusicPlayer = () => {
             <h3>Music player <VolumeSymbol on={!!musicControl} /> </h3>
             <div>
                 <label>
-                    tempo= {tempo}
+                    tempo= {tempo.toFixed(1)}
                     <input
-                        disabled={!!musicControl}
                         type="range"
                         value={tempo}
+                        step={.5}
                         min={1}
                         max={12}
-                        onChange={({ target: { valueAsNumber } }) => setTempo(valueAsNumber)} />
+                        onChange={({ target: { valueAsNumber } }) => {
+                            setTempo(valueAsNumber)
+                            if (musicControl) {
+                                musicControl.tempo = valueAsNumber
+                            }
+                        }} />
                 </label>
                 <label>
                     loop
