@@ -11,7 +11,8 @@ Current features:
 - define volume profiles for generated sound
 - Promise - based API for knowing when a sound has finished
 - ability to play sounds on a loop until programatically stoped.
-- use preset sound configurations of configure your own
+- use preset sound configurations or configure your own
+- define music scores from strings and play programatically
 
 
 ## installation
