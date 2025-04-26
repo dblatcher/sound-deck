@@ -5,7 +5,7 @@ import { SoundControl } from "./SoundControl"
 
 
 export type StaveNote = {
-    pitch?: number,
+    note?: PitchedNote,
     beats: number,
     atBeat: number,
 }
@@ -30,10 +30,10 @@ export const parseStaveNotes = (input: string): StaveNote[] => {
         }
         const beats = (1 + chars.length) * .25
 
-        const pitch = isNote(noteOrRestSymbol) ? new PitchedNote(noteOrRestSymbol, currentOctive).pitch : undefined;
+        const pitch = isNote(noteOrRestSymbol) ? new PitchedNote(noteOrRestSymbol, currentOctive) : undefined;
 
         const staveNote: StaveNote = {
-            pitch,
+            note: pitch,
             beats,
             atBeat: atBeat,
         }
@@ -55,11 +55,15 @@ class EnhancedStave implements Stave {
     instrument: Instrument
     notes: StaveNote[]
     volume?: number
-    constructor(stave: Stave) {
-        this.instrument = stave.instrument
-        this.notes = stave.notes
-        this.volume = stave.volume
-        this.indexedNotes = EnhancedStave.indexNotes(stave.notes)
+    constructor(
+        instrument: Instrument,
+        notes: StaveNote[],
+        volume?: number
+    ) {
+        this.instrument = instrument
+        this.notes = notes
+        this.volume = volume
+        this.indexedNotes = EnhancedStave.indexNotes(this.notes)
     }
     get duration() {
         const lastNote = this.notes[this.notes.length - 1];
@@ -97,8 +101,8 @@ const wait = async (seconds: number) => {
     return new Promise(resolve => setTimeout(resolve, seconds * 1000))
 }
 
-const playNote = (soundDeck: AbstractSoundDeck, { pitch, beats }: StaveNote, instrument: Instrument, volume = 1, tempo = 2): SoundControl | null => {
-    if (typeof pitch !== 'number') {
+const playNote = (soundDeck: AbstractSoundDeck, { note: pitch, beats }: StaveNote, instrument: Instrument, volume = 1, tempo = 2): SoundControl | null => {
+    if (!pitch) {
         return null
     }
 
@@ -107,7 +111,7 @@ const playNote = (soundDeck: AbstractSoundDeck, { pitch, beats }: StaveNote, ins
             ...instrument,
             volume: (instrument.volume ?? 1) * volume,
             endFrequency: undefined,
-            frequency: pitch,
+            frequency: pitch.pitch,
             duration: beats / tempo,
         })
     }
@@ -116,7 +120,7 @@ const playNote = (soundDeck: AbstractSoundDeck, { pitch, beats }: StaveNote, ins
         ...instrument,
         volume: (instrument.volume ?? 1) * volume,
         endFrequency: undefined,
-        frequency: pitch,
+        frequency: pitch.pitch,
         duration: beats / tempo,
     })
 }
@@ -133,7 +137,7 @@ type PlayState = {
 
 export const playMusic = (soundDeck: AbstractSoundDeck) => (staves: Stave[], tempo = 2, loop = false): MusicControl => {
     const playState: PlayState = { aborted: false, currentBeat: 0, paused: false, tempo, volume: 1, fadeRate: undefined };
-    const enhancedStaves = staves.map(stave => new EnhancedStave(stave))
+    const enhancedStaves = staves.map(stave => new EnhancedStave(stave.instrument, stave.notes, stave.volume))
     const musicDuration = Math.max(...enhancedStaves.map(s => s.duration))
     const eventTarget = new EventTarget()
 
