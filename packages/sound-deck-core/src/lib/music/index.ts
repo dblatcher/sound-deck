@@ -1,82 +1,19 @@
-import { AbstractSoundDeck } from "./AbstractSoundDeck"
-import { ToneConfig, NoiseConfig } from "./input-types"
-import { isNote, isOctive, Note, Octive, PitchedNote } from "./notes"
-import { SoundControl } from "./SoundControl"
+import { AbstractSoundDeck } from "../AbstractSoundDeck"
+import { SoundControl } from "../SoundControl"
+import { Instrument, PercussiveInstrument, Stave, StaveNote, TonalInstrument } from "./types"
+import { parseStaveNotes } from "./parse-stave-notes"
+import { EnhancedStave } from "./staves"
 
-
-export type StaveNote = {
-    note?: PitchedNote,
-    beats: number,
-    atBeat: number,
+export type {
+    Instrument, PercussiveInstrument, TonalInstrument
 }
 
-export type TonalInstrument = { soundType: 'tone' } & Omit<ToneConfig, 'duration' | 'frequency' | 'endFrequency'>
-export type PercussiveInstrument = { soundType: 'noise' } & Omit<NoiseConfig, 'duration' | 'frequency' | 'endFrequency'>
-export type Instrument = PercussiveInstrument | TonalInstrument;
 
-export const parseStaveNotes = (input: string): StaveNote[] => {
-    const notesStrings = Array.from(input.matchAll(/[A,B,C,D,E,F,G,-][b,#]?[0-8]?\.*/gm)).map(match => match[0])
-    let currentOctive: Octive = 4
-    let atBeat = 0
-
-    const notes = notesStrings.map<StaveNote>(noteString => {
-        const chars = noteString.split('')
-        const noteOrRestSymbol = (chars[1] === 'b' || chars[1] === '#' ? chars.splice(0, 2).join('') : chars.splice(0, 1).join('')) as Note;
-        const nextCharAsNumber = Number(chars[0])
-
-        if (isOctive(nextCharAsNumber)) {
-            currentOctive = nextCharAsNumber
-            chars.shift()
-        }
-        const beats = (1 + chars.length) * .25
-
-        const pitch = isNote(noteOrRestSymbol) ? new PitchedNote(noteOrRestSymbol, currentOctive) : undefined;
-
-        const staveNote: StaveNote = {
-            note: pitch,
-            beats,
-            atBeat: atBeat,
-        }
-
-        atBeat += beats
-        return staveNote
-    })
-    return notes
+export {
+    parseStaveNotes
 }
 
-type Stave = {
-    instrument: Instrument,
-    notes: StaveNote[],
-    volume?: number
-}
 
-class EnhancedStave implements Stave {
-    indexedNotes: Map<number, StaveNote>
-    instrument: Instrument
-    notes: StaveNote[]
-    volume?: number
-    constructor(
-        instrument: Instrument,
-        notes: StaveNote[],
-        volume?: number
-    ) {
-        this.instrument = instrument
-        this.notes = notes
-        this.volume = volume
-        this.indexedNotes = EnhancedStave.indexNotes(this.notes)
-    }
-    get duration() {
-        const lastNote = this.notes[this.notes.length - 1];
-        return lastNote.atBeat + lastNote.beats;
-    }
-    static indexNotes(notes: StaveNote[]): Map<number, StaveNote> {
-        const map = new Map<number, StaveNote>()
-        notes.forEach(note => {
-            map.set(note.atBeat, note)
-        })
-        return map
-    }
-}
 
 type BeatCallback = { (beat: number): void }
 type VoidCallback = { (): void }
