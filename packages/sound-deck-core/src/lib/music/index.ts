@@ -10,7 +10,7 @@ export type {
 
 
 export {
-    parseStaveNotes
+    parseStaveNotes, EnhancedStave
 }
 
 
@@ -38,8 +38,8 @@ const wait = async (seconds: number) => {
     return new Promise(resolve => setTimeout(resolve, seconds * 1000))
 }
 
-const playNote = (soundDeck: AbstractSoundDeck, { note: pitch, beats }: StaveNote, instrument: Instrument, volume = 1, tempo = 2): SoundControl | null => {
-    if (!pitch) {
+const playNote = (soundDeck: AbstractSoundDeck, { note, beats }: StaveNote, instrument: Instrument, volume = 1, tempo = 2): SoundControl | null => {
+    if (!note) {
         return null
     }
 
@@ -48,7 +48,7 @@ const playNote = (soundDeck: AbstractSoundDeck, { note: pitch, beats }: StaveNot
             ...instrument,
             volume: (instrument.volume ?? 1) * volume,
             endFrequency: undefined,
-            frequency: pitch.pitch,
+            frequency: note.pitch,
             duration: beats / tempo,
         })
     }
@@ -57,7 +57,7 @@ const playNote = (soundDeck: AbstractSoundDeck, { note: pitch, beats }: StaveNot
         ...instrument,
         volume: (instrument.volume ?? 1) * volume,
         endFrequency: undefined,
-        frequency: pitch.pitch,
+        frequency: note.pitch,
         duration: beats / tempo,
     })
 }
@@ -74,9 +74,9 @@ type PlayState = {
 
 const getQuarterBeatInSeconds = (tempo: number) => .25 / tempo
 
-export const playMusic = (soundDeck: AbstractSoundDeck) => (staves: Stave[], tempo = 2, loop = false): MusicControl => {
+export const playMusic = (soundDeck: AbstractSoundDeck) => (staves: Array<Stave | EnhancedStave>, tempo = 2, loop = false): MusicControl => {
     const playState: PlayState = { aborted: false, currentBeat: 0, paused: false, tempo, volume: 1, fadeRate: undefined };
-    const enhancedStaves = staves.map(stave => new EnhancedStave(stave.instrument, stave.notes, stave.volume))
+    const enhancedStaves = staves.map(stave => stave instanceof EnhancedStave ? stave : new EnhancedStave(stave.instrument, stave.notes, stave.volume))
     const musicDuration = Math.max(...enhancedStaves.map(s => s.duration))
     const eventTarget = new EventTarget()
 
@@ -101,7 +101,7 @@ export const playMusic = (soundDeck: AbstractSoundDeck) => (staves: Stave[], tem
     const fadeOut = (seconds: number) => {
         const validatedSeconds = Math.max(0.1, seconds);
         const quarterBeatDuration = getQuarterBeatInSeconds(playState.tempo)
-        const quartsBeatsToFadeOutOver = Math.ceil( validatedSeconds / quarterBeatDuration)
+        const quartsBeatsToFadeOutOver = Math.ceil(validatedSeconds / quarterBeatDuration)
         playState.fadeRate = 1 / quartsBeatsToFadeOutOver
     }
 

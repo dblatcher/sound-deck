@@ -1,7 +1,7 @@
 
 import { useState } from "react"
-import { Instrument, MusicControl, playMusic } from "sound-deck"
-import { beat, drunkenSailorBase, drunkenSailorBaseHigher, drunkenSailorTreble, odeToJoy, odeToJoy5 } from "../data/songs"
+import { EnhancedStave, Instrument, MusicControl, playMusic } from "sound-deck"
+import { beat, drunkenSailorBase, drunkenSailorTreble, odeToJoy } from "../data/songs"
 import { useSoundDeck } from "./SoundDeckProvider"
 import { VolumeSymbol } from "./VolumeSymbol"
 import { SNARE, ORGAN, BELL, BOING } from "../data/instruments"
@@ -12,18 +12,19 @@ export const MusicPlayer = () => {
     const [musicControl, setMusicControl] = useState<MusicControl | undefined>();
     const [currentBeat, setCurrentBeat] = useState(0)
     const [tempo, setTempo] = useState(4)
+    const [transposeBy, setTransposeBy] = useState(0)
     const [loop, setLoop] = useState(false)
 
     const playOdeToJoy = (instrument: Instrument) => {
         const musicControl = playMusic(soundDeck)([
-            { instrument, notes: odeToJoy },
-            { instrument, notes: odeToJoy5 },
-            { instrument: SNARE, notes: beat, volume: 1.75 }
+            new EnhancedStave(instrument, odeToJoy).transpose(transposeBy),
+            new EnhancedStave(instrument, odeToJoy).transpose(transposeBy - 12),
+            new EnhancedStave(SNARE, beat, 0.5)
         ], tempo, loop)
         setMusicControl(musicControl)
         musicControl.onBeat(setCurrentBeat)
         musicControl.whenEnded.then((success) => {
-            console.log({ success })
+            console.log('ode to joy ended', { success })
             setMusicControl(undefined)
         })
     }
@@ -32,7 +33,7 @@ export const MusicPlayer = () => {
         const musicControl = playMusic(soundDeck)([
             { instrument: BELL, notes: drunkenSailorTreble },
             { instrument: BOING, notes: drunkenSailorBase, volume: .25 },
-            { instrument: BOING, notes: drunkenSailorBaseHigher, volume: .25 },
+            new EnhancedStave(BOING, drunkenSailorBase, .25).transpose(12),
         ], tempo, loop)
         setMusicControl(musicControl)
         musicControl.onBeat(setCurrentBeat)
@@ -44,7 +45,7 @@ export const MusicPlayer = () => {
     const playBgm = () => {
         const musicControl = playMusic(soundDeck)([
             { instrument: BOING, notes: drunkenSailorBase, volume: .25 },
-            { instrument: BOING, notes: drunkenSailorBaseHigher, volume: .25 },
+            new EnhancedStave(BOING, drunkenSailorBase, .25).transpose(12),
             { instrument: SNARE, notes: beat, volume: 1 }
         ], tempo, loop)
         setMusicControl(musicControl)
@@ -96,6 +97,22 @@ export const MusicPlayer = () => {
                 <button disabled={!!musicControl} onClick={() => playOdeToJoy(ORGAN)}>play ORGAN</button>
                 <button disabled={!!musicControl} onClick={() => playOdeToJoy(BELL)}>play bell</button>
                 <button disabled={!!musicControl} onClick={() => playOdeToJoy(BOING)}>play BOING</button>
+
+                <div>
+                    <label>
+                        <input
+                            type="range"
+                            disabled={!!musicControl}
+                            value={transposeBy}
+                            step={1}
+                            min={-24}
+                            max={24}
+                            onChange={({ target: { valueAsNumber } }) => {
+                                setTransposeBy(valueAsNumber)
+                            }} />
+                        transpose= {transposeBy.toString().padStart(4, " ")}
+                    </label>
+                </div>
             </div>
             <div>
                 <h4>drunken sailor</h4>

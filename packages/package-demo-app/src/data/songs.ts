@@ -8,10 +8,6 @@ const odeToJoy = parseStaveNotes(`
 E4...E...F...G...|G...F...E...D...|C...C...D...E...|E...D...D.......|
  E...E...F...G...|G...F...E...D...|C...C...D...E...|D...C...C.......|
 `)
-const odeToJoy5 = parseStaveNotes(`
-E5...E...F...G...|G...F...E...D...|C...C...D...E...|E...D...D.......|
- E...E...F...G...|G...F...E...D...|C...C...D...E...|D...C...C.......|
-`)
 const beat = parseStaveNotes("C6...-...F...C...".repeat(8))
 
 const drunkenSailorTrebleString = `
@@ -29,6 +25,5 @@ D2.D3.A2.D3.|D2.D3.A2.D3.|F2.F3.C2.C3.|D2.D3.A2...|
 
 const drunkenSailorTreble = parseStaveNotes(drunkenSailorTrebleString)
 const drunkenSailorBase = parseStaveNotes(drunkenSailorBaseString)
-const drunkenSailorBaseHigher = parseStaveNotes(drunkenSailorBaseString.replace(/3/g, "4").replace(/2/g, "3"))
 
-export { odeToJoy, beat, odeToJoy5, drunkenSailorBase, drunkenSailorTreble, drunkenSailorBaseHigher }
+export { odeToJoy, beat, drunkenSailorBase, drunkenSailorTreble }
