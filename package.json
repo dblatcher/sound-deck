@@ -4,7 +4,8 @@
   "license": "MIT",
   "scripts": {
     "dev": "nx run package-demo-app:serve:development",
-    "build": "nx build sound-deck-core"
+    "build": "nx build sound-deck-core",
+    "test": "nx run sound-deck-core:test"
   },
   "private": true,
   "devDependencies": {
