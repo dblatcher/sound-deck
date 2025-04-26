@@ -72,6 +72,8 @@ type PlayState = {
     fadeRate?: number;
 }
 
+const getQuarterBeatInSeconds = (tempo: number) => .25 / tempo
+
 export const playMusic = (soundDeck: AbstractSoundDeck) => (staves: Stave[], tempo = 2, loop = false): MusicControl => {
     const playState: PlayState = { aborted: false, currentBeat: 0, paused: false, tempo, volume: 1, fadeRate: undefined };
     const enhancedStaves = staves.map(stave => new EnhancedStave(stave.instrument, stave.notes, stave.volume))
@@ -98,7 +100,9 @@ export const playMusic = (soundDeck: AbstractSoundDeck) => (staves: Stave[], tem
 
     const fadeOut = (seconds: number) => {
         const validatedSeconds = Math.max(0.1, seconds);
-        playState.fadeRate = 1 / ((4 * validatedSeconds) / playState.tempo)
+        const quarterBeatDuration = getQuarterBeatInSeconds(playState.tempo)
+        const quartsBeatsToFadeOutOver = Math.ceil( validatedSeconds / quarterBeatDuration)
+        playState.fadeRate = 1 / quartsBeatsToFadeOutOver
     }
 
     // TO DO - keep a proper array of callbacks
@@ -155,7 +159,7 @@ export const playMusic = (soundDeck: AbstractSoundDeck) => (staves: Stave[], tem
             if (playState.fadeRate) {
                 playState.volume -= playState.fadeRate
             }
-            await wait(.25 / playState.tempo)
+            await wait(getQuarterBeatInSeconds(playState.tempo))
             playState.currentBeat = time + .25
             return nextQuarterBeat(playState.currentBeat)
         }
