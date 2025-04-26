@@ -50,5 +50,28 @@ describe(parseStaveNotes.name, () => {
         expect(n3.note?.octive).toBe(3);
         expect(n4.note?.octive).toBe(3);
     })
+    test('the up and down symbols will raise of lower the octive', () => {
+        const baseOctive = 3
+        const result = parseStaveNotes(`C${baseOctive} C^ C C^ C C Cv Cv`);
 
+        const [n1, n2, n3, n4, n5, n6, n7, n8] = result;
+        expect(n1.note?.octive).toBe(baseOctive);
+        expect(n2.note?.octive).toBe(baseOctive + 1);
+        expect(n3.note?.octive).toBe(baseOctive + 1);
+        expect(n4.note?.octive).toBe(baseOctive + 2);
+        expect(n5.note?.octive).toBe(baseOctive + 2);
+        expect(n6.note?.octive).toBe(baseOctive + 2);
+        expect(n7.note?.octive).toBe(baseOctive + 1);
+        expect(n8.note?.octive).toBe(baseOctive);
+    });
+    test('can use multiple up and down symbols after on note', () => {
+        const baseOctive = 3
+        const result = parseStaveNotes(`C${baseOctive} C^^^ C Cvv`);
+
+        const [n1, n2, n3, n4] = result;
+        expect(n1.note?.octive).toBe(baseOctive);
+        expect(n2.note?.octive).toBe(baseOctive + 3);
+        expect(n3.note?.octive).toBe(baseOctive + 3);
+        expect(n4.note?.octive).toBe(baseOctive + 1);
+    });
 })
