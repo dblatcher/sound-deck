@@ -1,11 +1,13 @@
-import { EnhancedStave, Instrument, parseStaveNotes, playMusic } from "sound-deck"
+import { EnhancedStave, Instrument, MusicControl, parseStaveNotes, playMusic } from "sound-deck"
 import { useSoundDeck } from "../context/SoundDeckProvider"
+import { useState } from "react"
+import { css } from "@emotion/react"
 
 
-const odeToJoy = parseStaveNotes(`
+const odeToJoy = `
 E4...E...F...G...|G...F...E...D...|C...C...D...E...|E...D...D.......|
  E...E...F...G...|G...F...E...D...|C...C...D...E...|D...C...C.......|
-`)
+`;
 
 export const BELL: Instrument = {
     soundType: 'tone',
@@ -21,20 +23,46 @@ export const BELL: Instrument = {
 export const MaestroBase = () => {
 
     const soundDeck = useSoundDeck()
+    const [staveText, setStaveText] = useState(odeToJoy);
+    const [musicControl, setMusicControl] = useState<MusicControl>();
 
     const play = () => {
-        playMusic(soundDeck)([
-           new EnhancedStave(BELL, odeToJoy)
-        ],5)
+        const control = playMusic(soundDeck)([
+            new EnhancedStave(BELL, parseStaveNotes(staveText))
+        ], 5)
+        setMusicControl(control);
+        control.whenEnded.then(() => {
+            setMusicControl(undefined)
+        })
+    }
+
+    const stop = () => {
+        if (!musicControl) {
+            return
+        }
+        musicControl.stop()
     }
 
     return <div>
-        <main>
-
+        <header>
             <h1>maestro</h1>
-
-            <button onClick={play}>play</button>
-
+        </header>
+        <main>
+            <div>
+                <textarea
+                    onChange={({ target: { value } }) => {
+                        setStaveText(value)
+                    }}
+                    css={css({
+                        display: 'block',
+                        width: 600,
+                        height: 100,
+                    })}
+                    value={staveText}
+                />
+            </div>
+            <button disabled={!!musicControl} onClick={play}>play</button>
+            <button disabled={!musicControl} onClick={stop}>stop</button>
         </main>
     </div>
 
