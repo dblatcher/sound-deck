@@ -209,3 +209,5 @@ export const playMusic = (soundDeck: AbstractSoundDeck) => (staves: Array<Stave 
         }
     }
 }
+
+export { StaveNote } from './types'; 

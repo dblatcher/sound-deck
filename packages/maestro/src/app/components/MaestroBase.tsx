@@ -3,6 +3,7 @@ import { useSoundDeck } from "../context/SoundDeckProvider"
 import { useState } from "react"
 import { css } from "@emotion/react"
 import { StaveNote } from "packages/sound-deck-core/src/lib/music/types";
+import { StaveDisplay } from "./StaveDisplay";
 
 
 const odeToJoy = `
@@ -21,7 +22,6 @@ export const BELL: Instrument = {
     ]
 }
 
-const quarterNoteWidth = 6;
 
 export const MaestroBase = () => {
 
@@ -54,11 +54,6 @@ export const MaestroBase = () => {
         musicControl.stop()
     }
 
-    const isCurrentNote = (staveNote: StaveNote) => {
-        if (typeof beatNumber === 'undefined') { return false }
-        return beatNumber >= staveNote.atBeat && beatNumber < staveNote.atBeat + staveNote.beats
-    }
-
     return <div>
         <header>
             <h1>maestro</h1>
@@ -78,22 +73,7 @@ export const MaestroBase = () => {
                     value={staveText}
                 />
             </div>
-            <div css={{
-                width: `${quarterNoteWidth * 4}em`
-            }}>
-                {stave.notes.map((staveNote, index) => {
-                    return <span key={index} css={{
-                        display: 'inline-block',
-                        boxSizing: 'border-box',
-                        border: '1px solid black',
-                        padding: 2,
-                        width: `${staveNote.beats * quarterNoteWidth}em`,
-                        backgroundColor: isCurrentNote(staveNote) ? 'pink' : 'lime',
-                    }}>
-                        {staveNote.note?.name} </span>
-
-                })}
-            </div>
+            <StaveDisplay stave={stave} beatNumber={beatNumber} />
             <div>Beat: {beatNumber}</div>
             <button disabled={!!musicControl} onClick={play}>play</button>
             <button disabled={!musicControl} onClick={stop}>stop</button>
