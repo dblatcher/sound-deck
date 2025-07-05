@@ -9,6 +9,15 @@ export const parseStaveNotes = (input: string): StaveNote[] => {
     let currentOctive = 4
     let atBeat = 0
 
+    if (notesStrings.length === 0) {
+        return [
+            {
+                beats: 0,
+                atBeat: 0
+            }
+        ]
+    }
+
     const notes = notesStrings.map<StaveNote>(noteString => {
         const chars = noteString.split('')
         const noteOrRestSymbol = (chars[1] === 'b' || chars[1] === '#' ? chars.splice(0, 2).join('') : chars.splice(0, 1).join('')) as Note;

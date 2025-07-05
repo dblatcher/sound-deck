@@ -39,7 +39,7 @@ const wait = async (seconds: number) => {
     return new Promise(resolve => setTimeout(resolve, seconds * 1000))
 }
 
-const playNote = (soundDeck: AbstractSoundDeck, { note, beats }: StaveNote, instrument: Instrument, volume = 1, tempo = 2): SoundControl | null => {
+const playNote = (soundDeck: AbstractSoundDeck, { note: note, beats }: StaveNote, instrument: Instrument, volume = 1, tempo = 2): SoundControl | null => {
     if (!note) {
         return null
     }
