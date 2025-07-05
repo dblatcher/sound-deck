@@ -30,6 +30,7 @@ export type MusicControl = {
     isPaused: boolean,
     tempo: number,
     onBeat: { (callback: BeatCallback): void }
+    onQuarterBeat: { (callback: BeatCallback): void }
     onFinish: { (callback: VoidCallback): void }
     isFading: boolean,
 }
@@ -117,7 +118,18 @@ export const playMusic = (soundDeck: AbstractSoundDeck) => (staves: Array<Stave 
             }
             callback(data)
         })
-
+    })
+    const subscribeToQuarterBeat = ((callback: BeatCallback) => {
+        eventTarget.addEventListener('quarter-beat', (event) => {
+            if (!(event instanceof MessageEvent)) {
+                return
+            }
+            const { data } = event
+            if (typeof data !== 'number') {
+                return
+            }
+            callback(data)
+        })
     })
 
     const subscribeToFinish = ((callback: VoidCallback) => {
@@ -131,6 +143,7 @@ export const playMusic = (soundDeck: AbstractSoundDeck) => (staves: Array<Stave 
             if (playState.paused || playState.aborted) {
                 return
             }
+            eventTarget.dispatchEvent(new MessageEvent<number>('quarter-beat', { data: playState.currentBeat }))
             if (playState.currentBeat % 1 === 0) {
                 eventTarget.dispatchEvent(new MessageEvent<number>('metronome', { data: playState.currentBeat }))
             }
@@ -185,6 +198,7 @@ export const playMusic = (soundDeck: AbstractSoundDeck) => (staves: Array<Stave 
         get currentBeat() { return playState.currentBeat },
         get isPaused() { return playState.paused },
         get isFading() { return !!playState.fadeRate },
+        onQuarterBeat: subscribeToQuarterBeat,
         onBeat: subscribeToBeat,
         onFinish: subscribeToFinish,
         get tempo() {

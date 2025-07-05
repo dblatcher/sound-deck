@@ -2,6 +2,7 @@ import { EnhancedStave, Instrument, MusicControl, parseStaveNotes, playMusic } f
 import { useSoundDeck } from "../context/SoundDeckProvider"
 import { useState } from "react"
 import { css } from "@emotion/react"
+import { StaveNote } from "packages/sound-deck-core/src/lib/music/types";
 
 
 const odeToJoy = `
@@ -20,18 +21,28 @@ export const BELL: Instrument = {
     ]
 }
 
+const quarterNoteWidth = 6;
+
 export const MaestroBase = () => {
 
     const soundDeck = useSoundDeck()
     const [staveText, setStaveText] = useState(odeToJoy);
+    const [stave, setStave] = useState<EnhancedStave>(new EnhancedStave(BELL, parseStaveNotes(staveText)))
     const [musicControl, setMusicControl] = useState<MusicControl>();
+    const [beatNumber, setBeatNumber] = useState<number>();
+
+    const handleBeat = (beat: number) => {
+        setBeatNumber(beat)
+    }
 
     const play = () => {
         const control = playMusic(soundDeck)([
-            new EnhancedStave(BELL, parseStaveNotes(staveText))
+            stave
         ], 5)
         setMusicControl(control);
+        control.onQuarterBeat(handleBeat)
         control.whenEnded.then(() => {
+            setBeatNumber(undefined)
             setMusicControl(undefined)
         })
     }
@@ -43,6 +54,11 @@ export const MaestroBase = () => {
         musicControl.stop()
     }
 
+    const isCurrentNote = (staveNote: StaveNote) => {
+        if (typeof beatNumber === 'undefined') { return false }
+        return beatNumber >= staveNote.atBeat && beatNumber < staveNote.atBeat + staveNote.beats
+    }
+
     return <div>
         <header>
             <h1>maestro</h1>
@@ -52,6 +68,7 @@ export const MaestroBase = () => {
                 <textarea
                     onChange={({ target: { value } }) => {
                         setStaveText(value)
+                        setStave(new EnhancedStave(BELL, parseStaveNotes(value)))
                     }}
                     css={css({
                         display: 'block',
@@ -61,6 +78,23 @@ export const MaestroBase = () => {
                     value={staveText}
                 />
             </div>
+            <div css={{
+                width: `${quarterNoteWidth * 4}em`
+            }}>
+                {stave.notes.map((staveNote, index) => {
+                    return <span key={index} css={{
+                        display: 'inline-block',
+                        boxSizing: 'border-box',
+                        border: '1px solid black',
+                        padding: 2,
+                        width: `${staveNote.beats * quarterNoteWidth}em`,
+                        backgroundColor: isCurrentNote(staveNote) ? 'pink' : 'lime',
+                    }}>
+                        {staveNote.note?.name} </span>
+
+                })}
+            </div>
+            <div>Beat: {beatNumber}</div>
             <button disabled={!!musicControl} onClick={play}>play</button>
             <button disabled={!musicControl} onClick={stop}>stop</button>
         </main>
