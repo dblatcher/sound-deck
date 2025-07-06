@@ -2,14 +2,28 @@ import { EnhancedStave, Instrument, MusicControl, parseStaveNotes, playMusic } f
 import { useSoundDeck } from "../context/SoundDeckProvider"
 import { useState } from "react"
 import { css } from "@emotion/react"
-import { StaveNote } from "packages/sound-deck-core/src/lib/music/types";
 import { StaveDisplay } from "./StaveDisplay";
 
 
-const odeToJoy = `
+const songs= { odeToJoy: `
 E4...E...F...G...|G...F...E...D...|C...C...D...E...|E...D...D.......|
  E...E...F...G...|G...F...E...D...|C...C...D...E...|D...C...C.......|
-`;
+`,
+
+restTest:`
+-
+-.
+-..
+-...
+-.....
+-.......
+-...........
+-...............
+-.......................
+`
+};
+
+
 
 export const BELL: Instrument = {
     soundType: 'tone',
@@ -26,7 +40,7 @@ export const BELL: Instrument = {
 export const MaestroBase = () => {
 
     const soundDeck = useSoundDeck()
-    const [staveText, setStaveText] = useState(odeToJoy);
+    const [staveText, setStaveText] = useState(songs.odeToJoy);
     const [stave, setStave] = useState<EnhancedStave>(new EnhancedStave(BELL, parseStaveNotes(staveText)))
     const [musicControl, setMusicControl] = useState<MusicControl>();
     const [beatNumber, setBeatNumber] = useState<number>();

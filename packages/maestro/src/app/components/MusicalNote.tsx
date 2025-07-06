@@ -6,6 +6,7 @@ interface Props {
     cx: number;
 }
 
+// TO DO - this will vary with clef
 const MIDDLE_C = 70
 
 
