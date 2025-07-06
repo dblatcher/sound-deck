@@ -135,7 +135,7 @@ const placesFromMiddleC = (staveNote: StaveNote) => {
     return octiveShift - noteShift;
 }
 
-export const MusicalNote = ({ staveNote, isCurrentNote, cx  }: Props) => {
+export const MusicalNote = ({ staveNote, isCurrentNote, cx }: Props) => {
     const cy = MIDDLE_C + (placesFromMiddleC(staveNote) * 5);
     const isAboveCenter = cy < 40;
     const noteShape = getNoteShape(staveNote.beats);
@@ -187,5 +187,11 @@ export const MusicalNote = ({ staveNote, isCurrentNote, cx  }: Props) => {
                 y2={isAboveCenter ? cy + 18 : cy - 18}
                 stroke="black"></line>
         }
+        {staveNote.note?.name.includes('#') && (
+            <text x={cx - 14} y={cy + 4}>#</text>
+        )}
+        {staveNote.note?.name.includes('b') && (
+            <text x={cx - 14} y={cy + 4}>b</text>
+        )}
     </g>
 }
