@@ -5,12 +5,13 @@ import { css } from "@emotion/react"
 import { StaveDisplay } from "./StaveDisplay";
 
 
-const songs= { odeToJoy: `
+const songs = {
+    odeToJoy: `
 E4...E...F...G...|G...F...E...D...|C...C...D...E...|E...D...D.......|
  E...E...F...G...|G...F...E...D...|C...C...D...E...|D...C...C.......|
 `,
 
-restTest:`
+    restTest: `
 -
 -.
 -..
@@ -20,8 +21,12 @@ restTest:`
 -...........
 -...............
 -.......................
-`
+`,
+    chromaticScale: `
+CC#DD#EFF#GG#AA#B
+C.C#.D.D#.E.F.F#.G.G#.A.A#.B.`,
 };
+
 
 
 
@@ -40,7 +45,7 @@ export const BELL: Instrument = {
 export const MaestroBase = () => {
 
     const soundDeck = useSoundDeck()
-    const [staveText, setStaveText] = useState(songs.odeToJoy);
+    const [staveText, setStaveText] = useState(songs.chromaticScale);
     const [stave, setStave] = useState<EnhancedStave>(new EnhancedStave(BELL, parseStaveNotes(staveText)))
     const [musicControl, setMusicControl] = useState<MusicControl>();
     const [beatNumber, setBeatNumber] = useState<number>();
