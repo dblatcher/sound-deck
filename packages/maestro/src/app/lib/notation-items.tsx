@@ -22,6 +22,8 @@ type NotationItemTie = NotationItemBase & {
     notes: StaveNote[]
 }
 
+const BEATS_PER_BAR = 4;
+
 const periodsWithSymbols = [
     4,
     3,
@@ -57,16 +59,9 @@ export const staveNotesToNotationItems = (staveNotes: StaveNote[], space = 25): 
     let x = 0;
     let beat = 0
 
-    const beatToBar = (beat: number) => Math.ceil((beat + 1) / 4);
+    const beatToBar = (beat: number) => Math.ceil((beat + .01) / BEATS_PER_BAR);
 
     const addNote = (staveNote: StaveNote) => {
-        const beatsLeftInBar = (beat: number) => {
-            const currentBar = beatToBar(beat);
-            const endsAt = currentBar * 4;
-            console.log(`in bar ${currentBar}, ending at ${endsAt} at beat ${beat}, there are ${endsAt - beat} left, and this note is ${staveNote.beats} long`)
-            return endsAt - beat
-        }
-        beatsLeftInBar(beat)
         if (staveNote.note) {
             items.push({
                 staveNote,
@@ -81,8 +76,8 @@ export const staveNotesToNotationItems = (staveNotes: StaveNote[], space = 25): 
             })
         }
         x += space;
-        const inNewBar = beatToBar(beat) !== beatToBar(beat + staveNote.beats)
         beat = beat + staveNote.beats;
+        const inNewBar = beatToBar(staveNote.atBeat) !== beatToBar(staveNote.atBeat + staveNote.beats)
         if (inNewBar) {
             console.log('bar', { beat })
             x += space
@@ -98,7 +93,28 @@ export const staveNotesToNotationItems = (staveNotes: StaveNote[], space = 25): 
     // TO DO - split the notes and rests to fit in bars!
     staveNotes.forEach((staveNote) => {
 
-        if (hasSymbol(staveNote)) {
+        const beatsLeftInBar = (beat: number) => {
+            const currentBar = beatToBar(beat);
+            const endsAt = currentBar * BEATS_PER_BAR;
+            console.log(`in bar ${currentBar}, ending at ${endsAt} at beat ${beat}, there are ${endsAt - beat} left, and this note is ${staveNote.beats} long`)
+            return endsAt - beat
+        }
+        const beatsLeft = beatsLeftInBar(beat);
+
+        if (staveNote.beats > beatsLeft) {
+
+            const before = splitNote({ ...staveNote, beats: beatsLeft })
+            const after = splitNote({ ...staveNote, beats: staveNote.beats - beatsLeft })
+            const atStart = x + 25 + 10;
+            [...before, ...after].forEach(addNote);
+            items.push({
+                type: 'Tie',
+                x: atStart,
+                endX: x+25,
+                notes: [...before, ...after],
+            })
+
+        } else if (hasSymbol(staveNote)) {
             addNote(staveNote);
         } else {
             const splitNotes = splitNote(staveNote);
