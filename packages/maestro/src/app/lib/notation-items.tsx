@@ -59,7 +59,7 @@ export const staveNotesToNotationItems = (staveNotes: StaveNote[], space = 25): 
     let x = 0;
     let beat = 0
 
-    const beatToBar = (beat: number) => Math.ceil((beat + .01) / BEATS_PER_BAR);
+    const beatToBar = (beat: number) => 1 + Math.floor(beat / BEATS_PER_BAR);
 
     const addNote = (staveNote: StaveNote) => {
         if (staveNote.note) {
@@ -77,7 +77,7 @@ export const staveNotesToNotationItems = (staveNotes: StaveNote[], space = 25): 
         }
         x += space;
         beat = beat + staveNote.beats;
-        const inNewBar = beatToBar(staveNote.atBeat) !== beatToBar(staveNote.atBeat + staveNote.beats)
+        const inNewBar = staveNote.atBeat + staveNote.beats >= beatToBar(staveNote.atBeat) * BEATS_PER_BAR;
         if (inNewBar) {
             console.log('bar', { beat })
             x += space
@@ -110,7 +110,7 @@ export const staveNotesToNotationItems = (staveNotes: StaveNote[], space = 25): 
             items.push({
                 type: 'Tie',
                 x: atStart,
-                endX: x+25,
+                endX: x + 25,
                 notes: [...before, ...after],
             })
 
