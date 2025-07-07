@@ -45,7 +45,7 @@ export const BELL: Instrument = {
 export const MaestroBase = () => {
 
     const soundDeck = useSoundDeck()
-    const [staveText, setStaveText] = useState(songs.chromaticScale);
+    const [staveText, setStaveText] = useState(songs.odeToJoy);
     const [stave, setStave] = useState<EnhancedStave>(new EnhancedStave(BELL, parseStaveNotes(staveText)))
     const [musicControl, setMusicControl] = useState<MusicControl>();
     const [beatNumber, setBeatNumber] = useState<number>();

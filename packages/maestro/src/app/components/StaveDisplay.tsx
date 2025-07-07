@@ -1,6 +1,7 @@
 import { EnhancedStave, StaveNote } from "sound-deck";
 import { MusicalNote } from "./MusicalNote";
 import { MusicalRest } from "./MusicalRest";
+import { staveToNotationItems } from "../lib/notation-items";
 
 interface Props {
     stave: EnhancedStave;
@@ -9,64 +10,6 @@ interface Props {
 
 const LEFT_SPACE = 40
 
-type NotationItemBase = {
-    x: number,
-}
-
-type NotationItemNote = NotationItemBase & {
-    type: 'Note'
-    staveNote: StaveNote
-}
-type NotationItemRest = NotationItemBase & {
-    type: 'Rest'
-    staveNote: StaveNote
-}
-type NotationItemBar = NotationItemBase & {
-    type: 'Bar'
-    beats: number
-}
-
-type NotationItem = NotationItemNote | NotationItemRest | NotationItemBar
-
-const staveToNotationItems = (stave: EnhancedStave): NotationItem[] => {
-
-    const items: NotationItem[] = [];
-
-    let x = 0;
-    let beat = 0
-
-    const beatToBar = (beat: number) => Math.ceil((beat) / 4);
-
-    // TO DO - ties!
-    // TO DO - split the notes and rests to fit in bars!
-    stave.notes.forEach((staveNote) => {
-        if (staveNote.note) {
-            items.push({
-                staveNote,
-                type: 'Note',
-                x: x,
-            })
-        } else {
-            items.push({
-                staveNote,
-                type: 'Rest',
-                x: x,
-            })
-        }
-        x += 25;
-        const inNewBar = beat > 0 && beatToBar(beat) !== beatToBar(beat + staveNote.beats)
-        beat = beat + staveNote.beats;
-        if (inNewBar) {
-            items.push({
-                type: 'Bar',
-                x: x + 5,
-                beats: beat
-            })
-        }
-    })
-
-    return items
-}
 
 export const StaveDisplay = ({ stave, beatNumber }: Props) => {
 
@@ -76,10 +19,8 @@ export const StaveDisplay = ({ stave, beatNumber }: Props) => {
     }
 
     const items = staveToNotationItems(stave)
-    console.log(items);
 
-
-    const staveWidth = (LEFT_SPACE * 2) + (items.filter(i => i.type !== 'Bar').length * 25);
+    const staveWidth = (LEFT_SPACE * 2) + (items.length * 25);
 
     return <div css={{
         width: staveWidth,
@@ -89,6 +30,7 @@ export const StaveDisplay = ({ stave, beatNumber }: Props) => {
         background: 'whitesmoke',
     }}>
         <svg
+            stroke="grey"
             viewBox={`0 0 ${staveWidth} 100`}
             preserveAspectRatio="none"
             css={{
@@ -118,14 +60,24 @@ export const StaveDisplay = ({ stave, beatNumber }: Props) => {
                             cx={LEFT_SPACE + item.x}
                         />
                     case "Bar":
-                        return <line key={index}
-                            x1={item.x}
-                            x2={item.x}
-                            y1={20}
-                            y2={60}
-                            stroke="grey"
-                            strokeWidth={2}
-                        ></line>
+                        return <g key={index} data-bar-beat={item.beats}>
+                            <text x={item.x - 5} y={15} >{item.beats}</text>
+                            <line
+                                x1={item.x}
+                                x2={item.x}
+                                y1={20}
+                                y2={60}
+                                stroke="grey"
+                                strokeWidth={2}
+                            ></line>
+                        </g>
+                    // TO DO - use the notes property of the tie to set the correct Y coord
+                    case "Tie":
+                        return <path key={index}
+                            stroke="black"
+                            fill="none"
+                            d={`M ${item.x} ${60} Q ${(item.x + item.endX) / 2} 80 ${item.endX} ${60} `}
+                        ></path>
                 }
                 return null
             })}
