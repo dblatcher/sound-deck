@@ -22,7 +22,6 @@ type NotationItemTie = NotationItemBase & {
     notes: StaveNote[]
 }
 
-const BEATS_PER_BAR = 4;
 
 const periodsWithSymbols = [
     4,
@@ -52,14 +51,12 @@ const splitNote = (originalNote: StaveNote): StaveNote[] => {
 
 export type NotationItem = NotationItemNote | NotationItemRest | NotationItemBar | NotationItemTie
 
-export const staveNotesToNotationItems = (staveNotes: StaveNote[], space = 25): NotationItem[] => {
-
+export const staveNotesToNotationItems = (staveNotes: StaveNote[], beatPerBar = 4, space = 25): NotationItem[] => {
     const items: NotationItem[] = [];
-
     let x = 0;
     let beat = 0
 
-    const beatToBar = (beat: number) => 1 + Math.floor(beat / BEATS_PER_BAR);
+    const beatToBar = (beat: number) => 1 + Math.floor(beat / beatPerBar);
 
     const addNote = (staveNote: StaveNote) => {
         if (staveNote.note) {
@@ -77,7 +74,7 @@ export const staveNotesToNotationItems = (staveNotes: StaveNote[], space = 25): 
         }
         x += space;
         beat = beat + staveNote.beats;
-        const inNewBar = staveNote.atBeat + staveNote.beats >= beatToBar(staveNote.atBeat) * BEATS_PER_BAR;
+        const inNewBar = staveNote.atBeat + staveNote.beats >= beatToBar(staveNote.atBeat) * beatPerBar;
         if (inNewBar) {
             console.log('bar', { beat })
             x += space
@@ -95,14 +92,13 @@ export const staveNotesToNotationItems = (staveNotes: StaveNote[], space = 25): 
 
         const beatsLeftInBar = (beat: number) => {
             const currentBar = beatToBar(beat);
-            const endsAt = currentBar * BEATS_PER_BAR;
+            const endsAt = currentBar * beatPerBar;
             console.log(`in bar ${currentBar}, ending at ${endsAt} at beat ${beat}, there are ${endsAt - beat} left, and this note is ${staveNote.beats} long`)
             return endsAt - beat
         }
         const beatsLeft = beatsLeftInBar(beat);
 
         if (staveNote.beats > beatsLeft) {
-
             const before = splitNote({ ...staveNote, beats: beatsLeft })
             const after = splitNote({ ...staveNote, beats: staveNote.beats - beatsLeft })
             const atStart = x + 25 + 10;
@@ -113,7 +109,6 @@ export const staveNotesToNotationItems = (staveNotes: StaveNote[], space = 25): 
                 endX: x + 25,
                 notes: [...before, ...after],
             })
-
         } else if (hasSymbol(staveNote)) {
             addNote(staveNote);
         } else {

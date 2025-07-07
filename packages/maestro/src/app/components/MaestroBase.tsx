@@ -1,6 +1,6 @@
 import { EnhancedStave, Instrument, MusicControl, parseStaveNotes, playMusic } from "sound-deck"
 import { useSoundDeck } from "../context/SoundDeckProvider"
-import { useState } from "react"
+import { ChangeEventHandler, useState } from "react"
 import { css } from "@emotion/react"
 import { StaveDisplay } from "./StaveDisplay";
 
@@ -25,6 +25,11 @@ E4...E...F...G...|G...F...E...D...|C...C...D...E...|E...D...D.......|
     chromaticScale: `
 CC#DD#EFF#GG#AA#B
 C.C#.D.D#.E.F.F#.G.G#.A.A#.B.`,
+
+    blowTheManDown: `
+G.....A.G...|E...C...E...|G...A...G...|E...........|G...........|A...........|F.....E.F...|D...........|
+F.....E.F...|D...D...D...|F...G...F...|D...........|G...G...G...|G.......F...|E.....D.E...|C...........|
+`
 };
 
 
@@ -44,11 +49,16 @@ export const BELL: Instrument = {
 export const MaestroBase = () => {
     const soundDeck = useSoundDeck()
     const [staveText, setStaveText] = useState(songs.odeToJoy);
+    const [timeSignature, setTimeSignature] = useState(4);
     const [musicControl, setMusicControl] = useState<MusicControl>();
     const [beatNumber, setBeatNumber] = useState<number>();
 
     const handleBeat = (beat: number) => {
         setBeatNumber(beat)
+    }
+
+    const handleTimeSignatureChange: ChangeEventHandler<HTMLInputElement> = ({ currentTarget: { valueAsNumber } }) => {
+        setTimeSignature(valueAsNumber)
     }
 
     const play = () => {
@@ -88,7 +98,21 @@ export const MaestroBase = () => {
                     value={staveText}
                 />
             </div>
-            <StaveDisplay staveText={staveText} beatNumber={beatNumber} />
+            <div>
+                <label>
+                    <span>beats per bar</span>
+                    <input type="number"
+                        value={timeSignature}
+                        min={2} max={8} onChange={handleTimeSignatureChange} />
+                </label>
+            </div>
+            <div css={{
+                maxWidth: '100%',
+                display: 'relative',
+                overflowX: 'scroll',
+            }}>
+                <StaveDisplay staveText={staveText} beatNumber={beatNumber} beatsPerBar={timeSignature} />
+            </div>
             <div>Beat: {beatNumber}</div>
             <button disabled={!!musicControl} onClick={play}>play</button>
             <button disabled={!musicControl} onClick={stop}>stop</button>

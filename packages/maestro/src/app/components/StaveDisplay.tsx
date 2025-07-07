@@ -7,18 +7,19 @@ import { MusicalRest } from "./MusicalRest";
 interface Props {
     staveText: string;
     beatNumber?: number;
+    beatsPerBar: number;
 }
 
 const LEFT_SPACE = 40
 
 
-export const StaveDisplay = ({ staveText, beatNumber }: Props) => {
+export const StaveDisplay = ({ staveText, beatNumber, beatsPerBar }: Props) => {
 
     const [items, setItems] = useState<NotationItem[]>([])
 
     useEffect(() => {
-        setItems(staveNotesToNotationItems(parseStaveNotes(staveText)))
-    }, [staveText])
+        setItems(staveNotesToNotationItems(parseStaveNotes(staveText), beatsPerBar))
+    }, [staveText, beatsPerBar])
 
     const isCurrentNote = (staveNote: StaveNote) => {
         if (typeof beatNumber === 'undefined') { return false }
