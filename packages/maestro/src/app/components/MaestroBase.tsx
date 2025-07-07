@@ -29,7 +29,6 @@ C.C#.D.D#.E.F.F#.G.G#.A.A#.B.`,
 
 
 
-
 export const BELL: Instrument = {
     soundType: 'tone',
     type: 'triangle',
@@ -43,10 +42,8 @@ export const BELL: Instrument = {
 
 
 export const MaestroBase = () => {
-
     const soundDeck = useSoundDeck()
     const [staveText, setStaveText] = useState(songs.odeToJoy);
-    const [stave, setStave] = useState<EnhancedStave>(new EnhancedStave(BELL, parseStaveNotes(staveText)))
     const [musicControl, setMusicControl] = useState<MusicControl>();
     const [beatNumber, setBeatNumber] = useState<number>();
 
@@ -56,7 +53,7 @@ export const MaestroBase = () => {
 
     const play = () => {
         const control = playMusic(soundDeck)([
-            stave
+            new EnhancedStave(BELL, parseStaveNotes(staveText))
         ], 5)
         setMusicControl(control);
         control.onQuarterBeat(handleBeat)
@@ -82,7 +79,6 @@ export const MaestroBase = () => {
                 <textarea
                     onChange={({ target: { value } }) => {
                         setStaveText(value)
-                        setStave(new EnhancedStave(BELL, parseStaveNotes(value)))
                     }}
                     css={css({
                         display: 'block',
@@ -92,7 +88,7 @@ export const MaestroBase = () => {
                     value={staveText}
                 />
             </div>
-            <StaveDisplay stave={stave} beatNumber={beatNumber} />
+            <StaveDisplay staveText={staveText} beatNumber={beatNumber} />
             <div>Beat: {beatNumber}</div>
             <button disabled={!!musicControl} onClick={play}>play</button>
             <button disabled={!musicControl} onClick={stop}>stop</button>

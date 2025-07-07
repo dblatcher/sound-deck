@@ -1,24 +1,29 @@
-import { EnhancedStave, StaveNote } from "sound-deck";
+import { useEffect, useState } from "react";
+import { parseStaveNotes, StaveNote } from "sound-deck";
+import { NotationItem, staveNotesToNotationItems } from "../lib/notation-items";
 import { MusicalNote } from "./MusicalNote";
 import { MusicalRest } from "./MusicalRest";
-import { staveToNotationItems } from "../lib/notation-items";
 
 interface Props {
-    stave: EnhancedStave;
+    staveText: string;
     beatNumber?: number;
 }
 
 const LEFT_SPACE = 40
 
 
-export const StaveDisplay = ({ stave, beatNumber }: Props) => {
+export const StaveDisplay = ({ staveText, beatNumber }: Props) => {
+
+    const [items, setItems] = useState<NotationItem[]>([])
+
+    useEffect(() => {
+        setItems(staveNotesToNotationItems(parseStaveNotes(staveText)))
+    }, [staveText])
 
     const isCurrentNote = (staveNote: StaveNote) => {
         if (typeof beatNumber === 'undefined') { return false }
         return beatNumber >= staveNote.atBeat && beatNumber < staveNote.atBeat + staveNote.beats
     }
-
-    const items = staveToNotationItems(stave)
 
     const staveWidth = (LEFT_SPACE * 2) + (items.length * 25);
 

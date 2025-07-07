@@ -1,4 +1,4 @@
-import { EnhancedStave, StaveNote } from "sound-deck";
+import { StaveNote } from "sound-deck";
 
 type NotationItemBase = {
     x: number,
@@ -50,7 +50,7 @@ const splitNote = (originalNote: StaveNote): StaveNote[] => {
 
 export type NotationItem = NotationItemNote | NotationItemRest | NotationItemBar | NotationItemTie
 
-export const staveToNotationItems = (stave: EnhancedStave, space = 25): NotationItem[] => {
+export const staveNotesToNotationItems = (staveNotes: StaveNote[], space = 25): NotationItem[] => {
 
     const items: NotationItem[] = [];
 
@@ -96,7 +96,7 @@ export const staveToNotationItems = (stave: EnhancedStave, space = 25): Notation
 
     console.clear()
     // TO DO - split the notes and rests to fit in bars!
-    stave.notes.forEach((staveNote) => {
+    staveNotes.forEach((staveNote) => {
 
         if (hasSymbol(staveNote)) {
             addNote(staveNote);
