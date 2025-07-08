@@ -8,7 +8,7 @@ import { pieces } from "../lib/songs";
 
 export const BELL: Instrument = {
     soundType: 'tone',
-    type: 'sawtooth',
+    type: 'triangle',
     playPattern: [
         { time: 0, vol: .1 },
         { time: .2, vol: 1 },
