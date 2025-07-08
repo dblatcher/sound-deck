@@ -3,35 +3,7 @@ import { useSoundDeck } from "../context/SoundDeckProvider"
 import { ChangeEventHandler, useState } from "react"
 import { css } from "@emotion/react"
 import { StaveDisplay } from "./StaveDisplay";
-
-
-const songs = {
-    odeToJoy: `
-E4...E...F...G...|G...F...E...D...|C...C...D...E...|E...D...D.......|
- E...E...F...G...|G...F...E...D...|C...C...D...E...|D...C...C.......|
-`,
-
-    restTest: `
--
--.
--..
--...
--.....
--.......
--...........
--...............
--.......................
-`,
-    chromaticScale: `
-CC#DD#EFF#GG#AA#B
-C.C#.D.D#.E.F.F#.G.G#.A.A#.B.`,
-
-    blowTheManDown: `
-G.....A.G...|E...C...E...|G...A...G...|E...........|G...........|A...........|F.....E.F...|D...........|
-F.....E.F...|D...D...D...|F...G...F...|D...........|G...G...G...|G.......F...|E.....D.E...|C...........|
-`
-};
-
+import { pieces } from "../lib/songs";
 
 
 export const BELL: Instrument = {
@@ -48,7 +20,7 @@ export const BELL: Instrument = {
 
 export const MaestroBase = () => {
     const soundDeck = useSoundDeck()
-    const [staveText, setStaveText] = useState(songs.odeToJoy);
+    const [staveText, setStaveText] = useState(pieces[0]?.staveText ?? '');
     const [timeSignature, setTimeSignature] = useState(4);
     const [musicControl, setMusicControl] = useState<MusicControl>();
     const [beatNumber, setBeatNumber] = useState<number>();
@@ -104,6 +76,17 @@ export const MaestroBase = () => {
                     <input type="number"
                         value={timeSignature}
                         min={2} max={8} onChange={handleTimeSignatureChange} />
+                </label>
+
+                <label>
+                    <span>song</span>
+                    <select onChange={({ target: { value: indexString } }) => {
+                        const index = Number(indexString)
+                        setStaveText(pieces[index]?.staveText ?? '');
+                        setTimeSignature(pieces[index]?.timeSignature ?? 4);
+                    }}>
+                        {pieces.map((piece, index) => <option key={index} value={index} >{piece.title}</option>)}
+                    </select>
                 </label>
             </div>
             <div css={{
