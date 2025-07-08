@@ -8,7 +8,7 @@ import { pieces } from "../lib/songs";
 
 export const BELL: Instrument = {
     soundType: 'tone',
-    type: 'triangle',
+    type: 'sawtooth',
     playPattern: [
         { time: 0, vol: .1 },
         { time: .2, vol: 1 },
@@ -94,7 +94,10 @@ export const MaestroBase = () => {
                 display: 'relative',
                 overflowX: 'scroll',
             }}>
-                <StaveDisplay staveText={staveText} beatNumber={beatNumber} beatsPerBar={timeSignature} />
+                <StaveDisplay 
+                    staveText={staveText} 
+                    beatNumber={beatNumber} 
+                    beatsPerBar={timeSignature} />
             </div>
             <div>Beat: {beatNumber}</div>
             <button disabled={!!musicControl} onClick={play}>play</button>
