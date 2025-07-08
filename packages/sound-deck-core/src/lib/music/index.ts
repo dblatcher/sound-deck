@@ -5,7 +5,7 @@ import { parseStaveNotes } from "./parse-stave-notes"
 import { EnhancedStave } from "./staves"
 
 export type {
-    Instrument, PercussiveInstrument, TonalInstrument
+    Instrument, PercussiveInstrument, TonalInstrument, StaveNote
 }
 
 
@@ -209,5 +209,3 @@ export const playMusic = (soundDeck: AbstractSoundDeck) => (staves: Array<Stave 
         }
     }
 }
-
-export { StaveNote } from './types'; 
