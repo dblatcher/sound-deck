@@ -94,7 +94,7 @@ export const MaestroBase = () => {
                 display: 'relative',
                 overflowX: 'scroll',
             }}>
-                <StaveDisplay 
+                <StaveDisplay barsPerLine={undefined}
                     staveText={staveText} 
                     beatNumber={beatNumber} 
                     beatsPerBar={timeSignature} />

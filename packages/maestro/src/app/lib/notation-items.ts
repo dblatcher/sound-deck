@@ -12,14 +12,14 @@ type NotationItemRest = NotationItemBase & {
     type: 'Rest'
     staveNote: StaveNote
 }
-type NotationItemBar = NotationItemBase & {
+export type NotationItemBar = NotationItemBase & {
     type: 'Bar'
     beats: number
     bar: number
 }
 export type NotationItemTie = NotationItemBase & {
     type: 'Tie'
-    endX: number
+    length: number
     notes: StaveNote[]
 }
 
@@ -93,7 +93,7 @@ export const staveNotesToNotationItems = (staveNotes: StaveNote[], beatPerBar = 
         items.push({
             type: 'Tie',
             x: tieStart,
-            endX: x - space,
+            length: x - space - tieStart,
             notes: tiedNotes,
         })
     }

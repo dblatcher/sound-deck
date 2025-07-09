@@ -13,6 +13,6 @@ export const MusicalTie = ({ tie, leftSpace }: Props) => {
     return <path
         stroke="black"
         fill="none"
-        d={`M ${leftSpace + tie.x} ${y} Q ${leftSpace + (tie.x + tie.endX) / 2} ${y + 20} ${leftSpace + tie.endX} ${y} `}
+        d={`M ${leftSpace + tie.x} ${y} Q ${leftSpace + (tie.x*2 + tie.length) / 2} ${y + 20} ${leftSpace + tie.x + tie.length} ${y} `}
     ></path>
 }
