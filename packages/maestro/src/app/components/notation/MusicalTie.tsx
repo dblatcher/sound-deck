@@ -1,5 +1,5 @@
-import { NotationItemTie } from "../lib/notation-items"
-import { MIDDLE_C, placesFromMiddleC } from "../lib/notation-utils"
+import { NotationItemTie } from "../../lib/notation-items"
+import { MIDDLE_C, placesFromMiddleC } from "../../lib/notation-utils"
 
 interface Props {
     tie: NotationItemTie;

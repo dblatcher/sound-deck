@@ -1,5 +1,5 @@
 import { StaveNote } from "sound-deck";
-import { MIDDLE_C, placesFromMiddleC } from "../lib/notation-utils";
+import { MIDDLE_C, placesFromMiddleC } from "../../lib/notation-utils";
 
 interface Props {
     staveNote: StaveNote;
