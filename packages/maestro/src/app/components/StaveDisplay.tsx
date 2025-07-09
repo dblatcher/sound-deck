@@ -41,7 +41,7 @@ const NotationSymbol = ({ item, isCurrentNote: isCurrent }: { item: NotationItem
                 ></line>
             </g>
         case "Tie":
-            return <MusicalTie item={item} leftSpace={LEFT_SPACE}/>
+            return <MusicalTie tie={item} leftSpace={LEFT_SPACE}/>
     }
 }
 
