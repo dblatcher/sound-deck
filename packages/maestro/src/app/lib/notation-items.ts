@@ -15,6 +15,7 @@ type NotationItemRest = NotationItemBase & {
 type NotationItemBar = NotationItemBase & {
     type: 'Bar'
     beats: number
+    bar: number
 }
 export type NotationItemTie = NotationItemBase & {
     type: 'Tie'
@@ -76,12 +77,12 @@ export const staveNotesToNotationItems = (staveNotes: StaveNote[], beatPerBar = 
         beat = beat + staveNote.beats;
         const inNewBar = staveNote.atBeat + staveNote.beats >= beatToBar(staveNote.atBeat) * beatPerBar;
         if (inNewBar) {
-            console.log('bar', { beat })
             x += space
             items.push({
                 type: 'Bar',
                 x: x + space / 2,
-                beats: beat
+                beats: beat,
+                bar: beatToBar(beat) - 1
             })
         }
     }

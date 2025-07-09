@@ -30,7 +30,7 @@ const NotationSymbol = ({ item, isCurrentNote: isCurrent }: { item: NotationItem
             />
         case "Bar":
             return <g data-bar-beat={item.beats}>
-                <text x={item.x - 5} y={15} >{item.beats}</text>
+                <text x={item.x - 5} y={15} >{item.bar}</text>
                 <line
                     x1={item.x}
                     x2={item.x}
