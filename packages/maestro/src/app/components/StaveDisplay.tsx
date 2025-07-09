@@ -4,6 +4,7 @@ import { NotationItem, staveNotesToNotationItems } from "../lib/notation-items";
 import { MusicalNote } from "./MusicalNote";
 import { MusicalRest } from "./MusicalRest";
 import { StaveFrame } from "./StaveFrame";
+import { MusicalTie } from "./MusicalTie";
 
 interface Props {
     staveText: string;
@@ -39,13 +40,8 @@ const NotationSymbol = ({ item, isCurrentNote: isCurrent }: { item: NotationItem
                     strokeWidth={2}
                 ></line>
             </g>
-        // TO DO - use the notes property of the tie to set the correct Y coord
         case "Tie":
-            return <path
-                stroke="black"
-                fill="none"
-                d={`M ${item.x} ${60} Q ${(item.x + item.endX) / 2} 80 ${item.endX} ${60} `}
-            ></path>
+            return <MusicalTie item={item} leftSpace={LEFT_SPACE}/>
     }
 }
 

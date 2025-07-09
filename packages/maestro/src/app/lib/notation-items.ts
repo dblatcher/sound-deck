@@ -16,7 +16,7 @@ type NotationItemBar = NotationItemBase & {
     type: 'Bar'
     beats: number
 }
-type NotationItemTie = NotationItemBase & {
+export type NotationItemTie = NotationItemBase & {
     type: 'Tie'
     endX: number
     notes: StaveNote[]
@@ -86,14 +86,21 @@ export const staveNotesToNotationItems = (staveNotes: StaveNote[], beatPerBar = 
         }
     }
 
-    console.clear()
-    // TO DO - split the notes and rests to fit in bars!
-    staveNotes.forEach((staveNote) => {
+    const addNotesAndTie = (tiedNotes: StaveNote[]) => {
+        const tieStart = x;
+        tiedNotes.forEach(addNote)
+        items.push({
+            type: 'Tie',
+            x: tieStart,
+            endX: x - space,
+            notes: tiedNotes,
+        })
+    }
 
+    staveNotes.forEach((staveNote) => {
         const beatsLeftInBar = (beat: number) => {
             const currentBar = beatToBar(beat);
             const endsAt = currentBar * beatPerBar;
-            console.log(`in bar ${currentBar}, ending at ${endsAt} at beat ${beat}, there are ${endsAt - beat} left, and this note is ${staveNote.beats} long`)
             return endsAt - beat
         }
         const beatsLeft = beatsLeftInBar(beat);
@@ -101,26 +108,12 @@ export const staveNotesToNotationItems = (staveNotes: StaveNote[], beatPerBar = 
         if (staveNote.beats > beatsLeft) {
             const before = splitNote({ ...staveNote, beats: beatsLeft })
             const after = splitNote({ ...staveNote, beats: staveNote.beats - beatsLeft })
-            const atStart = x + 25 + 10;
-            [...before, ...after].forEach(addNote);
-            items.push({
-                type: 'Tie',
-                x: atStart,
-                endX: x + 25,
-                notes: [...before, ...after],
-            })
+            addNotesAndTie([...before, ...after])
+
         } else if (hasSymbol(staveNote)) {
             addNote(staveNote);
         } else {
-            const splitNotes = splitNote(staveNote);
-            const atStart = x + 25 + 10;
-            splitNotes.forEach(addNote)
-            items.push({
-                type: 'Tie',
-                x: atStart,
-                endX: x,
-                notes: splitNotes,
-            })
+            addNotesAndTie(splitNote(staveNote))
         }
     })
 
