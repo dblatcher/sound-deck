@@ -59,7 +59,7 @@ export const MaestroBase = () => {
             <h1>maestro</h1>
         </header>
         <main>
-            <div>
+            <div css={{ marginBottom: 10 }}>
                 <textarea
                     onChange={({ target: { value } }) => {
                         setStaveText(value)
@@ -72,7 +72,7 @@ export const MaestroBase = () => {
                     value={staveText}
                 />
             </div>
-            <div>
+            <div css={{ marginBottom: 10 }}>
                 <label>
                     <span>beats per bar</span>
                     <input type="number"
@@ -93,8 +93,10 @@ export const MaestroBase = () => {
                     <span>song</span>
                     <select onChange={({ target: { value: indexString } }) => {
                         const index = Number(indexString)
-                        setStaveText(pieces[index]?.staveText ?? '');
-                        setTimeSignature(pieces[index]?.timeSignature ?? 4);
+                        const piece = pieces[index];
+                        setStaveText(piece?.staveText ?? '');
+                        setTimeSignature(piece?.timeSignature ?? 4);
+                        setClef(piece.clef ?? clef)
                     }}>
                         {pieces.map((piece, index) => <option key={index} value={index} >{piece.title}</option>)}
                     </select>
@@ -107,7 +109,7 @@ export const MaestroBase = () => {
             }}>
                 <StaveDisplay
                     clef={clef}
-                    barsPerLine={undefined}
+                    barsPerLine={8}
                     staveText={staveText}
                     beatNumber={beatNumber}
                     beatsPerBar={timeSignature} />
