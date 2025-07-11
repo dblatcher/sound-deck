@@ -4,6 +4,7 @@ import { ChangeEventHandler, useState } from "react"
 import { css } from "@emotion/react"
 import { StaveDisplay } from "./StaveDisplay";
 import { pieces } from "../lib/songs";
+import { BASE_CLEF, Clef, clefs, TREBLE_CLEF } from "../lib/notation-utils";
 
 
 export const BELL: Instrument = {
@@ -21,6 +22,7 @@ export const BELL: Instrument = {
 export const MaestroBase = () => {
     const soundDeck = useSoundDeck()
     const [staveText, setStaveText] = useState(pieces[0]?.staveText ?? '');
+    const [clef, setClef] = useState<Clef>(TREBLE_CLEF);
     const [timeSignature, setTimeSignature] = useState(4);
     const [musicControl, setMusicControl] = useState<MusicControl>();
     const [beatNumber, setBeatNumber] = useState<number>();
@@ -77,6 +79,15 @@ export const MaestroBase = () => {
                         value={timeSignature}
                         min={2} max={8} onChange={handleTimeSignatureChange} />
                 </label>
+                <label>
+                    <span>clef</span>
+                    <select onChange={({ target: { value: indexString } }) => {
+                        const index = Number(indexString)
+                        setClef(clefs[index] ?? TREBLE_CLEF)
+                    }}>
+                        {clefs.map((clef, index) => <option key={index} value={index} >{clef.name}</option>)}
+                    </select>
+                </label>
 
                 <label>
                     <span>song</span>
@@ -94,9 +105,11 @@ export const MaestroBase = () => {
                 display: 'relative',
                 overflowX: 'scroll',
             }}>
-                <StaveDisplay barsPerLine={undefined}
-                    staveText={staveText} 
-                    beatNumber={beatNumber} 
+                <StaveDisplay
+                    clef={clef}
+                    barsPerLine={undefined}
+                    staveText={staveText}
+                    beatNumber={beatNumber}
                     beatsPerBar={timeSignature} />
             </div>
             <div>Beat: {beatNumber}</div>

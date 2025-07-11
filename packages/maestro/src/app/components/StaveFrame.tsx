@@ -1,15 +1,12 @@
 import { ReactNode } from "react";
+import { Clef } from "../lib/notation-utils";
 
 interface Props {
     staveWidth: number,
     children: ReactNode,
-    clef?: 'treble' | 'base',
+    clef: Clef
 }
 
-const clefSymbols = {
-    treble: "𝄞",
-    base: "𝄢",
-}
 
 export const StaveFrame = ({ staveWidth, children, clef }: Props) => {
 
@@ -36,7 +33,7 @@ export const StaveFrame = ({ staveWidth, children, clef }: Props) => {
             <line x1={0} x2={staveWidth} y1={50} y2={50}></line>
             <line x1={0} x2={staveWidth} y1={60} y2={60}></line>
 
-            {!!clef && <text x={5} y={60} fontSize={40}>{clefSymbols[clef]}</text>}
+            {!!clef && <text x={5} y={60} fontSize={40}>{clef.symbol}</text>}
 
             {children}
         </svg>

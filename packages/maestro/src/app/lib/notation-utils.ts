@@ -1,8 +1,28 @@
 import { StaveNote } from "sound-deck";
 
 
-// TO DO - this will vary with clef
-export const MIDDLE_C = 70
+export type Clef = {
+    name: string;
+    symbol: string,
+    middleC: number
+}
+
+export const TREBLE_CLEF: Clef = {
+    name: 'treble',
+    symbol: "𝄞",
+    middleC: 70,
+};
+
+export const BASE_CLEF: Clef = {
+    name: 'base',
+    symbol: '𝄢',
+    middleC: 10
+}
+
+export const clefs: Clef[] = [
+    TREBLE_CLEF,
+    BASE_CLEF
+]
 
 
 export const placesFromMiddleC = (staveNote: StaveNote) => {

@@ -8,13 +8,15 @@ interface Props {
     item: NotationItem;
     isCurrentNote: { (staveNote: StaveNote): boolean }
     leftSpace: number
+    middleC: number;
 }
 
 
-export const NotationSymbol = ({ item, isCurrentNote, leftSpace }: Props) => {
+export const NotationSymbol = ({ item, isCurrentNote, leftSpace, middleC }: Props) => {
     switch (item.type) {
         case "Note":
             return <MusicalNote
+                middleC={middleC}
                 staveNote={item.staveNote}
                 isCurrentNote={isCurrentNote(item.staveNote)}
                 cx={leftSpace + item.x}
@@ -38,6 +40,10 @@ export const NotationSymbol = ({ item, isCurrentNote, leftSpace }: Props) => {
                 ></line>
             </g>
         case "Tie":
-            return <MusicalTie tie={item} leftSpace={leftSpace} />
+            return <MusicalTie
+                middleC={middleC}
+                tie={item}
+                leftSpace={leftSpace}
+            />
     }
 }

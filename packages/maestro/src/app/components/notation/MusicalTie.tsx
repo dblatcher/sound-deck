@@ -1,14 +1,15 @@
-import { NotationItemTie } from "../../lib/notation-items"
-import { MIDDLE_C, placesFromMiddleC } from "../../lib/notation-utils"
+import { NotationItemTie } from "../../lib/notation-items";
+import { placesFromMiddleC } from "../../lib/notation-utils";
 
 interface Props {
     tie: NotationItemTie;
     leftSpace: number;
+    middleC: number
 }
 
-export const MusicalTie = ({ tie, leftSpace }: Props) => {
+export const MusicalTie = ({ tie, leftSpace, middleC }: Props) => {
     const [firstNote] = tie.notes
-    const y = firstNote ? MIDDLE_C + placesFromMiddleC(firstNote) * 5 : 60;
+    const y = firstNote ? middleC + placesFromMiddleC(firstNote) * 5 : 60;
 
     return <path
         stroke="black"

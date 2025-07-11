@@ -1,10 +1,11 @@
 import { StaveNote } from "sound-deck";
-import { MIDDLE_C, placesFromMiddleC } from "../../lib/notation-utils";
+import { placesFromMiddleC } from "../../lib/notation-utils";
 
 interface Props {
     staveNote: StaveNote;
     isCurrentNote: boolean;
     cx: number;
+    middleC: number;
 }
 
 
@@ -85,8 +86,8 @@ const getNoteShape = (durationInCrotchets: number): NoteShape => {
 
 }
 
-export const MusicalNote = ({ staveNote, isCurrentNote, cx }: Props) => {
-    const cy = MIDDLE_C + (placesFromMiddleC(staveNote) * 5);
+export const MusicalNote = ({ staveNote, isCurrentNote, cx, middleC }: Props) => {
+    const cy = middleC + (placesFromMiddleC(staveNote) * 5);
     const isAboveCenter = cy < 40;
     const noteShape = getNoteShape(staveNote.beats);
 

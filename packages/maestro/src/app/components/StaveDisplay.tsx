@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { parseStaveNotes, StaveNote } from "sound-deck";
-import { NotationItem, NotationItemBar, staveNotesToNotationItems } from "../lib/notation-items";
+import { NotationItem, staveNotesToNotationItems } from "../lib/notation-items";
+import { Clef } from "../lib/notation-utils";
 import { NotationSymbol } from "./notation/NotationSymbol";
 import { StaveFrame } from "./StaveFrame";
 
@@ -9,6 +10,7 @@ interface Props {
     beatNumber?: number;
     beatsPerBar: number;
     barsPerLine?: number;
+    clef: Clef;
 }
 
 const LEFT_SPACE = 50
@@ -40,7 +42,7 @@ const splitByBars = (items: NotationItem[], barsPerLine: number): NotationItem[]
 }
 
 
-export const StaveDisplay = ({ staveText, beatNumber, beatsPerBar, barsPerLine }: Props) => {
+export const StaveDisplay = ({ clef, staveText, beatNumber, beatsPerBar, barsPerLine }: Props) => {
 
     const [items, setItems] = useState<NotationItem[]>([])
     useEffect(() => {
@@ -56,8 +58,14 @@ export const StaveDisplay = ({ staveText, beatNumber, beatsPerBar, barsPerLine }
         return (
             <StaveFrame
                 staveWidth={(LEFT_SPACE * 2) + (items.length * 25)}
-                clef="treble">
-                {items.map((item, index) => <NotationSymbol key={index} item={item} isCurrentNote={isCurrentNote} leftSpace={LEFT_SPACE} />)}
+                clef={clef}>
+                {items.map((item, index) =>
+                    <NotationSymbol key={index}
+                        middleC={clef.middleC}
+                        item={item}
+                        isCurrentNote={isCurrentNote}
+                        leftSpace={LEFT_SPACE} />
+                )}
             </StaveFrame>
         )
 
@@ -69,8 +77,14 @@ export const StaveDisplay = ({ staveText, beatNumber, beatsPerBar, barsPerLine }
         {lines.map((items, index) => (
             <StaveFrame key={index}
                 staveWidth={(LEFT_SPACE * 2) + (items.length * 25)}
-                clef="treble">
-                {items.map((item, index) => <NotationSymbol key={index} item={item} isCurrentNote={isCurrentNote} leftSpace={LEFT_SPACE} />)}
+                clef={clef}>
+                {items.map((item, index) =>
+                    <NotationSymbol key={index}
+                        middleC={clef.middleC}
+                        item={item}
+                        isCurrentNote={isCurrentNote}
+                        leftSpace={LEFT_SPACE} />
+                )}
             </StaveFrame>
         ))}
     </>
