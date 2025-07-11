@@ -74,8 +74,8 @@ export const staveNotesToNotationItems = (staveNotes: StaveNote[], beatPerBar = 
             })
         }
         x += space;
+        const inNewBar = beatToBar(beat + staveNote.beats) > beatToBar(beat);
         beat = beat + staveNote.beats;
-        const inNewBar = staveNote.atBeat + staveNote.beats >= beatToBar(staveNote.atBeat) * beatPerBar;
         if (inNewBar) {
             x += space
             items.push({
