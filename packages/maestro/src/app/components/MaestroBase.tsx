@@ -36,14 +36,16 @@ export const MaestroBase = () => {
     }
 
     const play = () => {
-        const control = playMusic(soundDeck)([
-            new EnhancedStave(BELL, parseStaveNotes(staveText))
-        ], 5)
-        setMusicControl(control);
-        control.onQuarterBeat(handleBeat)
-        control.whenEnded.then(() => {
-            setBeatNumber(undefined)
-            setMusicControl(undefined)
+        soundDeck.enable().then(() => {
+            const control = playMusic(soundDeck)([
+                new EnhancedStave(BELL, parseStaveNotes(staveText))
+            ], 5)
+            setMusicControl(control);
+            control.onQuarterBeat(handleBeat)
+            control.whenEnded.then(() => {
+                setBeatNumber(undefined)
+                setMusicControl(undefined)
+            })
         })
     }
 
