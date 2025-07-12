@@ -86,17 +86,47 @@ const getNoteShape = (durationInCrotchets: number): NoteShape => {
 
 }
 
+const LOWER_STAVE_BAR = 60;
+const getLowerLines = (noteY: number): number[] => {
+    if (noteY <= LOWER_STAVE_BAR) {
+        return []
+    }
+
+    return [
+        (noteY > 65) ? 70 : [],
+        (noteY > 70) ? 80 : [],
+        (noteY > 80) ? 90 : [],
+    ].flat()
+}
+
+const UPPER_STAVE_BAR = 20;
+const getUpperLines = (noteY: number): number[] => {
+    if (noteY >= UPPER_STAVE_BAR) {
+        return []
+    }
+
+    return [
+        (noteY < 15) ? 10 : [],
+        (noteY < 10) ? 0 : [],
+    ].flat()
+}
+
 export const MusicalNote = ({ staveNote, isCurrentNote, cx, middleC }: Props) => {
-    const cy = middleC + (placesFromMiddleC(staveNote) * 5);
-    const isAboveCenter = cy < 40;
+    const noteY = middleC + (placesFromMiddleC(staveNote) * 5);
+    const isAboveCenter = noteY < 40;
     const noteShape = getNoteShape(staveNote.beats);
 
     return <g>
+
+        {[...getLowerLines(noteY), ...getUpperLines(noteY)].map((lineY, index) => (
+            <line key={index} y1={lineY} y2={lineY} x1={cx - 10} x2={cx + 10} ></line>
+        ))}
+
         <ellipse
             rx={5}
             ry={3}
             cx={cx}
-            cy={cy}
+            cy={noteY}
             fill={isCurrentNote ? 'red' : noteShape.fill ? 'black' : 'none'}
             stroke="black"
         ></ellipse>
@@ -105,7 +135,7 @@ export const MusicalNote = ({ staveNote, isCurrentNote, cx, middleC }: Props) =>
             <circle
                 r={2}
                 cx={cx + 9}
-                cy={cy}
+                cy={noteY}
                 fill="black"
             ></circle>
         )}
@@ -113,9 +143,9 @@ export const MusicalNote = ({ staveNote, isCurrentNote, cx, middleC }: Props) =>
         {noteShape.line &&
             <line
                 x1={isAboveCenter ? cx - 5 : cx + 5}
-                y1={cy}
+                y1={noteY}
                 x2={isAboveCenter ? cx - 5 : cx + 5}
-                y2={isAboveCenter ? cy + 22 : cy - 22}
+                y2={isAboveCenter ? noteY + 22 : noteY - 22}
                 stroke="black"
             ></line>
         }
@@ -124,25 +154,25 @@ export const MusicalNote = ({ staveNote, isCurrentNote, cx, middleC }: Props) =>
             <line
                 strokeWidth={2}
                 x1={isAboveCenter ? cx - 5 : cx + 5}
-                y1={isAboveCenter ? cy + 22 : cy - 22}
+                y1={isAboveCenter ? noteY + 22 : noteY - 22}
                 x2={isAboveCenter ? cx - 12 : cx + 12}
-                y2={isAboveCenter ? cy + 22 : cy - 22}
+                y2={isAboveCenter ? noteY + 22 : noteY - 22}
                 stroke="black"></line>
         }
         {noteShape.secondMark &&
             <line
                 strokeWidth={2}
                 x1={isAboveCenter ? cx - 5 : cx + 5}
-                y1={isAboveCenter ? cy + 18 : cy - 18}
+                y1={isAboveCenter ? noteY + 18 : noteY - 18}
                 x2={isAboveCenter ? cx - 12 : cx + 12}
-                y2={isAboveCenter ? cy + 18 : cy - 18}
+                y2={isAboveCenter ? noteY + 18 : noteY - 18}
                 stroke="black"></line>
         }
         {staveNote.note?.name.includes('#') && (
-            <text x={cx - 14} y={cy + 4}>#</text>
+            <text stroke="black" x={cx - 14} y={noteY + 4}>#</text>
         )}
         {staveNote.note?.name.includes('b') && (
-            <text x={cx - 14} y={cy + 4}>b</text>
+            <text stroke="black" x={cx - 14} y={noteY + 4}>b</text>
         )}
     </g>
 }
