@@ -10,13 +10,13 @@ export type Clef = {
 export const TREBLE_CLEF: Clef = {
     name: 'treble',
     symbol: "𝄞",
-    middleC: 70,
+    middleC: 90,
 };
 
 export const BASE_CLEF: Clef = {
     name: 'base',
     symbol: '𝄢',
-    middleC: 10
+    middleC: 30
 }
 
 export const clefs: Clef[] = [

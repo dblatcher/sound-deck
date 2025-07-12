@@ -86,28 +86,29 @@ const getNoteShape = (durationInCrotchets: number): NoteShape => {
 
 }
 
-const LOWER_STAVE_BAR = 60;
+const LOWER_STAVE_BAR = 80;
 const getLowerLines = (noteY: number): number[] => {
     if (noteY <= LOWER_STAVE_BAR) {
         return []
     }
 
     return [
-        (noteY > 65) ? 70 : [],
-        (noteY > 70) ? 80 : [],
-        (noteY > 80) ? 90 : [],
+        (noteY > LOWER_STAVE_BAR + 5) ? LOWER_STAVE_BAR + 10 : [],
+        (noteY > LOWER_STAVE_BAR + 10) ? LOWER_STAVE_BAR + 20 : [],
+        (noteY > LOWER_STAVE_BAR + 20) ? LOWER_STAVE_BAR + 30 : [],
     ].flat()
 }
 
-const UPPER_STAVE_BAR = 20;
+const UPPER_STAVE_BAR = 40;
 const getUpperLines = (noteY: number): number[] => {
     if (noteY >= UPPER_STAVE_BAR) {
         return []
     }
 
     return [
-        (noteY < 15) ? 10 : [],
-        (noteY < 10) ? 0 : [],
+        (noteY < UPPER_STAVE_BAR - 5) ? UPPER_STAVE_BAR - 10 : [],
+        (noteY < UPPER_STAVE_BAR - 15) ? UPPER_STAVE_BAR - 20 : [],
+        (noteY < UPPER_STAVE_BAR - 20) ? UPPER_STAVE_BAR - 30 : [],
     ].flat()
 }
 

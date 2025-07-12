@@ -1,10 +1,10 @@
-import { EnhancedStave, Instrument, MusicControl, parseStaveNotes, playMusic } from "sound-deck"
-import { useSoundDeck } from "../context/SoundDeckProvider"
-import { ChangeEventHandler, useState } from "react"
-import { css } from "@emotion/react"
-import { StaveDisplay } from "./StaveDisplay";
+import { css } from "@emotion/react";
+import { ChangeEventHandler, useState } from "react";
+import { EnhancedStave, Instrument, MusicControl, parseStaveNotes, playMusic } from "sound-deck";
+import { useSoundDeck } from "../context/SoundDeckProvider";
+import { Clef, clefs, TREBLE_CLEF } from "../lib/notation-utils";
 import { pieces } from "../lib/songs";
-import { BASE_CLEF, Clef, clefs, TREBLE_CLEF } from "../lib/notation-utils";
+import { StaveDisplay } from "./StaveDisplay";
 
 
 export const BELL: Instrument = {
