@@ -12,7 +12,7 @@ export const TREBLE_CLEF: Clef = {
     name: 'treble',
     symbol: "𝄞",
     middleC: 90,
-    transform: 'scaleY(1.5) translateY(-25%)',
+    transform: 'scaleY(1.5) translateY(-15px)',
 };
 
 export const BASE_CLEF: Clef = {

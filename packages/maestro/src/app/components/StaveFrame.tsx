@@ -34,7 +34,7 @@ export const StaveFrame = ({ staveWidth, children, clef, timeSignature }: Props)
             <line x1={0} x2={staveWidth} y1={70} y2={70}></line>
             <line x1={0} x2={staveWidth} y1={80} y2={80}></line>
 
-            <text style={{ transform: clef.transform }} x={5} y={80} fontSize={40} >{clef.symbol}</text>
+            <text style={{ transform: clef.transform }} x={5} y={70} fontSize={40} >{clef.symbol}</text>
 
             {timeSignature && (
                 <>
