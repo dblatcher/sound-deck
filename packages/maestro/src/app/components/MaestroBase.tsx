@@ -2,7 +2,7 @@ import { css } from "@emotion/react";
 import { ChangeEventHandler, useState } from "react";
 import { EnhancedStave, Instrument, MusicControl, parseStaveNotes, playMusic } from "sound-deck";
 import { useSoundDeck } from "../context/SoundDeckProvider";
-import { BASE_CLEF, Clef, clefs, COMMON_TIME, TREBLE_CLEF } from "../lib/notation-utils";
+import { BASE_CLEF, Clef, COMMON_TIME, TREBLE_CLEF } from "../lib/notation-utils";
 import { pieces } from "../lib/songs";
 import { StaveDisplay } from "./StaveDisplay";
 import { StaveEditor } from "./StaveEditor";
@@ -37,13 +37,15 @@ const styles = {
     }),
 }
 
+const [firstPiece] = pieces;
+
 
 export const MaestroBase = () => {
     const soundDeck = useSoundDeck()
-    const [firstStaveText, setFirstStaveText] = useState(pieces[0]?.staveText ?? '');
-    const [firstClef, setFirstClef] = useState<Clef>(TREBLE_CLEF);
-    const [secondStaveText, setSecondStaveText] = useState('');
-    const [secondClef, setSecondClef] = useState<Clef>(TREBLE_CLEF);
+    const [firstStaveText, setFirstStaveText] = useState(firstPiece.staves[0].text ?? '');
+    const [firstClef, setFirstClef] = useState<Clef>(firstPiece.staves[0].clef ?? TREBLE_CLEF);
+    const [secondStaveText, setSecondStaveText] = useState(firstPiece.staves[1]?.text ?? '');
+    const [secondClef, setSecondClef] = useState<Clef>(firstPiece.staves[1]?.clef ?? TREBLE_CLEF);
     const [timeSignatureBeats, setTimeSignatureBeats] = useState(4);
     const [timeSignatureBeatValue, setTimeSignatureBeatValue] = useState(4);
     const [musicControl, setMusicControl] = useState<MusicControl>();
@@ -99,11 +101,16 @@ export const MaestroBase = () => {
                         if (!piece) {
                             return
                         }
-                        const { timeSignature = COMMON_TIME, staveText } = piece;
-                        setFirstStaveText(staveText);
+                        const { timeSignature = COMMON_TIME } = piece;
+                        const [firstStave, secondStave] = piece.staves;
+                        setFirstStaveText(firstStave.text);
                         setTimeSignatureBeats(timeSignature.beats);
+
+                        setSecondStaveText(secondStave?.text ?? '')
+                        setSecondClef(secondStave?.clef ?? BASE_CLEF)
+
                         setTimeSignatureBeatValue(timeSignatureBeatValue)
-                        setFirstClef(piece.clef ?? firstClef)
+                        setFirstClef(firstStave.clef)
                     }}>
                         {pieces.map((piece, index) => <option key={index} value={index} >{piece.title}</option>)}
                     </select>
