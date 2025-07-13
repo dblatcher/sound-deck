@@ -4,11 +4,11 @@ type NotationItemBase = {
     x: number,
 }
 
-type NotationItemNote = NotationItemBase & {
+export type NotationItemNote = NotationItemBase & {
     type: 'Note'
     staveNote: StaveNote
 }
-type NotationItemRest = NotationItemBase & {
+export type NotationItemRest = NotationItemBase & {
     type: 'Rest'
     staveNote: StaveNote
 }

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { parseStaveNotes, StaveNote } from "sound-deck";
-import { NotationItem, splitByBars, staveNotesToNotationItems } from "../lib/notation-items";
+import { NotationItem, NotationItemBar, NotationItemNote, NotationItemRest, splitByBars, staveNotesToNotationItems } from "../lib/notation-items";
 import { Clef, TimeSignature } from "../lib/notation-utils";
 import { NotationSymbol } from "./notation/NotationSymbol";
 import { StaveFrame } from "./StaveFrame";
@@ -52,7 +52,7 @@ const arrangeLines = (staves: ProcessedStave[]): ArrangedLines => {
 }
 
 
-const lastNoteOrRest = (items: NotationItem[]) => [...items].reverse().find(item => item.type === 'Note' || item.type === 'Rest')
+const lastNoteOrRest = (items: NotationItem[]) => [...items].reverse().find(item => item.type === 'Note' || item.type === 'Rest') as NotationItemNote | NotationItemRest | undefined;
 
 export const StaveDisplay = ({ textAndClefList, beatNumber, barsPerLine, timeSignature }: Props) => {
     const [sheet, setSheet] = useState<ArrangedLines>([]);
@@ -76,10 +76,16 @@ export const StaveDisplay = ({ textAndClefList, beatNumber, barsPerLine, timeSig
     return <>
         {sheet.map((line) => {
             return <div css={{ marginBottom: 15, paddingLeft: 5, borderLeft: '3px double black', borderRadius: 30 }} key={line.lineIndex}>
-                {line.linesFromEachStave.map(({ clef, items }, index) => (
-                    <StaveFrame key={index}
+                {line.linesFromEachStave.map(({ clef, items }, index) => {
+
+                    const last = lastNoteOrRest(items);
+                    const lastX = last?.x ?? 0;
+                    const lastBeats = last?.staveNote?.beats ?? 1;
+
+
+                    return <StaveFrame key={index}
                         timeSignature={line.lineIndex === 0 ? timeSignature : undefined}
-                        staveWidth={LEFT_SPACE + (lastNoteOrRest(items)?.x ?? 0) + DEFAULT_NOTE_SPACE * 1.5}
+                        staveWidth={LEFT_SPACE + lastX + DEFAULT_NOTE_SPACE * (lastBeats + .5)}
                         clef={clef}>
                         {items.map((item, index) =>
                             <NotationSymbol key={index}
@@ -89,7 +95,7 @@ export const StaveDisplay = ({ textAndClefList, beatNumber, barsPerLine, timeSig
                                 leftSpace={LEFT_SPACE} />
                         )}
                     </StaveFrame>
-                ))}
+                })}
             </div>
         })}
     </>
