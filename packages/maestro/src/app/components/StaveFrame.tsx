@@ -14,7 +14,6 @@ export const StaveFrame = ({ staveWidth, children, clef, timeSignature }: Props)
     return <div css={{
         width: staveWidth,
         height: 120,
-        marginBottom: '2rem',
         position: 'relative',
         background: 'whitesmoke',
     }}>

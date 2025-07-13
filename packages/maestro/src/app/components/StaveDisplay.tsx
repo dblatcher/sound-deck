@@ -6,25 +6,66 @@ import { NotationSymbol } from "./notation/NotationSymbol";
 import { StaveFrame } from "./StaveFrame";
 import { DEFAULT_NOTE_SPACE, LEFT_SPACE } from "../lib/stave-positions";
 
+
 interface Props {
-    staveText: string;
+    textAndClefList: {
+        staveText: string;
+        clef: Clef;
+    }[]
+
     beatNumber?: number;
     barsPerLine?: number;
-    clef: Clef;
     timeSignature: TimeSignature;
 }
 
+
+type ProcessedStave = {
+    clef: Clef;
+    lines: NotationItem[][];
+}
+
+type ArrangedLines = {
+    lineIndex: number
+    linesFromEachStave: {
+        clef: Clef;
+        items: NotationItem[];
+    }[]
+}[]
+
+const arrangeLines = (staves: ProcessedStave[]): ArrangedLines => {
+    const arrangedLines: ArrangedLines = []
+    const addLine = (lineIndex = 0) => {
+        if (!staves.some(stave => stave.lines.length > lineIndex)) {
+            return
+        }
+        arrangedLines.push({
+            lineIndex,
+            linesFromEachStave: staves.map(staveAndClef => ({
+                clef: staveAndClef.clef,
+                items: staveAndClef.lines[lineIndex] ?? []
+            }))
+        })
+        addLine(lineIndex + 1)
+    }
+    addLine()
+    return arrangedLines;
+}
+
+
 const lastNoteOrRest = (items: NotationItem[]) => [...items].reverse().find(item => item.type === 'Note' || item.type === 'Rest')
 
-export const StaveDisplay = ({ clef, staveText, beatNumber, barsPerLine, timeSignature }: Props) => {
+export const StaveDisplay = ({ textAndClefList, beatNumber, barsPerLine, timeSignature }: Props) => {
+    const [sheet, setSheet] = useState<ArrangedLines>([]);
 
-    const [linesOfMusic, setLinesOfMusic] = useState<NotationItem[][]>([])
     useEffect(() => {
         const crotchetsPerBar = timeSignature.beats * (4 / timeSignature.beatValue);
-        const allItems = staveNotesToNotationItems(parseStaveNotes(staveText), crotchetsPerBar, DEFAULT_NOTE_SPACE);
-        const lines = splitByBars(allItems, barsPerLine ?? Infinity);
-        setLinesOfMusic(lines)
-    }, [staveText, timeSignature, barsPerLine, clef])
+        const allItemsEveryStave = textAndClefList.map(({ staveText, clef }) => {
+            const items = staveNotesToNotationItems(parseStaveNotes(staveText), crotchetsPerBar, DEFAULT_NOTE_SPACE);
+            const lines = splitByBars(items, barsPerLine ?? Infinity);
+            return { clef, lines }
+        });
+        setSheet(arrangeLines(allItemsEveryStave))
+    }, [textAndClefList, timeSignature, barsPerLine])
 
     const isCurrentNote = (staveNote: StaveNote) => {
         if (typeof beatNumber === 'undefined') { return false }
@@ -33,20 +74,24 @@ export const StaveDisplay = ({ clef, staveText, beatNumber, barsPerLine, timeSig
 
 
     return <>
-        {linesOfMusic.map((items, index) => (
-            <StaveFrame key={index}
-                timeSignature={index === 0 ? timeSignature : undefined}
-                staveWidth={LEFT_SPACE + (lastNoteOrRest(items)?.x ?? 0) + DEFAULT_NOTE_SPACE * 1.5}
-                clef={clef}>
-                {items.map((item, index) =>
-                    <NotationSymbol key={index}
-                        middleC={clef.middleC}
-                        item={item}
-                        isCurrentNote={isCurrentNote}
-                        leftSpace={LEFT_SPACE} />
-                )}
-            </StaveFrame>
-        ))}
+        {sheet.map((line) => {
+            return <div css={{ marginBottom: 15, paddingLeft: 5, borderLeft: '3px double black', borderRadius: 30 }} key={line.lineIndex}>
+                {line.linesFromEachStave.map(({ clef, items }, index) => (
+                    <StaveFrame key={index}
+                        timeSignature={line.lineIndex === 0 ? timeSignature : undefined}
+                        staveWidth={LEFT_SPACE + (lastNoteOrRest(items)?.x ?? 0) + DEFAULT_NOTE_SPACE * 1.5}
+                        clef={clef}>
+                        {items.map((item, index) =>
+                            <NotationSymbol key={index}
+                                middleC={clef.middleC}
+                                item={item}
+                                isCurrentNote={isCurrentNote}
+                                leftSpace={LEFT_SPACE} />
+                        )}
+                    </StaveFrame>
+                ))}
+            </div>
+        })}
     </>
 
 }

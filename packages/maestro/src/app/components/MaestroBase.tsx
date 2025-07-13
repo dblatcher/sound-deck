@@ -2,9 +2,10 @@ import { css } from "@emotion/react";
 import { ChangeEventHandler, useState } from "react";
 import { EnhancedStave, Instrument, MusicControl, parseStaveNotes, playMusic } from "sound-deck";
 import { useSoundDeck } from "../context/SoundDeckProvider";
-import { Clef, clefs, COMMON_TIME, TREBLE_CLEF } from "../lib/notation-utils";
+import { BASE_CLEF, Clef, clefs, COMMON_TIME, TREBLE_CLEF } from "../lib/notation-utils";
 import { pieces } from "../lib/songs";
 import { StaveDisplay } from "./StaveDisplay";
+import { StaveEditor } from "./StaveEditor";
 
 
 export const BELL: Instrument = {
@@ -36,15 +37,19 @@ const styles = {
     }),
 }
 
+
 export const MaestroBase = () => {
     const soundDeck = useSoundDeck()
-    const [staveText, setStaveText] = useState(pieces[0]?.staveText ?? '');
-    const [clef, setClef] = useState<Clef>(TREBLE_CLEF);
+    const [firstStaveText, setFirstStaveText] = useState(pieces[0]?.staveText ?? '');
+    const [firstClef, setFirstClef] = useState<Clef>(TREBLE_CLEF);
+    const [secondStaveText, setSecondStaveText] = useState('');
+    const [secondClef, setSecondClef] = useState<Clef>(TREBLE_CLEF);
     const [timeSignatureBeats, setTimeSignatureBeats] = useState(4);
     const [timeSignatureBeatValue, setTimeSignatureBeatValue] = useState(4);
     const [musicControl, setMusicControl] = useState<MusicControl>();
     const [beatNumber, setBeatNumber] = useState<number>();
-    const [barsPerLine, setBarsPerLine] = useState<number>();
+    const [barsPerLine, setBarsPerLine] = useState<number>(6);
+    const [tempo, setTempo] = useState<number>(5);
 
     const handleBeat = (beat: number) => {
         setBeatNumber(beat)
@@ -60,8 +65,9 @@ export const MaestroBase = () => {
     const play = () => {
         soundDeck.enable().then(() => {
             const control = playMusic(soundDeck)([
-                new EnhancedStave(BELL, parseStaveNotes(staveText))
-            ], 5)
+                new EnhancedStave(BELL, parseStaveNotes(firstStaveText)),
+                new EnhancedStave(BELL, parseStaveNotes(secondStaveText)),
+            ], tempo)
             setMusicControl(control);
             control.onQuarterBeat(handleBeat)
             control.whenEnded.then(() => {
@@ -94,10 +100,10 @@ export const MaestroBase = () => {
                             return
                         }
                         const { timeSignature = COMMON_TIME, staveText } = piece;
-                        setStaveText(staveText);
+                        setFirstStaveText(staveText);
                         setTimeSignatureBeats(timeSignature.beats);
                         setTimeSignatureBeatValue(timeSignatureBeatValue)
-                        setClef(piece.clef ?? clef)
+                        setFirstClef(piece.clef ?? firstClef)
                     }}>
                         {pieces.map((piece, index) => <option key={index} value={index} >{piece.title}</option>)}
                     </select>
@@ -108,12 +114,17 @@ export const MaestroBase = () => {
                 <div>Beat: {beatNumber}</div>
             </section>
             <section css={styles.section}>
-                <textarea
-                    onChange={({ target: { value } }) => {
-                        setStaveText(value)
-                    }}
-                    css={styles.textArea}
-                    value={staveText}
+                <StaveEditor
+                    setClef={setFirstClef}
+                    setStaveText={setFirstStaveText}
+                    staveText={firstStaveText}
+                    clef={firstClef}
+                />
+                <StaveEditor
+                    setClef={setSecondClef}
+                    setStaveText={setSecondStaveText}
+                    staveText={secondStaveText}
+                    clef={secondClef}
                 />
             </section>
             <section css={styles.section}>
@@ -123,17 +134,14 @@ export const MaestroBase = () => {
                         value={barsPerLine}
                         min={2} max={16} onChange={({ currentTarget: { valueAsNumber } }) => setBarsPerLine(valueAsNumber)} />
                 </label>
-                <label>
-                    <span>clef</span>
-                    <select value={clefs.findIndex(i => i === clef)} onChange={({ target: { value: indexString } }) => {
-                        const index = Number(indexString)
-                        setClef(clefs[index] ?? TREBLE_CLEF)
-                    }}>
-                        {clefs.map((clef, index) => <option key={index} value={index} >{clef.name}</option>)}
-                    </select>
-                </label>
             </section>
             <section css={styles.section}>
+                <label>
+                    <span>tempo</span>
+                    <input type="number"
+                        value={tempo}
+                        min={2} max={8} onChange={({ currentTarget: { valueAsNumber } }) => setTempo(valueAsNumber)} />
+                </label>
                 <label>
                     <span>beats per bar</span>
                     <input type="number"
@@ -150,12 +158,13 @@ export const MaestroBase = () => {
                 </label>
             </section>
 
-
             <div css={styles.sideScroll}>
                 <StaveDisplay
-                    clef={clef}
+                    textAndClefList={[
+                        { clef: firstClef, staveText: firstStaveText },
+                        { clef: secondClef, staveText: secondStaveText },
+                    ]}
                     barsPerLine={barsPerLine}
-                    staveText={staveText}
                     beatNumber={beatNumber}
                     timeSignature={{
                         beats: timeSignatureBeats,
