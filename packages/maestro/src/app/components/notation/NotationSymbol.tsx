@@ -29,7 +29,7 @@ export const NotationSymbol = ({ item, isCurrentNote, leftSpace, middleC }: Prop
             />
         case "Bar":
             return <g data-bar-beat={item.beats}>
-                <text x={item.x - 5} y={35} >{item.bar}</text>
+                <text x={item.x - 5} y={35} >{item.bar + 1}</text>
                 <line
                     x1={item.x}
                     x2={item.x}

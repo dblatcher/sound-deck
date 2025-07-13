@@ -75,8 +75,9 @@ export const staveNotesToNotationItems = (staveNotes: StaveNote[], crotchetsPerB
         }
         x += space;
         const inNewBar = beatToBar(beat + staveNote.beats) > beatToBar(beat);
+        const isLastNote = staveNotes.length-1 === staveNotes.indexOf(staveNote);
         beat = beat + staveNote.beats;
-        if (inNewBar) {
+        if (inNewBar && !isLastNote ) {
             x += space
             items.push({
                 type: 'Bar',
@@ -99,16 +100,16 @@ export const staveNotesToNotationItems = (staveNotes: StaveNote[], crotchetsPerB
     }
 
     staveNotes.forEach((staveNote) => {
-        const beatsLeftInBar = (beat: number) => {
+        const countBeatsLeftInBar = (beat: number) => {
             const currentBar = beatToBar(beat);
             const endsAt = currentBar * crotchetsPerBar;
             return endsAt - beat
         }
-        const beatsLeft = beatsLeftInBar(beat);
+        const beatsLeftInBar = countBeatsLeftInBar(beat);
 
-        if (staveNote.beats > beatsLeft) {
-            const before = splitNote({ ...staveNote, beats: beatsLeft })
-            const after = splitNote({ ...staveNote, beats: staveNote.beats - beatsLeft })
+        if (staveNote.beats > beatsLeftInBar) {
+            const before = splitNote({ ...staveNote, beats: beatsLeftInBar })
+            const after = splitNote({ ...staveNote, beats: staveNote.beats - beatsLeftInBar })
             addNotesAndTie([...before, ...after])
 
         } else if (hasSymbol(staveNote)) {
@@ -124,6 +125,8 @@ export const staveNotesToNotationItems = (staveNotes: StaveNote[], crotchetsPerB
 
 
 // TO DO - account for ties across bars!
+// replace the original ties with one at the end of the line and one at the begining of the next line
+// need new property to say if the tie is start/end to control the curve shape
 export const splitByBars = (items: NotationItem[], barsPerLine: number): NotationItem[][] => {
 
     const source = [...items];
