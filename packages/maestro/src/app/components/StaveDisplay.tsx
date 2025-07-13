@@ -14,7 +14,7 @@ interface Props {
     timeSignature: TimeSignature;
 }
 
-
+const lastNoteOrRest = (items: NotationItem[]) => [...items].reverse().find(item => item.type === 'Note' || item.type === 'Rest')
 
 export const StaveDisplay = ({ clef, staveText, beatNumber, barsPerLine, timeSignature }: Props) => {
 
@@ -36,7 +36,7 @@ export const StaveDisplay = ({ clef, staveText, beatNumber, barsPerLine, timeSig
         {linesOfMusic.map((items, index) => (
             <StaveFrame key={index}
                 timeSignature={index === 0 ? timeSignature : undefined}
-                staveWidth={LEFT_SPACE + (items[items.length - 1]?.x) + DEFAULT_NOTE_SPACE}
+                staveWidth={LEFT_SPACE + (lastNoteOrRest(items)?.x ?? 0) + DEFAULT_NOTE_SPACE * 1.5}
                 clef={clef}>
                 {items.map((item, index) =>
                     <NotationSymbol key={index}
