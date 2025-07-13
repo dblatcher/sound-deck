@@ -78,13 +78,13 @@ export const staveNotesToNotationItems = (staveNotes: StaveNote[], crotchetsPerB
         const isLastNote = staveNotes.length-1 === staveNotes.indexOf(staveNote);
         beat = beat + staveNote.beats;
         if (inNewBar && !isLastNote ) {
-            x += space
             items.push({
                 type: 'Bar',
-                x: x + space / 2,
+                x: x,
                 beats: beat,
                 bar: beatToBar(beat) - 1
             })
+            x += space
         }
     }
 
