@@ -36,7 +36,7 @@ export const StaveDisplay = ({ clef, staveText, beatNumber, barsPerLine, timeSig
         {linesOfMusic.map((items, index) => (
             <StaveFrame key={index}
                 timeSignature={index === 0 ? timeSignature : undefined}
-                staveWidth={(LEFT_SPACE * 1) + (items.length * 25)}
+                staveWidth={LEFT_SPACE + (items[items.length - 1]?.x) + DEFAULT_NOTE_SPACE}
                 clef={clef}>
                 {items.map((item, index) =>
                     <NotationSymbol key={index}

@@ -74,7 +74,7 @@ export const staveNotesToNotationItems = (staveNotes: StaveNote[], crotchetsPerB
                 x: x,
             })
         }
-        x += space;
+        x += space * staveNote.beats;
         const inNewBar = beatToBar(beat + staveNote.beats) > beatToBar(beat);
         const isLastNote = staveNotes.length - 1 === staveNotes.indexOf(staveNote);
         beat = beat + staveNote.beats;
@@ -92,10 +92,11 @@ export const staveNotesToNotationItems = (staveNotes: StaveNote[], crotchetsPerB
     const addNotesAndTie = (tiedNotes: StaveNote[]) => {
         const tieStart = x;
         tiedNotes.forEach(addNote)
+        const lastNoteSpace = space * (tiedNotes[tiedNotes.length - 1]?.beats ?? 1)
         items.push({
             type: 'Tie',
             x: tieStart,
-            length: x - space - tieStart,
+            length: x - lastNoteSpace - tieStart,
             notes: tiedNotes,
         })
     }
