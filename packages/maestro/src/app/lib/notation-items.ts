@@ -129,7 +129,6 @@ export const splitByBars = (items: NotationItem[], barsPerLine: number): Notatio
 
     const source = [...items];
     const lines: NotationItem[][] = [];
-    console.clear()
     const takeNextSet = () => {
         if (source.length === 0) {
             return
