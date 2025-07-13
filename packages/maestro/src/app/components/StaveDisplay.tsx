@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { parseStaveNotes, StaveNote } from "sound-deck";
-import { NotationItem, staveNotesToNotationItems } from "../lib/notation-items";
+import { NotationItem, splitByBars, staveNotesToNotationItems } from "../lib/notation-items";
 import { Clef } from "../lib/notation-utils";
 import { NotationSymbol } from "./notation/NotationSymbol";
 import { StaveFrame } from "./StaveFrame";
@@ -15,68 +15,29 @@ interface Props {
 }
 
 
-// TO DO - account for ties across bars!
-const splitByBars = (items: NotationItem[], barsPerLine: number): NotationItem[][] => {
-
-    const source = [...items];
-    const lines: NotationItem[][] = [];
-
-    const takeNextSet = () => {
-        if (source.length === 0) {
-            return
-        }
-        const nextSplitIndex = source.findIndex(i => i.type === 'Bar' && i.bar % barsPerLine === 0);
-        const xOffset = source[0]?.x ?? 0;
-        const shiftToStart = (itemSet: NotationItem[]) => itemSet.map(i => ({ ...i, x: i.x - xOffset }))
-        if (nextSplitIndex === -1) {
-            lines.push(shiftToStart(source));
-            return
-        }
-        const nextSet = source.splice(0, nextSplitIndex + 1);
-        lines.push(shiftToStart(nextSet))
-        takeNextSet()
-    }
-    takeNextSet()
-
-    return lines
-}
-
 
 export const StaveDisplay = ({ clef, staveText, beatNumber, beatsPerBar, barsPerLine }: Props) => {
 
-    const [items, setItems] = useState<NotationItem[]>([])
+    const [linesOfMusic, setLinesOfMusic] = useState<NotationItem[][]>([])
     useEffect(() => {
-        setItems(staveNotesToNotationItems(parseStaveNotes(staveText), beatsPerBar, DEFAULT_NOTE_SPACE))
-    }, [staveText, beatsPerBar])
+
+        const allItems = staveNotesToNotationItems(parseStaveNotes(staveText), beatsPerBar, DEFAULT_NOTE_SPACE); 
+
+        const lines = splitByBars(allItems, barsPerLine ?? Infinity);
+
+        setLinesOfMusic(lines)
+    }, [staveText, beatsPerBar, barsPerLine])
 
     const isCurrentNote = (staveNote: StaveNote) => {
         if (typeof beatNumber === 'undefined') { return false }
         return beatNumber >= staveNote.atBeat && beatNumber < staveNote.atBeat + staveNote.beats
     }
 
-    if (!barsPerLine) {
-        return (
-            <StaveFrame
-                staveWidth={(LEFT_SPACE * 2) + (items.length * DEFAULT_NOTE_SPACE)}
-                clef={clef}>
-                {items.map((item, index) =>
-                    <NotationSymbol key={index}
-                        middleC={clef.middleC}
-                        item={item}
-                        isCurrentNote={isCurrentNote}
-                        leftSpace={LEFT_SPACE} />
-                )}
-            </StaveFrame>
-        )
-
-    }
-
-    const lines = splitByBars(items, barsPerLine);
 
     return <>
-        {lines.map((items, index) => (
+        {linesOfMusic.map((items, index) => (
             <StaveFrame key={index}
-                staveWidth={(LEFT_SPACE * 2) + (items.length * 25)}
+                staveWidth={(LEFT_SPACE * 1) + (items.length * 25)}
                 clef={clef}>
                 {items.map((item, index) =>
                     <NotationSymbol key={index}

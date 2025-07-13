@@ -26,6 +26,7 @@ export const MaestroBase = () => {
     const [timeSignature, setTimeSignature] = useState(4);
     const [musicControl, setMusicControl] = useState<MusicControl>();
     const [beatNumber, setBeatNumber] = useState<number>();
+    const [barsPerLine, setBarsPerLine] = useState<number>();
 
     const handleBeat = (beat: number) => {
         setBeatNumber(beat)
@@ -61,7 +62,26 @@ export const MaestroBase = () => {
             <h1>maestro</h1>
         </header>
         <main>
-            <div css={{ marginBottom: 10 }}>
+
+            <section css={{ marginBottom: 10, display: 'flex', gap: 10 }}>
+                <label>
+                    <span>song</span>
+                    <select onChange={({ target: { value: indexString } }) => {
+                        const index = Number(indexString)
+                        const piece = pieces[index];
+                        setStaveText(piece?.staveText ?? '');
+                        setTimeSignature(piece?.timeSignature ?? 4);
+                        setClef(piece.clef ?? clef)
+                    }}>
+                        {pieces.map((piece, index) => <option key={index} value={index} >{piece.title}</option>)}
+                    </select>
+                </label>
+
+                <button disabled={!!musicControl} onClick={play}>play</button>
+                <button disabled={!musicControl} onClick={stop}>stop</button>
+                <div>Beat: {beatNumber}</div>
+            </section>
+            <section css={{ marginBottom: 10 }}>
                 <textarea
                     onChange={({ target: { value } }) => {
                         setStaveText(value)
@@ -73,8 +93,16 @@ export const MaestroBase = () => {
                     })}
                     value={staveText}
                 />
-            </div>
-            <div css={{ marginBottom: 10 }}>
+            </section>
+            <section css={{ marginBottom: 10 }}>
+                <label>
+                    <span>bars per line</span>
+                    <input type="number"
+                        value={barsPerLine}
+                        min={2} max={16} onChange={({currentTarget:{valueAsNumber}})=> setBarsPerLine(valueAsNumber)} />
+                </label>
+            </section>
+            <section css={{ marginBottom: 10 }}>
                 <label>
                     <span>beats per bar</span>
                     <input type="number"
@@ -90,20 +118,9 @@ export const MaestroBase = () => {
                         {clefs.map((clef, index) => <option key={index} value={index} >{clef.name}</option>)}
                     </select>
                 </label>
+            </section>
 
-                <label>
-                    <span>song</span>
-                    <select onChange={({ target: { value: indexString } }) => {
-                        const index = Number(indexString)
-                        const piece = pieces[index];
-                        setStaveText(piece?.staveText ?? '');
-                        setTimeSignature(piece?.timeSignature ?? 4);
-                        setClef(piece.clef ?? clef)
-                    }}>
-                        {pieces.map((piece, index) => <option key={index} value={index} >{piece.title}</option>)}
-                    </select>
-                </label>
-            </div>
+
             <div css={{
                 maxWidth: '100%',
                 display: 'relative',
@@ -111,14 +128,11 @@ export const MaestroBase = () => {
             }}>
                 <StaveDisplay
                     clef={clef}
-                    barsPerLine={8}
+                    barsPerLine={barsPerLine}
                     staveText={staveText}
                     beatNumber={beatNumber}
                     beatsPerBar={timeSignature} />
             </div>
-            <div>Beat: {beatNumber}</div>
-            <button disabled={!!musicControl} onClick={play}>play</button>
-            <button disabled={!musicControl} onClick={stop}>stop</button>
         </main>
     </div>
 

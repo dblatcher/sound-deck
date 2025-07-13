@@ -120,3 +120,31 @@ export const staveNotesToNotationItems = (staveNotes: StaveNote[], beatPerBar = 
 
     return items
 }
+
+
+
+// TO DO - account for ties across bars!
+export const splitByBars = (items: NotationItem[], barsPerLine: number): NotationItem[][] => {
+
+    const source = [...items];
+    const lines: NotationItem[][] = [];
+
+    const takeNextSet = () => {
+        if (source.length === 0) {
+            return
+        }
+        const nextSplitIndex = source.findIndex(i => i.type === 'Bar' && i.bar % barsPerLine === 0);
+        const xOffset = source[0]?.x ?? 0;
+        const shiftToStart = (itemSet: NotationItem[]) => itemSet.map(i => ({ ...i, x: i.x - xOffset }))
+        if (nextSplitIndex === -1) {
+            lines.push(shiftToStart(source));
+            return
+        }
+        const nextSet = source.splice(0, nextSplitIndex + 1);
+        lines.push(shiftToStart(nextSet))
+        takeNextSet()
+    }
+    takeNextSet()
+
+    return lines
+}
