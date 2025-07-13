@@ -2,14 +2,14 @@ import { css } from "@emotion/react";
 import { ChangeEventHandler, useState } from "react";
 import { EnhancedStave, Instrument, MusicControl, parseStaveNotes, playMusic } from "sound-deck";
 import { useSoundDeck } from "../context/SoundDeckProvider";
-import { Clef, clefs, TREBLE_CLEF } from "../lib/notation-utils";
+import { Clef, clefs, COMMON_TIME, TREBLE_CLEF } from "../lib/notation-utils";
 import { pieces } from "../lib/songs";
 import { StaveDisplay } from "./StaveDisplay";
 
 
 export const BELL: Instrument = {
     soundType: 'tone',
-    type: 'triangle',
+    type: 'sawtooth',
     playPattern: [
         { time: 0, vol: .1 },
         { time: .2, vol: 1 },
@@ -18,12 +18,30 @@ export const BELL: Instrument = {
     ]
 }
 
+const styles = {
+    section: css({
+        marginBottom: 10,
+        display: 'flex',
+        gap: 10,
+    }),
+    sideScroll: css({
+        maxWidth: '100%',
+        display: 'relative',
+        overflowX: 'auto',
+    }),
+    textArea: css({
+        display: 'block',
+        width: 600,
+        height: 100,
+    }),
+}
 
 export const MaestroBase = () => {
     const soundDeck = useSoundDeck()
     const [staveText, setStaveText] = useState(pieces[0]?.staveText ?? '');
     const [clef, setClef] = useState<Clef>(TREBLE_CLEF);
-    const [timeSignature, setTimeSignature] = useState(4);
+    const [timeSignatureBeats, setTimeSignatureBeats] = useState(4);
+    const [timeSignatureBeatValue, setTimeSignatureBeatValue] = useState(4);
     const [musicControl, setMusicControl] = useState<MusicControl>();
     const [beatNumber, setBeatNumber] = useState<number>();
     const [barsPerLine, setBarsPerLine] = useState<number>();
@@ -32,8 +50,11 @@ export const MaestroBase = () => {
         setBeatNumber(beat)
     }
 
-    const handleTimeSignatureChange: ChangeEventHandler<HTMLInputElement> = ({ currentTarget: { valueAsNumber } }) => {
-        setTimeSignature(valueAsNumber)
+    const handleTimeSignatureBeatsChange: ChangeEventHandler<HTMLInputElement> = ({ currentTarget: { valueAsNumber } }) => {
+        setTimeSignatureBeats(valueAsNumber)
+    }
+    const handleTimeSignatureBeatValueChange: ChangeEventHandler<HTMLSelectElement> = ({ currentTarget: { value } }) => {
+        setTimeSignatureBeatValue(Number(value))
     }
 
     const play = () => {
@@ -63,14 +84,19 @@ export const MaestroBase = () => {
         </header>
         <main>
 
-            <section css={{ marginBottom: 10, display: 'flex', gap: 10 }}>
+            <section css={styles.section}>
                 <label>
                     <span>song</span>
                     <select onChange={({ target: { value: indexString } }) => {
                         const index = Number(indexString)
                         const piece = pieces[index];
-                        setStaveText(piece?.staveText ?? '');
-                        setTimeSignature(piece?.timeSignature ?? 4);
+                        if (!piece) {
+                            return
+                        }
+                        const { timeSignature = COMMON_TIME, staveText } = piece;
+                        setStaveText(staveText);
+                        setTimeSignatureBeats(timeSignature.beats);
+                        setTimeSignatureBeatValue(timeSignatureBeatValue)
                         setClef(piece.clef ?? clef)
                     }}>
                         {pieces.map((piece, index) => <option key={index} value={index} >{piece.title}</option>)}
@@ -81,37 +107,25 @@ export const MaestroBase = () => {
                 <button disabled={!musicControl} onClick={stop}>stop</button>
                 <div>Beat: {beatNumber}</div>
             </section>
-            <section css={{ marginBottom: 10 }}>
+            <section css={styles.section}>
                 <textarea
                     onChange={({ target: { value } }) => {
                         setStaveText(value)
                     }}
-                    css={css({
-                        display: 'block',
-                        width: 600,
-                        height: 100,
-                    })}
+                    css={styles.textArea}
                     value={staveText}
                 />
             </section>
-            <section css={{ marginBottom: 10 }}>
+            <section css={styles.section}>
                 <label>
                     <span>bars per line</span>
                     <input type="number"
                         value={barsPerLine}
-                        min={2} max={16} onChange={({currentTarget:{valueAsNumber}})=> setBarsPerLine(valueAsNumber)} />
-                </label>
-            </section>
-            <section css={{ marginBottom: 10 }}>
-                <label>
-                    <span>beats per bar</span>
-                    <input type="number"
-                        value={timeSignature}
-                        min={2} max={8} onChange={handleTimeSignatureChange} />
+                        min={2} max={16} onChange={({ currentTarget: { valueAsNumber } }) => setBarsPerLine(valueAsNumber)} />
                 </label>
                 <label>
                     <span>clef</span>
-                    <select onChange={({ target: { value: indexString } }) => {
+                    <select value={clefs.findIndex(i => i === clef)} onChange={({ target: { value: indexString } }) => {
                         const index = Number(indexString)
                         setClef(clefs[index] ?? TREBLE_CLEF)
                     }}>
@@ -119,19 +133,35 @@ export const MaestroBase = () => {
                     </select>
                 </label>
             </section>
+            <section css={styles.section}>
+                <label>
+                    <span>beats per bar</span>
+                    <input type="number"
+                        value={timeSignatureBeats}
+                        min={2} max={8} onChange={handleTimeSignatureBeatsChange} />
+                </label>
+                <label>
+                    <span>beat type</span>
+                    <select value={timeSignatureBeatValue} onChange={handleTimeSignatureBeatValueChange}>
+                        <option value={2}>2</option>
+                        <option value={4}>4</option>
+                        <option value={8}>8</option>
+                    </select>
+                </label>
+            </section>
 
 
-            <div css={{
-                maxWidth: '100%',
-                display: 'relative',
-                overflowX: 'scroll',
-            }}>
+            <div css={styles.sideScroll}>
                 <StaveDisplay
                     clef={clef}
                     barsPerLine={barsPerLine}
                     staveText={staveText}
                     beatNumber={beatNumber}
-                    beatsPerBar={timeSignature} />
+                    timeSignature={{
+                        beats: timeSignatureBeats,
+                        beatValue: timeSignatureBeatValue,
+                    }}
+                />
             </div>
         </main>
     </div>

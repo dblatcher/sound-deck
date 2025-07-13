@@ -3,14 +3,16 @@ import { StaveNote } from "sound-deck";
 
 export type Clef = {
     name: string;
-    symbol: string,
-    middleC: number
+    symbol: string;
+    middleC: number;
+    transform?: string;
 }
 
 export const TREBLE_CLEF: Clef = {
     name: 'treble',
     symbol: "𝄞",
     middleC: 90,
+    transform: 'scaleY(1.5) translateY(-25%)',
 };
 
 export const BASE_CLEF: Clef = {
@@ -23,6 +25,21 @@ export const clefs: Clef[] = [
     TREBLE_CLEF,
     BASE_CLEF
 ]
+
+export type TimeSignature = {
+    beats: number,
+    beatValue: number,
+}
+
+export const COMMON_TIME: TimeSignature = {
+    beats: 4,
+    beatValue: 4,
+}
+
+export const THREE_FOUR: TimeSignature = {
+    beats: 3,
+    beatValue: 4,
+}
 
 
 export const placesFromMiddleC = (staveNote: StaveNote) => {

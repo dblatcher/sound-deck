@@ -52,12 +52,12 @@ const splitNote = (originalNote: StaveNote): StaveNote[] => {
 
 export type NotationItem = NotationItemNote | NotationItemRest | NotationItemBar | NotationItemTie
 
-export const staveNotesToNotationItems = (staveNotes: StaveNote[], beatPerBar = 4, space = 25): NotationItem[] => {
+export const staveNotesToNotationItems = (staveNotes: StaveNote[], crotchetsPerBar = 4, space = 25): NotationItem[] => {
     const items: NotationItem[] = [];
     let x = 0;
     let beat = 0
 
-    const beatToBar = (beat: number) => 1 + Math.floor(beat / beatPerBar);
+    const beatToBar = (beat: number) => 1 + Math.floor(beat / crotchetsPerBar);
 
     const addNote = (staveNote: StaveNote) => {
         if (staveNote.note) {
@@ -101,7 +101,7 @@ export const staveNotesToNotationItems = (staveNotes: StaveNote[], beatPerBar = 
     staveNotes.forEach((staveNote) => {
         const beatsLeftInBar = (beat: number) => {
             const currentBar = beatToBar(beat);
-            const endsAt = currentBar * beatPerBar;
+            const endsAt = currentBar * crotchetsPerBar;
             return endsAt - beat
         }
         const beatsLeft = beatsLeftInBar(beat);

@@ -1,8 +1,8 @@
-import { BASE_CLEF, Clef, TREBLE_CLEF } from "./notation-utils";
+import { BASE_CLEF, Clef, COMMON_TIME, THREE_FOUR, TimeSignature, TREBLE_CLEF } from "./notation-utils";
 
 type Piece = {
     staveText: string;
-    timeSignature: number;
+    timeSignature: TimeSignature;
     title: string;
     clef?: Clef;
 }
@@ -10,7 +10,7 @@ type Piece = {
 export const pieces: Piece[] = [
     {
         title: 'Ode to Joy',
-        timeSignature: 4,
+        timeSignature: COMMON_TIME,
         clef: TREBLE_CLEF,
         staveText: `
 E4...E...F...G...|G...F...E...D...|C...C...D...E...|E...D...D.......|
@@ -19,12 +19,14 @@ E4...E...F...G...|G...F...E...D...|C...C...D...E...|E...D...D.......|
     },
     {
         title: 'Chromatic scale',
-        timeSignature: 4,
+        timeSignature: COMMON_TIME,
+        clef: TREBLE_CLEF,
         staveText: `CC#DD#EFF#GG#AA#B C.C#.D.D#.E.F.F#.G.G#.A.A#.B.`,
     },
     {
         title: 'Blow the man down',
-        timeSignature: 3,
+        clef: TREBLE_CLEF,
+        timeSignature: THREE_FOUR,
         staveText: `
 G.....A.G...|E...C...E...|G...A...G...|E...........|G...........|A...........|F.....E.F...|D...........|
 F.....E.F...|D...D...D...|F...G...F...|D...........|G...G...G...|G.......F...|E.....D.E...|C...........|
@@ -32,7 +34,7 @@ F.....E.F...|D...D...D...|F...G...F...|D...........|G...G...G...|G.......F...|E.
     },
     {
         title: 'mario theme',
-        timeSignature: 4,
+        timeSignature: COMMON_TIME,
         clef: BASE_CLEF,
         staveText: `
 E3.E...E...C.E...|G.......G2.......|C3.....G2.....E.....A...B...Bb.A...|

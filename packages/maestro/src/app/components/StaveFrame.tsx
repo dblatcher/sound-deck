@@ -1,14 +1,15 @@
 import { ReactNode } from "react";
-import { Clef } from "../lib/notation-utils";
+import { Clef, TimeSignature } from "../lib/notation-utils";
 
 interface Props {
     staveWidth: number,
     children: ReactNode,
-    clef: Clef
+    clef: Clef,
+    timeSignature?: TimeSignature;
 }
 
 
-export const StaveFrame = ({ staveWidth, children, clef }: Props) => {
+export const StaveFrame = ({ staveWidth, children, clef, timeSignature }: Props) => {
 
     return <div css={{
         width: staveWidth,
@@ -33,7 +34,14 @@ export const StaveFrame = ({ staveWidth, children, clef }: Props) => {
             <line x1={0} x2={staveWidth} y1={70} y2={70}></line>
             <line x1={0} x2={staveWidth} y1={80} y2={80}></line>
 
-            <text x={5} y={80} fontSize={40}>{clef.symbol}</text>
+            <text style={{ transform: clef.transform }} x={5} y={80} fontSize={40} >{clef.symbol}</text>
+
+            {timeSignature && (
+                <>
+                    <text x={35} y={55} fontSize={20} >{timeSignature.beats}</text>
+                    <text x={35} y={75} fontSize={20}>{timeSignature.beatValue}</text>
+                </>
+            )}
 
             {children}
         </svg>
