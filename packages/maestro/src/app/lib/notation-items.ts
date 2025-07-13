@@ -21,6 +21,7 @@ export type NotationItemTie = NotationItemBase & {
     type: 'Tie'
     length: number
     notes: StaveNote[]
+    lineBreak?: 'before' | 'after'
 }
 
 
@@ -75,9 +76,9 @@ export const staveNotesToNotationItems = (staveNotes: StaveNote[], crotchetsPerB
         }
         x += space;
         const inNewBar = beatToBar(beat + staveNote.beats) > beatToBar(beat);
-        const isLastNote = staveNotes.length-1 === staveNotes.indexOf(staveNote);
+        const isLastNote = staveNotes.length - 1 === staveNotes.indexOf(staveNote);
         beat = beat + staveNote.beats;
-        if (inNewBar && !isLastNote ) {
+        if (inNewBar && !isLastNote) {
             items.push({
                 type: 'Bar',
                 x: x,
@@ -124,14 +125,11 @@ export const staveNotesToNotationItems = (staveNotes: StaveNote[], crotchetsPerB
 
 
 
-// TO DO - account for ties across bars!
-// replace the original ties with one at the end of the line and one at the begining of the next line
-// need new property to say if the tie is start/end to control the curve shape
 export const splitByBars = (items: NotationItem[], barsPerLine: number): NotationItem[][] => {
 
     const source = [...items];
     const lines: NotationItem[][] = [];
-
+    console.clear()
     const takeNextSet = () => {
         if (source.length === 0) {
             return
@@ -144,6 +142,22 @@ export const splitByBars = (items: NotationItem[], barsPerLine: number): Notatio
             return
         }
         const nextSet = source.splice(0, nextSplitIndex + 1);
+
+        const tieAcrossLines = source
+            .find(itemInSource =>
+                itemInSource.type === 'Tie' && itemInSource.notes
+                    .some(noteInTheTie =>
+                        nextSet.some(item =>
+                            item.type === 'Note' && item.staveNote === noteInTheTie
+                        )
+                    )
+            ) as NotationItemTie | undefined;
+
+        if (tieAcrossLines) {
+            nextSet.push({ ...tieAcrossLines, lineBreak: 'before' });
+            tieAcrossLines.lineBreak = 'after';
+        }
+
         lines.push(shiftToStart(nextSet))
         takeNextSet()
     }
