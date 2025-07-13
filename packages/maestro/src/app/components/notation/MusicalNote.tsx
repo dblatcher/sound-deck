@@ -1,5 +1,6 @@
 import { StaveNote } from "sound-deck";
 import { placesFromMiddleC } from "../../lib/notation-utils";
+import { LOWER_STAVE_BAR, UPPER_STAVE_BAR } from "../../lib/stave-positions";
 
 interface Props {
     staveNote: StaveNote;
@@ -86,7 +87,6 @@ const getNoteShape = (durationInCrotchets: number): NoteShape => {
 
 }
 
-const LOWER_STAVE_BAR = 80;
 const getLowerLines = (noteY: number): number[] => {
     if (noteY <= LOWER_STAVE_BAR) {
         return []
@@ -99,7 +99,7 @@ const getLowerLines = (noteY: number): number[] => {
     ].flat()
 }
 
-const UPPER_STAVE_BAR = 40;
+
 const getUpperLines = (noteY: number): number[] => {
     if (noteY >= UPPER_STAVE_BAR) {
         return []

@@ -1,4 +1,5 @@
 import { StaveNote } from "sound-deck";
+import { STAVE_MIDDLE } from "../../lib/stave-positions";
 
 interface Props {
     staveNote: StaveNote;
@@ -6,7 +7,6 @@ interface Props {
     cx: number;
 }
 
-const STAVE_MIDDLE = 60;
 
 const getRestColor = (isCurrentNote: boolean) => isCurrentNote ? 'red' : 'black';
 
@@ -27,7 +27,7 @@ const MarkOnSideOfRest = ({ x, y, color, onRight }: { x: number, y: number, colo
     </>
 }
 
-const Dot = ({ x, isCurrentNote, y=65 }: { x: number, y?:number, isCurrentNote: boolean }) => {
+const Dot = ({ x, isCurrentNote, y = STAVE_MIDDLE + 5 }: { x: number, y?: number, isCurrentNote: boolean }) => {
     const color = getRestColor(isCurrentNote);
     return <circle
         r={2}
@@ -48,13 +48,13 @@ const SemiQuaverRest = ({ isCurrentNote, cx }: RestMarkProps) => {
     return <g>
         <line
             x1={cx - 4}
-            y1={68}
+            y1={STAVE_MIDDLE + 8}
             x2={cx + 10}
-            y2={42}
+            y2={STAVE_MIDDLE - 18}
             stroke={color}
         ></line>
-        <MarkOnSideOfRest color={color} x={cx + 8} y={44} />
-        <MarkOnSideOfRest color={color} x={cx + 4} y={54} />
+        <MarkOnSideOfRest color={color} x={cx + 8} y={STAVE_MIDDLE - 16} />
+        <MarkOnSideOfRest color={color} x={cx + 4} y={STAVE_MIDDLE - 6} />
     </g>
 }
 const QuaverRest = ({ isCurrentNote, cx, dotted }: RestMarkProps) => {
@@ -64,10 +64,10 @@ const QuaverRest = ({ isCurrentNote, cx, dotted }: RestMarkProps) => {
             x1={cx - 4}
             y1={68}
             x2={cx + 5}
-            y2={52}
+            y2={STAVE_MIDDLE - 8}
             stroke={color}
         ></line>
-        <MarkOnSideOfRest color={color} x={cx + 4} y={54} />
+        <MarkOnSideOfRest color={color} x={cx + 4} y={STAVE_MIDDLE - 6} />
         {dotted && <Dot isCurrentNote={isCurrentNote} x={cx + 5} />}
     </g>
 }
@@ -76,12 +76,12 @@ const CrotchetRest = ({ isCurrentNote, cx, dotted }: RestMarkProps) => {
     return <g>
         <line
             x1={cx + 4}
-            y1={68}
+            y1={STAVE_MIDDLE + 8}
             x2={cx - 4}
-            y2={52}
+            y2={STAVE_MIDDLE - 8}
             stroke={color}
         ></line>
-        <MarkOnSideOfRest color={color} x={cx + 4} y={54} onRight />
+        <MarkOnSideOfRest color={color} x={cx + 4} y={STAVE_MIDDLE - 6} onRight />
         {dotted && <Dot isCurrentNote={isCurrentNote} x={cx + 8} />}
     </g>
 }
@@ -91,7 +91,7 @@ const MinimRest = ({ isCurrentNote, cx, dotted }: RestMarkProps) => {
         <rect
             fill={getRestColor(isCurrentNote)}
             stroke={getRestColor(isCurrentNote)}
-            x={cx-5} y={56}
+            x={cx - 5} y={STAVE_MIDDLE - 4}
             width={10} height={4}
         ></rect>
         {dotted && <Dot isCurrentNote={isCurrentNote} x={cx + 8} />}
@@ -103,10 +103,10 @@ const SemiBreveRest = ({ isCurrentNote, cx, dotted }: RestMarkProps) => {
         <rect
             fill={getRestColor(isCurrentNote)}
             stroke={getRestColor(isCurrentNote)}
-            x={cx-5} y={50}
+            x={cx - 5} y={STAVE_MIDDLE - 10}
             width={10} height={4}
         ></rect>
-        {dotted && <Dot isCurrentNote={isCurrentNote} x={cx + 8} y={56} />}
+        {dotted && <Dot isCurrentNote={isCurrentNote} x={cx + 8} y={STAVE_MIDDLE - 4} />}
     </g>
 }
 

@@ -33,7 +33,7 @@ export const StaveFrame = ({ staveWidth, children, clef }: Props) => {
             <line x1={0} x2={staveWidth} y1={70} y2={70}></line>
             <line x1={0} x2={staveWidth} y1={80} y2={80}></line>
 
-            {!!clef && <text x={5} y={80} fontSize={40}>{clef.symbol}</text>}
+            <text x={5} y={80} fontSize={40}>{clef.symbol}</text>
 
             {children}
         </svg>

@@ -4,6 +4,7 @@ import { NotationItem, staveNotesToNotationItems } from "../lib/notation-items";
 import { Clef } from "../lib/notation-utils";
 import { NotationSymbol } from "./notation/NotationSymbol";
 import { StaveFrame } from "./StaveFrame";
+import { DEFAULT_NOTE_SPACE, LEFT_SPACE } from "../lib/stave-positions";
 
 interface Props {
     staveText: string;
@@ -13,7 +14,6 @@ interface Props {
     clef: Clef;
 }
 
-const LEFT_SPACE = 50
 
 // TO DO - account for ties across bars!
 const splitByBars = (items: NotationItem[], barsPerLine: number): NotationItem[][] => {
@@ -46,7 +46,7 @@ export const StaveDisplay = ({ clef, staveText, beatNumber, beatsPerBar, barsPer
 
     const [items, setItems] = useState<NotationItem[]>([])
     useEffect(() => {
-        setItems(staveNotesToNotationItems(parseStaveNotes(staveText), beatsPerBar))
+        setItems(staveNotesToNotationItems(parseStaveNotes(staveText), beatsPerBar, DEFAULT_NOTE_SPACE))
     }, [staveText, beatsPerBar])
 
     const isCurrentNote = (staveNote: StaveNote) => {
@@ -57,7 +57,7 @@ export const StaveDisplay = ({ clef, staveText, beatNumber, beatsPerBar, barsPer
     if (!barsPerLine) {
         return (
             <StaveFrame
-                staveWidth={(LEFT_SPACE * 2) + (items.length * 25)}
+                staveWidth={(LEFT_SPACE * 2) + (items.length * DEFAULT_NOTE_SPACE)}
                 clef={clef}>
                 {items.map((item, index) =>
                     <NotationSymbol key={index}
