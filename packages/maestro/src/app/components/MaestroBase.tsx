@@ -6,6 +6,7 @@ import { BASE_CLEF, Clef, COMMON_TIME, TREBLE_CLEF } from "../lib/notation-utils
 import { pieces } from "../lib/songs";
 import { StaveDisplay } from "./StaveDisplay";
 import { StaveEditor } from "./StaveEditor";
+import { PlayControls } from "./PlayControls";
 
 
 export const BELL: Instrument = {
@@ -51,8 +52,9 @@ export const MaestroBase = () => {
     const [timeSignatureBeatValue, setTimeSignatureBeatValue] = useState(4);
     const [musicControl, setMusicControl] = useState<MusicControl>();
     const [beatNumber, setBeatNumber] = useState<number>();
-    const [barsPerLine, setBarsPerLine] = useState<number>(4);
-    const [tempo, setTempo] = useState<number>(5);
+    const [barsPerLine, setBarsPerLine] = useState(4);
+    const [tempo, setTempo] = useState(5);
+    const [duration, setDuration] = useState<number>();
 
     const handleBeat = (beat: number) => {
         setBeatNumber(beat)
@@ -67,10 +69,14 @@ export const MaestroBase = () => {
 
     const play = () => {
         soundDeck.enable().then(() => {
-            const control = playMusic(soundDeck)([
+
+            const staves = [
                 new EnhancedStave(BELL, parseStaveNotes(firstStaveText)),
                 new EnhancedStave(BELL, parseStaveNotes(secondStaveText)),
-            ], tempo)
+            ];
+            setDuration(Math.max(...staves.map(s => s.duration)))
+
+            const control = playMusic(soundDeck)(staves, tempo)
             setMusicControl(control);
             control.onQuarterBeat(handleBeat)
             control.whenEnded.then(() => {
@@ -78,13 +84,6 @@ export const MaestroBase = () => {
                 setMusicControl(undefined)
             })
         })
-    }
-
-    const stop = () => {
-        if (!musicControl) {
-            return
-        }
-        musicControl.stop()
     }
 
     return <div>
@@ -120,9 +119,7 @@ export const MaestroBase = () => {
                     </select>
                 </label>
 
-                <button disabled={!!musicControl} onClick={play}>play</button>
-                <button disabled={!musicControl} onClick={stop}>stop</button>
-                <div>Beat: {beatNumber}</div>
+                <PlayControls play={play} musicControl={musicControl} beatNumber={beatNumber} duration={duration} />
             </section>
             <section css={styles.section}>
                 <StaveEditor
