@@ -39,6 +39,7 @@ const styles = {
 
 const [firstPiece] = pieces;
 
+const GITHUB_LINK = "https://github.com/dblatcher/sound-deck/tree/main/packages/sound-deck-core"
 
 export const MaestroBase = () => {
     const soundDeck = useSoundDeck()
@@ -50,7 +51,7 @@ export const MaestroBase = () => {
     const [timeSignatureBeatValue, setTimeSignatureBeatValue] = useState(4);
     const [musicControl, setMusicControl] = useState<MusicControl>();
     const [beatNumber, setBeatNumber] = useState<number>();
-    const [barsPerLine, setBarsPerLine] = useState<number>(6);
+    const [barsPerLine, setBarsPerLine] = useState<number>(4);
     const [tempo, setTempo] = useState<number>(5);
 
     const handleBeat = (beat: number) => {
@@ -88,10 +89,13 @@ export const MaestroBase = () => {
 
     return <div>
         <header>
-            <h1>maestro</h1>
+            <h1>Maestro</h1>
+            <div>
+                <em>programmatic music generator using <a href={GITHUB_LINK}>sound-deck</a></em>
+            </div>
         </header>
-        <main>
 
+        <main>
             <section css={styles.section}>
                 <label>
                     <span>song</span>
@@ -180,6 +184,13 @@ export const MaestroBase = () => {
                 />
             </div>
         </main>
+
+        <footer>
+            <span>
+                Interested in using programmatic music in your project? See {' '}
+                <a href={GITHUB_LINK}>the SoundDeck library on github</a>
+            </span>
+        </footer>
     </div>
 
 }

@@ -15,7 +15,7 @@ export const StaveFrame = ({ staveWidth, children, clef, timeSignature }: Props)
         width: staveWidth,
         height: 120,
         position: 'relative',
-        background: 'whitesmoke',
+        background: 'ghostwhite',
     }}>
         <svg
             stroke="grey"

@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import { parseStaveNotes, StaveNote } from "sound-deck";
-import { NotationItem, NotationItemBar, NotationItemNote, NotationItemRest, splitByBars, staveNotesToNotationItems } from "../lib/notation-items";
+import { NotationItem, NotationItemNote, NotationItemRest, splitByBars, staveNotesToNotationItems } from "../lib/notation-items";
 import { Clef, TimeSignature } from "../lib/notation-utils";
+import { DEFAULT_NOTE_SPACE, LEFT_SPACE } from "../lib/stave-positions";
 import { NotationSymbol } from "./notation/NotationSymbol";
 import { StaveFrame } from "./StaveFrame";
-import { DEFAULT_NOTE_SPACE, LEFT_SPACE } from "../lib/stave-positions";
 
 
 interface Props {
@@ -75,7 +75,12 @@ export const StaveDisplay = ({ textAndClefList, beatNumber, barsPerLine, timeSig
 
     return <>
         {sheet.map((line) => {
-            return <div css={{ marginBottom: 15, paddingLeft: 5, borderLeft: '3px double black', borderRadius: 30 }} key={line.lineIndex}>
+            return <div css={{ 
+                marginBottom: 15, 
+                paddingLeft: 5, 
+                borderLeft: '3px double black', 
+                borderRadius: 30,
+            }} key={line.lineIndex}>
                 {line.linesFromEachStave.map(({ clef, items }, index) => {
 
                     const last = lastNoteOrRest(items);
