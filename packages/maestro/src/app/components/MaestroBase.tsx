@@ -3,7 +3,9 @@ import { useState } from "react";
 import { EnhancedStave, Instrument, MusicControl, parseStaveNotes, playMusic } from "sound-deck";
 import { useSoundDeck } from "../context/SoundDeckProvider";
 import { BASE_CLEF, Clef, COMMON_TIME, TREBLE_CLEF } from "../lib/notation-utils";
-import { pieces } from "../lib/songs";
+import { Piece, pieces } from "../lib/songs";
+import { PageTemplate } from "./PageTemplate";
+import { PieceDropDown } from "./PieceDropDown";
 import { PlayControls } from "./PlayControls";
 import { StaveDisplay } from "./StaveDisplay";
 import { StaveEditor } from "./StaveEditor";
@@ -41,7 +43,6 @@ const styles = {
 
 const [firstPiece] = pieces;
 
-const GITHUB_LINK = "https://github.com/dblatcher/sound-deck/tree/main/packages/sound-deck-core"
 
 export const MaestroBase = () => {
     const soundDeck = useSoundDeck()
@@ -61,8 +62,7 @@ export const MaestroBase = () => {
     }
 
     const play = () => {
-        soundDeck.enable().then(() => {
-
+        soundDeck.enable().then((soundDeck) => {
             const staves = [
                 new EnhancedStave(BELL, parseStaveNotes(firstStaveText)),
                 new EnhancedStave(BELL, parseStaveNotes(secondStaveText)),
@@ -79,91 +79,62 @@ export const MaestroBase = () => {
         })
     }
 
-    return <div>
-        <header>
-            <h1>Maestro</h1>
-            <div>
-                <em>programmatic music generator using <a href={GITHUB_LINK}>sound-deck</a></em>
-            </div>
-        </header>
+    const setPiece = (piece: Piece) => {
+        const { timeSignature = COMMON_TIME } = piece;
+        const [firstStave, secondStave] = piece.staves;
+        setFirstStaveText(firstStave.text);
+        setTimeSignature({ ...timeSignature })
+        setSecondStaveText(secondStave?.text ?? '')
+        setSecondClef(secondStave?.clef ?? BASE_CLEF)
+        setFirstClef(firstStave.clef)
+    }
 
-        <main>
-            <section css={styles.section}>
-                <label>
-                    <span>song</span>
-                    <select onChange={({ target: { value: indexString } }) => {
-                        const index = Number(indexString)
-                        const piece = pieces[index];
-                        if (!piece) {
-                            return
-                        }
-                        const { timeSignature = COMMON_TIME } = piece;
-                        const [firstStave, secondStave] = piece.staves;
-                        setFirstStaveText(firstStave.text);
-                        setTimeSignature({...timeSignature})
+    return <PageTemplate>
+        <section css={styles.section}>
+            <PieceDropDown setPiece={setPiece} />
+            <PlayControls play={play} musicControl={musicControl} beatNumber={beatNumber} duration={duration} />
+        </section>
+        <section css={styles.section}>
+            <StaveEditor
+                setClef={setFirstClef}
+                setStaveText={setFirstStaveText}
+                staveText={firstStaveText}
+                clef={firstClef}
+            />
+            <StaveEditor
+                setClef={setSecondClef}
+                setStaveText={setSecondStaveText}
+                staveText={secondStaveText}
+                clef={secondClef}
+            />
+        </section>
+        <section css={styles.section}>
+            <label>
+                <span>bars per line</span>
+                <input type="number"
+                    value={barsPerLine}
+                    min={2} max={16} onChange={({ currentTarget: { valueAsNumber } }) => setBarsPerLine(valueAsNumber)} />
+            </label>
+            <label>
+                <span>tempo</span>
+                <input type="number"
+                    value={tempo}
+                    min={2} max={8} onChange={({ currentTarget: { valueAsNumber } }) => setTempo(valueAsNumber)} />
+            </label>
+            <TimeSignatureControls timeSignature={timeSignature} setTimeSignature={setTimeSignature} />
+        </section>
 
-                        setSecondStaveText(secondStave?.text ?? '')
-                        setSecondClef(secondStave?.clef ?? BASE_CLEF)
-
-                        setFirstClef(firstStave.clef)
-                    }}>
-                        {pieces.map((piece, index) => <option key={index} value={index} >{piece.title}</option>)}
-                    </select>
-                </label>
-
-                <PlayControls play={play} musicControl={musicControl} beatNumber={beatNumber} duration={duration} />
-            </section>
-            <section css={styles.section}>
-                <StaveEditor
-                    setClef={setFirstClef}
-                    setStaveText={setFirstStaveText}
-                    staveText={firstStaveText}
-                    clef={firstClef}
-                />
-                <StaveEditor
-                    setClef={setSecondClef}
-                    setStaveText={setSecondStaveText}
-                    staveText={secondStaveText}
-                    clef={secondClef}
-                />
-            </section>
-            <section css={styles.section}>
-                <label>
-                    <span>bars per line</span>
-                    <input type="number"
-                        value={barsPerLine}
-                        min={2} max={16} onChange={({ currentTarget: { valueAsNumber } }) => setBarsPerLine(valueAsNumber)} />
-                </label>
-            </section>
-            <section css={styles.section}>
-                <label>
-                    <span>tempo</span>
-                    <input type="number"
-                        value={tempo}
-                        min={2} max={8} onChange={({ currentTarget: { valueAsNumber } }) => setTempo(valueAsNumber)} />
-                </label>
-                <TimeSignatureControls timeSignature={timeSignature} setTimeSignature={setTimeSignature} />
-            </section>
-
-            <div css={styles.sideScroll}>
-                <StaveDisplay
-                    textAndClefList={[
-                        { clef: firstClef, staveText: firstStaveText },
-                        { clef: secondClef, staveText: secondStaveText },
-                    ]}
-                    barsPerLine={barsPerLine}
-                    beatNumber={beatNumber}
-                    timeSignature={timeSignature}
-                />
-            </div>
-        </main>
-
-        <footer>
-            <span>
-                Interested in using programmatic music in your project? See {' '}
-                <a href={GITHUB_LINK}>the SoundDeck library on github</a>
-            </span>
-        </footer>
-    </div>
+        <div css={styles.sideScroll}>
+            <StaveDisplay
+                textAndClefList={[
+                    { clef: firstClef, staveText: firstStaveText },
+                    { clef: secondClef, staveText: secondStaveText },
+                ]}
+                barsPerLine={barsPerLine}
+                beatNumber={beatNumber}
+                timeSignature={timeSignature}
+            />
+        </div>
+    </PageTemplate>
 
 }

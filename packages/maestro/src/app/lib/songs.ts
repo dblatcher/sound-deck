@@ -5,7 +5,7 @@ type PieceStave = {
     clef: Clef
 }
 
-type Piece = {
+export type Piece = {
     timeSignature: TimeSignature;
     title: string;
     staves: [PieceStave, ...PieceStave[]]
