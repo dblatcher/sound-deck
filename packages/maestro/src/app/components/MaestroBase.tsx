@@ -1,12 +1,13 @@
 import { css } from "@emotion/react";
-import { ChangeEventHandler, useState } from "react";
+import { useState } from "react";
 import { EnhancedStave, Instrument, MusicControl, parseStaveNotes, playMusic } from "sound-deck";
 import { useSoundDeck } from "../context/SoundDeckProvider";
 import { BASE_CLEF, Clef, COMMON_TIME, TREBLE_CLEF } from "../lib/notation-utils";
 import { pieces } from "../lib/songs";
+import { PlayControls } from "./PlayControls";
 import { StaveDisplay } from "./StaveDisplay";
 import { StaveEditor } from "./StaveEditor";
-import { PlayControls } from "./PlayControls";
+import { TimeSignatureControls } from "./TimeSignatureControls";
 
 
 export const BELL: Instrument = {
@@ -48,8 +49,7 @@ export const MaestroBase = () => {
     const [firstClef, setFirstClef] = useState<Clef>(firstPiece.staves[0].clef ?? TREBLE_CLEF);
     const [secondStaveText, setSecondStaveText] = useState(firstPiece.staves[1]?.text ?? '');
     const [secondClef, setSecondClef] = useState<Clef>(firstPiece.staves[1]?.clef ?? TREBLE_CLEF);
-    const [timeSignatureBeats, setTimeSignatureBeats] = useState(4);
-    const [timeSignatureBeatValue, setTimeSignatureBeatValue] = useState(4);
+    const [timeSignature, setTimeSignature] = useState(COMMON_TIME)
     const [musicControl, setMusicControl] = useState<MusicControl>();
     const [beatNumber, setBeatNumber] = useState<number>();
     const [barsPerLine, setBarsPerLine] = useState(4);
@@ -58,13 +58,6 @@ export const MaestroBase = () => {
 
     const handleBeat = (beat: number) => {
         setBeatNumber(beat)
-    }
-
-    const handleTimeSignatureBeatsChange: ChangeEventHandler<HTMLInputElement> = ({ currentTarget: { valueAsNumber } }) => {
-        setTimeSignatureBeats(valueAsNumber)
-    }
-    const handleTimeSignatureBeatValueChange: ChangeEventHandler<HTMLSelectElement> = ({ currentTarget: { value } }) => {
-        setTimeSignatureBeatValue(Number(value))
     }
 
     const play = () => {
@@ -107,12 +100,11 @@ export const MaestroBase = () => {
                         const { timeSignature = COMMON_TIME } = piece;
                         const [firstStave, secondStave] = piece.staves;
                         setFirstStaveText(firstStave.text);
-                        setTimeSignatureBeats(timeSignature.beats);
+                        setTimeSignature({...timeSignature})
 
                         setSecondStaveText(secondStave?.text ?? '')
                         setSecondClef(secondStave?.clef ?? BASE_CLEF)
 
-                        setTimeSignatureBeatValue(timeSignatureBeatValue)
                         setFirstClef(firstStave.clef)
                     }}>
                         {pieces.map((piece, index) => <option key={index} value={index} >{piece.title}</option>)}
@@ -150,20 +142,7 @@ export const MaestroBase = () => {
                         value={tempo}
                         min={2} max={8} onChange={({ currentTarget: { valueAsNumber } }) => setTempo(valueAsNumber)} />
                 </label>
-                <label>
-                    <span>beats per bar</span>
-                    <input type="number"
-                        value={timeSignatureBeats}
-                        min={2} max={8} onChange={handleTimeSignatureBeatsChange} />
-                </label>
-                <label>
-                    <span>beat type</span>
-                    <select value={timeSignatureBeatValue} onChange={handleTimeSignatureBeatValueChange}>
-                        <option value={2}>2</option>
-                        <option value={4}>4</option>
-                        <option value={8}>8</option>
-                    </select>
-                </label>
+                <TimeSignatureControls timeSignature={timeSignature} setTimeSignature={setTimeSignature} />
             </section>
 
             <div css={styles.sideScroll}>
@@ -174,10 +153,7 @@ export const MaestroBase = () => {
                     ]}
                     barsPerLine={barsPerLine}
                     beatNumber={beatNumber}
-                    timeSignature={{
-                        beats: timeSignatureBeats,
-                        beatValue: timeSignatureBeatValue,
-                    }}
+                    timeSignature={timeSignature}
                 />
             </div>
         </main>

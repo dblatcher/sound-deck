@@ -1,4 +1,6 @@
+import { css } from "@emotion/react";
 import type { MusicControl } from "sound-deck";
+import { controlBorder } from "../lib/styles";
 
 interface Props {
     musicControl?: MusicControl;
@@ -30,22 +32,17 @@ export const PlayControls = ({ musicControl, play, beatNumber, duration }: Props
     const ratio = typeof beatNumber === 'number' && !!duration ? beatNumber / duration : undefined;
 
     return (
-        <div css={{
+        <div css={css(controlBorder, {
             display: 'flex',
             gap: 5,
             alignItems: 'center',
-            padding: 5,
-            borderColor: 'red',
-            borderStyle: 'outset',
-            borderWidth: 1,
-            borderRadius: 10,
-        }}>
+        })}>
             <button disabled={!!musicControl} onClick={play}>play</button>
             <button disabled={!musicControl} onClick={pause}>pause</button>
             <button disabled={!musicControl} onClick={stop}>stop</button>
             <div>
                 {!!ratio && (
-                    <span>{(ratio*100).toFixed(2)} %</span>
+                    <span>{(ratio * 100).toFixed(2)} %</span>
                 )}
             </div>
         </div>
