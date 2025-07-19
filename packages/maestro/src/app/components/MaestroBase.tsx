@@ -120,8 +120,10 @@ export const MaestroBase = () => {
                 <span>tempo</span>
                 <input type="number"
                     value={tempo}
-                    min={2} max={8} onChange={({ currentTarget: { valueAsNumber } }) => setTempo(valueAsNumber)} />
+                    min={2} max={12}
+                    onChange={({ currentTarget: { valueAsNumber } }) => setTempo(valueAsNumber)} />
             </label>
+            <span>{15 * (tempo)} beats/min </span>
         </section>
         <section css={[styles.section, { flexDirection: 'column', alignItems: 'flex-start' }]}>
             {staves.map((stave, index) =>
@@ -140,6 +142,7 @@ export const MaestroBase = () => {
 
         <div css={styles.sideScroll}>
             <SheetMusic
+                tempo={tempo}
                 staves={staves}
                 barsPerLine={barsPerLine}
                 beatNumber={beatNumber}

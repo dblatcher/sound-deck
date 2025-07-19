@@ -1,5 +1,5 @@
 import { FunctionComponent, ReactNode, useEffect, useState } from "react";
-import { parseStaveNotes, StaveNote } from "sound-deck";
+import { parseStaveNotes, PitchedNote, StaveNote } from "sound-deck";
 import { ArrangedLines, arrangeLines } from "../lib/arrange-lines";
 import { lastNoteOrRest, splitByBars, staveNotesToNotationItems } from "../lib/notation-items";
 import { TimeSignature } from "../lib/notation-utils";
@@ -7,6 +7,8 @@ import { PieceStave } from "../lib/songs";
 import { DEFAULT_NOTE_SPACE, LEFT_SPACE } from "../lib/stave-positions";
 import { NotationSymbol } from "./notation/NotationSymbol";
 import { StaveFrame } from "./StaveFrame";
+import { MusicalNote } from "./notation/MusicalNote";
+import { TempoMark } from "./notation/TempoMark";
 
 
 interface Props {
@@ -14,6 +16,7 @@ interface Props {
     beatNumber?: number;
     barsPerLine?: number;
     timeSignature: TimeSignature;
+    tempo: number;
 }
 
 
@@ -23,7 +26,7 @@ const SystemFrame: FunctionComponent<{ children: ReactNode }> = ({ children }) =
         paddingLeft: 20,
         position: 'relative',
         backgroundColor: 'antiquewhite',
-        display:'inline-block',
+        display: 'inline-block',
     }} >
         <div css={{
             width: 20,
@@ -48,7 +51,7 @@ const SystemFrame: FunctionComponent<{ children: ReactNode }> = ({ children }) =
 )
 
 
-export const SheetMusic = ({ staves, beatNumber, barsPerLine, timeSignature }: Props) => {
+export const SheetMusic = ({ staves, beatNumber, barsPerLine, timeSignature, tempo }: Props) => {
     const [sheet, setSheet] = useState<ArrangedLines>([]);
 
     useEffect(() => {
@@ -67,9 +70,13 @@ export const SheetMusic = ({ staves, beatNumber, barsPerLine, timeSignature }: P
     }
 
     return <article css={{
-        display:'inline-flex',
+        display: 'inline-flex',
+        backgroundColor: 'antiquewhite',
         flexDirection: 'column',
     }}>
+
+        <TempoMark tempo={tempo} />
+
         {sheet.map((line) => {
             return <SystemFrame key={line.lineIndex}>
                 {line.linesFromEachStave.map(({ clef, items }, index) => {
