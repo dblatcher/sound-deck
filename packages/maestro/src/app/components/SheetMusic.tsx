@@ -5,14 +5,11 @@ import { Clef, TimeSignature } from "../lib/notation-utils";
 import { DEFAULT_NOTE_SPACE, LEFT_SPACE } from "../lib/stave-positions";
 import { NotationSymbol } from "./notation/NotationSymbol";
 import { StaveFrame } from "./StaveFrame";
+import { PieceStave } from "../lib/songs";
 
 
 interface Props {
-    textAndClefList: {
-        staveText: string;
-        clef: Clef;
-    }[]
-
+    staves: PieceStave[]
     beatNumber?: number;
     barsPerLine?: number;
     timeSignature: TimeSignature;
@@ -54,18 +51,18 @@ const arrangeLines = (staves: ProcessedStave[]): ArrangedLines => {
 
 const lastNoteOrRest = (items: NotationItem[]) => [...items].reverse().find(item => item.type === 'Note' || item.type === 'Rest') as NotationItemNote | NotationItemRest | undefined;
 
-export const StaveDisplay = ({ textAndClefList, beatNumber, barsPerLine, timeSignature }: Props) => {
+export const SheetMusic = ({ staves, beatNumber, barsPerLine, timeSignature }: Props) => {
     const [sheet, setSheet] = useState<ArrangedLines>([]);
 
     useEffect(() => {
         const crotchetsPerBar = timeSignature.beats * (4 / timeSignature.beatValue);
-        const allItemsEveryStave = textAndClefList.map(({ staveText, clef }) => {
+        const allItemsEveryStave = staves.map(({ staveText, clef }) => {
             const items = staveNotesToNotationItems(parseStaveNotes(staveText), crotchetsPerBar, DEFAULT_NOTE_SPACE);
             const lines = splitByBars(items, barsPerLine ?? Infinity);
             return { clef, lines }
         });
         setSheet(arrangeLines(allItemsEveryStave))
-    }, [textAndClefList, timeSignature, barsPerLine])
+    }, [staves, timeSignature, barsPerLine])
 
     const isCurrentNote = (staveNote: StaveNote) => {
         if (typeof beatNumber === 'undefined') { return false }
@@ -75,10 +72,10 @@ export const StaveDisplay = ({ textAndClefList, beatNumber, barsPerLine, timeSig
 
     return <>
         {sheet.map((line) => {
-            return <div css={{ 
-                marginBottom: 15, 
-                paddingLeft: 5, 
-                borderLeft: '3px double black', 
+            return <div css={{
+                marginBottom: 15,
+                paddingLeft: 5,
+                borderLeft: '3px double black',
                 borderRadius: 30,
             }} key={line.lineIndex}>
                 {line.linesFromEachStave.map(({ clef, items }, index) => {

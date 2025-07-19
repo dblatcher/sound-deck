@@ -7,7 +7,7 @@ import { Piece, pieces, PieceStave, StavesUpdate } from "../lib/songs";
 import { PageTemplate } from "./PageTemplate";
 import { PieceDropDown } from "./PieceDropDown";
 import { PlayControls } from "./PlayControls";
-import { StaveDisplay } from "./StaveDisplay";
+import { SheetMusic } from "./SheetMusic";
 import { StaveEditor } from "./StaveEditor";
 import { TimeSignatureControls } from "./TimeSignatureControls";
 
@@ -109,7 +109,20 @@ export const MaestroBase = () => {
     return <PageTemplate>
         <section css={styles.section}>
             <PieceDropDown setPiece={setPiece} />
+            <TimeSignatureControls timeSignature={timeSignature} setTimeSignature={setTimeSignature} />
             <PlayControls play={play} musicControl={musicControl} beatNumber={beatNumber} duration={duration} />
+            <label>
+                <span>bars per line</span>
+                <input type="number"
+                    value={barsPerLine}
+                    min={2} max={16} onChange={({ currentTarget: { valueAsNumber } }) => setBarsPerLine(valueAsNumber)} />
+            </label>
+            <label>
+                <span>tempo</span>
+                <input type="number"
+                    value={tempo}
+                    min={2} max={8} onChange={({ currentTarget: { valueAsNumber } }) => setTempo(valueAsNumber)} />
+            </label>
         </section>
         <section css={[styles.section, { flexDirection: 'column', alignItems: 'flex-start' }]}>
             {staves.map((stave, index) =>
@@ -125,25 +138,10 @@ export const MaestroBase = () => {
             )}
             <button onClick={() => dispatchStavesUpdate({ type: 'insert-new' })}>add new stave</button>
         </section>
-        <section css={styles.section}>
-            <label>
-                <span>bars per line</span>
-                <input type="number"
-                    value={barsPerLine}
-                    min={2} max={16} onChange={({ currentTarget: { valueAsNumber } }) => setBarsPerLine(valueAsNumber)} />
-            </label>
-            <label>
-                <span>tempo</span>
-                <input type="number"
-                    value={tempo}
-                    min={2} max={8} onChange={({ currentTarget: { valueAsNumber } }) => setTempo(valueAsNumber)} />
-            </label>
-            <TimeSignatureControls timeSignature={timeSignature} setTimeSignature={setTimeSignature} />
-        </section>
 
         <div css={styles.sideScroll}>
-            <StaveDisplay
-                textAndClefList={staves}
+            <SheetMusic
+                staves={staves}
                 barsPerLine={barsPerLine}
                 beatNumber={beatNumber}
                 timeSignature={timeSignature}
