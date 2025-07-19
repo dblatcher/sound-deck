@@ -31,7 +31,6 @@ const styles = {
     }),
     sideScroll: css({
         maxWidth: '100%',
-        display: 'relative',
         overflowX: 'auto',
     }),
     textArea: css({

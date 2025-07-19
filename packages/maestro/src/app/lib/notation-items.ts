@@ -165,3 +165,8 @@ export const splitByBars = (items: NotationItem[], barsPerLine: number): Notatio
 
     return lines
 }
+
+export const lastNoteOrRest = (items: NotationItem[]) => 
+    [...items]
+        .reverse()
+        .find(item => item.type === 'Note' || item.type === 'Rest') as NotationItemNote | NotationItemRest | undefined;

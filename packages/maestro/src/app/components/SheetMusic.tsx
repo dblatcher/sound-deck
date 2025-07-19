@@ -1,11 +1,12 @@
-import { useEffect, useState } from "react";
+import { FunctionComponent, ReactNode, useEffect, useState } from "react";
 import { parseStaveNotes, StaveNote } from "sound-deck";
-import { NotationItem, NotationItemNote, NotationItemRest, splitByBars, staveNotesToNotationItems } from "../lib/notation-items";
-import { Clef, TimeSignature } from "../lib/notation-utils";
+import { ArrangedLines, arrangeLines } from "../lib/arrange-lines";
+import { lastNoteOrRest, splitByBars, staveNotesToNotationItems } from "../lib/notation-items";
+import { TimeSignature } from "../lib/notation-utils";
+import { PieceStave } from "../lib/songs";
 import { DEFAULT_NOTE_SPACE, LEFT_SPACE } from "../lib/stave-positions";
 import { NotationSymbol } from "./notation/NotationSymbol";
 import { StaveFrame } from "./StaveFrame";
-import { PieceStave } from "../lib/songs";
 
 
 interface Props {
@@ -16,40 +17,36 @@ interface Props {
 }
 
 
-type ProcessedStave = {
-    clef: Clef;
-    lines: NotationItem[][];
-}
+const SystemFrame: FunctionComponent<{ children: ReactNode }> = ({ children }) => (
+    <div css={{
+        paddingBottom: 15,
+        paddingLeft: 20,
+        position: 'relative',
+        backgroundColor: 'antiquewhite',
+        display:'inline-block',
+    }} >
+        <div css={{
+            width: 20,
+            height: '100%',
+            position: 'absolute',
+            left: 15,
+            top: 0,
+            paddingTop: 10,
+            paddingBottom: 25,
+            boxSizing: 'border-box',
+        }}>
+            <div css={{
+                borderLeft: '3px solid black',
+                borderRadius: 60,
+                width: '100%',
+                height: '100%',
+            }}>
+            </div>
+        </div>
+        {children}
+    </div>
+)
 
-type ArrangedLines = {
-    lineIndex: number
-    linesFromEachStave: {
-        clef: Clef;
-        items: NotationItem[];
-    }[]
-}[]
-
-const arrangeLines = (staves: ProcessedStave[]): ArrangedLines => {
-    const arrangedLines: ArrangedLines = []
-    const addLine = (lineIndex = 0) => {
-        if (!staves.some(stave => stave.lines.length > lineIndex)) {
-            return
-        }
-        arrangedLines.push({
-            lineIndex,
-            linesFromEachStave: staves.map(staveAndClef => ({
-                clef: staveAndClef.clef,
-                items: staveAndClef.lines[lineIndex] ?? []
-            }))
-        })
-        addLine(lineIndex + 1)
-    }
-    addLine()
-    return arrangedLines;
-}
-
-
-const lastNoteOrRest = (items: NotationItem[]) => [...items].reverse().find(item => item.type === 'Note' || item.type === 'Rest') as NotationItemNote | NotationItemRest | undefined;
 
 export const SheetMusic = ({ staves, beatNumber, barsPerLine, timeSignature }: Props) => {
     const [sheet, setSheet] = useState<ArrangedLines>([]);
@@ -69,15 +66,12 @@ export const SheetMusic = ({ staves, beatNumber, barsPerLine, timeSignature }: P
         return beatNumber >= staveNote.atBeat && beatNumber < staveNote.atBeat + staveNote.beats
     }
 
-
-    return <>
+    return <article css={{
+        display:'inline-flex',
+        flexDirection: 'column',
+    }}>
         {sheet.map((line) => {
-            return <div css={{
-                marginBottom: 15,
-                paddingLeft: 5,
-                borderLeft: '3px double black',
-                borderRadius: 30,
-            }} key={line.lineIndex}>
+            return <SystemFrame key={line.lineIndex}>
                 {line.linesFromEachStave.map(({ clef, items }, index) => {
 
                     const last = lastNoteOrRest(items);
@@ -98,8 +92,8 @@ export const SheetMusic = ({ staves, beatNumber, barsPerLine, timeSignature }: P
                         )}
                     </StaveFrame>
                 })}
-            </div>
+            </SystemFrame>
         })}
-    </>
+    </article>
 
 }
