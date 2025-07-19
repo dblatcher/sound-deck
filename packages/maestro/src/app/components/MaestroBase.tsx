@@ -1,9 +1,9 @@
 import { css } from "@emotion/react";
-import { useState } from "react";
+import { Fragment, Reducer, useReducer, useState } from "react";
 import { EnhancedStave, Instrument, MusicControl, parseStaveNotes, playMusic } from "sound-deck";
 import { useSoundDeck } from "../context/SoundDeckProvider";
-import { BASE_CLEF, Clef, COMMON_TIME, TREBLE_CLEF } from "../lib/notation-utils";
-import { Piece, pieces } from "../lib/songs";
+import { COMMON_TIME, TREBLE_CLEF } from "../lib/notation-utils";
+import { Piece, pieces, PieceStave, StavesUpdate } from "../lib/songs";
 import { PageTemplate } from "./PageTemplate";
 import { PieceDropDown } from "./PieceDropDown";
 import { PlayControls } from "./PlayControls";
@@ -43,13 +43,38 @@ const styles = {
 
 const [firstPiece] = pieces;
 
+const makeNewStave = (): PieceStave => ({ staveText: '', clef: structuredClone(TREBLE_CLEF) });
+
+const stavesReducer: Reducer<PieceStave[], StavesUpdate> = (current, action) => {
+    const newStaves = structuredClone(current);
+    switch (action.type) {
+        case 'set': {
+            newStaves[action.index] = action.value
+            return newStaves
+        }
+        case "set-all": {
+            return action.value
+        }
+        case "delete": {
+            newStaves.splice(action.index, 1)
+            return newStaves
+        }
+        case "insert-new": {
+            if (typeof action.index === 'number') {
+                return [...newStaves.slice(0, action.index), makeNewStave(), ...newStaves.slice(action.index)]
+            } else {
+                newStaves.push(makeNewStave())
+            }
+            return newStaves
+        }
+    }
+}
+
 
 export const MaestroBase = () => {
     const soundDeck = useSoundDeck()
-    const [firstStaveText, setFirstStaveText] = useState(firstPiece.staves[0].text ?? '');
-    const [firstClef, setFirstClef] = useState<Clef>(firstPiece.staves[0].clef ?? TREBLE_CLEF);
-    const [secondStaveText, setSecondStaveText] = useState(firstPiece.staves[1]?.text ?? '');
-    const [secondClef, setSecondClef] = useState<Clef>(firstPiece.staves[1]?.clef ?? TREBLE_CLEF);
+
+    const [staves, dispatchStavesUpdate] = useReducer(stavesReducer, [...structuredClone(firstPiece.staves)])
     const [timeSignature, setTimeSignature] = useState(COMMON_TIME)
     const [musicControl, setMusicControl] = useState<MusicControl>();
     const [beatNumber, setBeatNumber] = useState<number>();
@@ -63,13 +88,9 @@ export const MaestroBase = () => {
 
     const play = () => {
         soundDeck.enable().then((soundDeck) => {
-            const staves = [
-                new EnhancedStave(BELL, parseStaveNotes(firstStaveText)),
-                new EnhancedStave(BELL, parseStaveNotes(secondStaveText)),
-            ];
-            setDuration(Math.max(...staves.map(s => s.duration)))
-
-            const control = playMusic(soundDeck)(staves, tempo)
+            const enhancedStaves = staves.map(({ staveText }) => new EnhancedStave(BELL, parseStaveNotes(staveText)));
+            setDuration(Math.max(...enhancedStaves.map(s => s.duration)))
+            const control = playMusic(soundDeck)(enhancedStaves, tempo)
             setMusicControl(control);
             control.onQuarterBeat(handleBeat)
             control.whenEnded.then(() => {
@@ -81,12 +102,8 @@ export const MaestroBase = () => {
 
     const setPiece = (piece: Piece) => {
         const { timeSignature = COMMON_TIME } = piece;
-        const [firstStave, secondStave] = piece.staves;
-        setFirstStaveText(firstStave.text);
         setTimeSignature({ ...timeSignature })
-        setSecondStaveText(secondStave?.text ?? '')
-        setSecondClef(secondStave?.clef ?? BASE_CLEF)
-        setFirstClef(firstStave.clef)
+        dispatchStavesUpdate({ type: 'set-all', value: piece.staves })
     }
 
     return <PageTemplate>
@@ -94,19 +111,19 @@ export const MaestroBase = () => {
             <PieceDropDown setPiece={setPiece} />
             <PlayControls play={play} musicControl={musicControl} beatNumber={beatNumber} duration={duration} />
         </section>
-        <section css={styles.section}>
-            <StaveEditor
-                setClef={setFirstClef}
-                setStaveText={setFirstStaveText}
-                staveText={firstStaveText}
-                clef={firstClef}
-            />
-            <StaveEditor
-                setClef={setSecondClef}
-                setStaveText={setSecondStaveText}
-                staveText={secondStaveText}
-                clef={secondClef}
-            />
+        <section css={[styles.section, { flexDirection: 'column', alignItems: 'flex-start' }]}>
+            {staves.map((stave, index) =>
+                <Fragment key={index}>
+                    <button onClick={() => dispatchStavesUpdate({ type: 'insert-new', index })}>add new stave</button>
+                    <StaveEditor
+                        index={index}
+                        dispatchStavesUpdate={dispatchStavesUpdate}
+                        staveText={stave.staveText}
+                        clef={stave.clef}
+                    />
+                </Fragment>
+            )}
+            <button onClick={() => dispatchStavesUpdate({ type: 'insert-new' })}>add new stave</button>
         </section>
         <section css={styles.section}>
             <label>
@@ -126,10 +143,7 @@ export const MaestroBase = () => {
 
         <div css={styles.sideScroll}>
             <StaveDisplay
-                textAndClefList={[
-                    { clef: firstClef, staveText: firstStaveText },
-                    { clef: secondClef, staveText: secondStaveText },
-                ]}
+                textAndClefList={staves}
                 barsPerLine={barsPerLine}
                 beatNumber={beatNumber}
                 timeSignature={timeSignature}
