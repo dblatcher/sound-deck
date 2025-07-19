@@ -130,6 +130,12 @@ export const MusicalNote = ({ staveNote, isCurrentNote, cx, middleC }: Props) =>
             cy={noteY}
             fill={isCurrentNote ? 'red' : noteShape.fill ? 'black' : 'none'}
             stroke="black"
+            style={{
+                transformBox: 'border-box',
+                transformOrigin: 'center',
+                transition: 'transform .25s ease-out',
+                transform: isCurrentNote ? 'scale(1.25)' : undefined,
+            }}
         ></ellipse>
 
         {noteShape.dot && (
