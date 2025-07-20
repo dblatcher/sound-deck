@@ -1,5 +1,5 @@
 import { FunctionComponent, ReactNode, useEffect, useState } from "react";
-import { parseStaveNotes, PitchedNote, StaveNote } from "sound-deck";
+import { parseStaveNotes, StaveNote } from "sound-deck";
 import { ArrangedLines, arrangeLines } from "../lib/arrange-lines";
 import { lastNoteOrRest, splitByBars, staveNotesToNotationItems } from "../lib/notation-items";
 import { TimeSignature } from "../lib/notation-utils";
@@ -7,7 +7,6 @@ import { PieceStave } from "../lib/songs";
 import { DEFAULT_NOTE_SPACE, LEFT_SPACE } from "../lib/stave-positions";
 import { NotationSymbol } from "./notation/NotationSymbol";
 import { StaveFrame } from "./StaveFrame";
-import { MusicalNote } from "./notation/MusicalNote";
 import { TempoMark } from "./notation/TempoMark";
 
 
@@ -84,20 +83,28 @@ export const SheetMusic = ({ staves, beatNumber, barsPerLine, timeSignature, tem
                     const last = lastNoteOrRest(items);
                     const lastX = last?.x ?? 0;
                     const lastBeats = last?.staveNote?.beats ?? 1;
+                    const staveWidth = LEFT_SPACE + lastX + DEFAULT_NOTE_SPACE * (lastBeats + .5);
 
-
-                    return <StaveFrame key={index}
-                        timeSignature={line.lineIndex === 0 ? timeSignature : undefined}
-                        staveWidth={LEFT_SPACE + lastX + DEFAULT_NOTE_SPACE * (lastBeats + .5)}
-                        clef={clef}>
-                        {items.map((item, index) =>
-                            <NotationSymbol key={index}
-                                middleC={clef.middleC}
-                                item={item}
-                                isCurrentNote={isCurrentNote}
-                                leftSpace={LEFT_SPACE} />
-                        )}
-                    </StaveFrame>
+                    return (
+                        <div css={{
+                            width: staveWidth,
+                            height: 120,
+                            position: 'relative',
+                        }}>
+                            <StaveFrame key={index}
+                                timeSignature={line.lineIndex === 0 ? timeSignature : undefined}
+                                staveWidth={staveWidth}
+                                clef={clef}>
+                                {items.map((item, index) =>
+                                    <NotationSymbol key={index}
+                                        middleC={clef.middleC}
+                                        item={item}
+                                        isCurrentNote={isCurrentNote}
+                                        leftSpace={LEFT_SPACE} />
+                                )}
+                            </StaveFrame>
+                        </div>
+                    )
                 })}
             </SystemFrame>
         })}
