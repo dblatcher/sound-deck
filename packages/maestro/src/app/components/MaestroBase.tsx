@@ -1,6 +1,6 @@
 import { css } from "@emotion/react";
 import { Fragment, Reducer, useReducer, useState } from "react";
-import { EnhancedStave, Instrument, MusicControl, parseStaveNotes, playMusic } from "sound-deck";
+import { EnhancedStave, MusicControl, parseStaveNotes, playMusic } from "sound-deck";
 import { useSoundDeck } from "../context/SoundDeckProvider";
 import { COMMON_TIME, TREBLE_CLEF } from "../lib/notation-utils";
 import { Piece, pieces, PieceStave, StavesUpdate } from "../lib/songs";
@@ -10,18 +10,8 @@ import { PlayControls } from "./PlayControls";
 import { SheetMusic } from "./SheetMusic";
 import { StaveEditor } from "./StaveEditor";
 import { TimeSignatureControls } from "./TimeSignatureControls";
+import { instruments } from "../lib/instruments";
 
-
-export const BELL: Instrument = {
-    soundType: 'tone',
-    type: 'sawtooth',
-    playPattern: [
-        { time: 0, vol: .1 },
-        { time: .2, vol: 1 },
-        { time: .25, vol: 1 },
-        { time: 1, vol: 0.01 },
-    ]
-}
 
 const styles = {
     section: css({
@@ -87,7 +77,7 @@ export const MaestroBase = () => {
 
     const play = () => {
         soundDeck.enable().then((soundDeck) => {
-            const enhancedStaves = staves.map(({ staveText }) => new EnhancedStave(BELL, parseStaveNotes(staveText)));
+            const enhancedStaves = staves.map(({ staveText, instrument }) => new EnhancedStave(instrument ? instruments[instrument] : instruments.BELL, parseStaveNotes(staveText)));
             setDuration(Math.max(...enhancedStaves.map(s => s.duration)))
             const control = playMusic(soundDeck)(enhancedStaves, tempo)
             setMusicControl(control);
@@ -132,8 +122,7 @@ export const MaestroBase = () => {
                     <StaveEditor
                         index={index}
                         dispatchStavesUpdate={dispatchStavesUpdate}
-                        staveText={stave.staveText}
-                        clef={stave.clef}
+                        stave={stave}
                     />
                 </Fragment>
             )}

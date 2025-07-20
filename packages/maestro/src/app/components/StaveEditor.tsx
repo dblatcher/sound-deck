@@ -1,14 +1,14 @@
 import { css } from "@emotion/react";
-import { Clef, clefs, TREBLE_CLEF } from "../lib/notation-utils";
 import { Dispatch } from "react";
-import { StavesUpdate } from "../lib/songs";
+import { clefs, TREBLE_CLEF } from "../lib/notation-utils";
+import { PieceStave, StavesUpdate } from "../lib/songs";
 import { controlBorder } from "../lib/styles";
+import { instrumentNames, InstrumentName } from "../lib/instruments";
 
 
 type Props = {
-    index: number
-    staveText: string,
-    clef: Clef,
+    index: number;
+    stave: PieceStave;
     dispatchStavesUpdate: Dispatch<StavesUpdate>
 }
 
@@ -33,40 +33,52 @@ const styles = {
     }),
 }
 
-export const StaveEditor = ({ staveText, clef, dispatchStavesUpdate, index }: Props) => {
+export const StaveEditor = ({ dispatchStavesUpdate, index, stave }: Props) => {
 
-    const setClef = (clef: Clef) =>
-        dispatchStavesUpdate({
-            type: 'set',
-            index,
-            value: { staveText, clef }
-        })
-    const setStaveText = (staveText: string) =>
-        dispatchStavesUpdate({
-            type: 'set',
-            index,
-            value: { staveText, clef }
-        })
+    const update = (mod: Partial<PieceStave>) => dispatchStavesUpdate({
+        type: 'set',
+        index,
+        value: { ...stave, ...mod }
+    })
 
     return <div css={styles.container}>
         <div css={styles.stack}>
             <label>
                 <span>clef</span>
-                <select value={clefs.findIndex(i => i.name === clef.name)} onChange={({ target: { value: indexString } }) => {
-                    const index = Number(indexString)
-                    setClef(clefs[index] ?? TREBLE_CLEF)
-                }}>
+                <select
+                    value={clefs.findIndex(i => i.name === stave.clef.name)}
+                    onChange={({ target: { value: indexString } }) => {
+                        const index = Number(indexString)
+                        update({ clef: clefs[index] ?? TREBLE_CLEF })
+                    }}
+                >
                     {clefs.map((clef, index) => <option key={index} value={index} >{clef.name}</option>)}
                 </select>
             </label>
+
+            <label>
+                <span>instrument</span>
+                <select
+                    value={stave.instrument ?? 'BELL'}
+                    onChange={({ target: { value: instrumentName } }) => {
+                        update({ instrument: instrumentName as InstrumentName })
+                    }}
+                >
+                    {(instrumentNames).map((instrumentName) =>
+                        <option key={instrumentName} value={instrumentName}>{instrumentName}</option>
+                    )}
+                </select>
+            </label>
+
+
             <button onClick={() => dispatchStavesUpdate({ type: 'delete', index })}>delete</button>
         </div>
         <textarea
-            onChange={({ target: { value } }) => {
-                setStaveText(value)
+            onChange={({ target: { value: staveText } }) => {
+                update({ staveText })
             }}
             css={styles.textArea}
-            value={staveText}
+            value={stave.staveText}
         />
     </div>
 }

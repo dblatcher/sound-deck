@@ -1,8 +1,10 @@
 import { BASE_CLEF, Clef, COMMON_TIME, THREE_FOUR, TimeSignature, TREBLE_CLEF } from "./notation-utils";
+import type {instruments} from './instruments'
 
 export type PieceStave = {
     staveText: string;
     clef: Clef
+    instrument?: keyof typeof instruments
 }
 
 export type Piece = {
@@ -45,6 +47,7 @@ C3............... |B2............... |E3.......D...C...  |F.....E. E.......`.tri
         timeSignature: COMMON_TIME,
         staves: [
             {
+                instrument:'DRONE',
                 staveText: `CC#DD#EFF#GG#AA#B C.C#.D.D#.E.F.F#.G.G#.A.A#.B.`,
                 clef: TREBLE_CLEF
             }
