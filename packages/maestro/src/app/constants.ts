@@ -1,0 +1,1 @@
+export const GITHUB_LINK = "https://github.com/dblatcher/sound-deck/tree/main/packages/sound-deck-core"

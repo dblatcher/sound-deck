@@ -41,44 +41,45 @@ export const StaveEditor = ({ dispatchStavesUpdate, index, stave }: Props) => {
         value: { ...stave, ...mod }
     })
 
-    return <div css={styles.container}>
-        <div css={styles.stack}>
-            <label>
-                <span>clef</span>
-                <select
-                    value={clefs.findIndex(i => i.name === stave.clef.name)}
-                    onChange={({ target: { value: indexString } }) => {
-                        const index = Number(indexString)
-                        update({ clef: clefs[index] ?? TREBLE_CLEF })
-                    }}
-                >
-                    {clefs.map((clef, index) => <option key={index} value={index} >{clef.name}</option>)}
-                </select>
-            </label>
-
-            <label>
-                <span>instrument</span>
-                <select
-                    value={stave.instrument ?? 'BELL'}
-                    onChange={({ target: { value: instrumentName } }) => {
-                        update({ instrument: instrumentName as InstrumentName })
-                    }}
-                >
-                    {(instrumentNames).map((instrumentName) =>
-                        <option key={instrumentName} value={instrumentName}>{instrumentName}</option>
-                    )}
-                </select>
-            </label>
-
-
-            <button onClick={() => dispatchStavesUpdate({ type: 'delete', index })}>delete</button>
+    return <>
+        {index === 0 && <button onClick={() => dispatchStavesUpdate({ type: 'insert-new', index })}>add new stave</button>}
+        <div css={styles.container}>
+            <div css={styles.stack}>
+                <label>
+                    <span>clef</span>
+                    <select
+                        value={clefs.findIndex(i => i.name === stave.clef.name)}
+                        onChange={({ target: { value: indexString } }) => {
+                            const index = Number(indexString)
+                            update({ clef: clefs[index] ?? TREBLE_CLEF })
+                        }}
+                    >
+                        {clefs.map((clef, index) => <option key={index} value={index} >{clef.name}</option>)}
+                    </select>
+                </label>
+                <label>
+                    <span>instrument</span>
+                    <select
+                        value={stave.instrument ?? 'BELL'}
+                        onChange={({ target: { value: instrumentName } }) => {
+                            update({ instrument: instrumentName as InstrumentName })
+                        }}
+                    >
+                        {(instrumentNames).map((instrumentName) =>
+                            <option key={instrumentName} value={instrumentName}>{instrumentName}</option>
+                        )}
+                    </select>
+                </label>
+                <button onClick={() => dispatchStavesUpdate({ type: 'delete', index })}>delete</button>
+            </div>
+            <textarea
+                onChange={({ target: { value: staveText } }) => {
+                    update({ staveText })
+                }}
+                css={styles.textArea}
+                value={stave.staveText}
+            />
         </div>
-        <textarea
-            onChange={({ target: { value: staveText } }) => {
-                update({ staveText })
-            }}
-            css={styles.textArea}
-            value={stave.staveText}
-        />
-    </div>
+        <button onClick={() => dispatchStavesUpdate({ type: 'insert-new', index: index + 1 })}>add new stave</button>
+    </>
 }

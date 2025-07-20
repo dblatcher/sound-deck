@@ -1,5 +1,5 @@
 import { css } from "@emotion/react";
-import { Fragment, Reducer, useReducer, useState } from "react";
+import { Reducer, useReducer, useState } from "react";
 import { EnhancedStave, MusicControl, parseStaveNotes, playMusic } from "sound-deck";
 import { useSoundDeck } from "../context/SoundDeckProvider";
 import { COMMON_TIME, TREBLE_CLEF } from "../lib/notation-utils";
@@ -11,6 +11,8 @@ import { SheetMusic } from "./SheetMusic";
 import { StaveEditor } from "./StaveEditor";
 import { TimeSignatureControls } from "./TimeSignatureControls";
 import { instruments } from "../lib/instruments";
+import { TimingControls } from "./TimingControls";
+import { AboutBlock } from "./AboutBlock";
 
 
 const styles = {
@@ -97,36 +99,23 @@ export const MaestroBase = () => {
 
     return <PageTemplate>
         <section css={styles.section}>
+            <AboutBlock />
+        </section>
+        <section css={styles.section}>
             <PieceDropDown setPiece={setPiece} />
             <TimeSignatureControls timeSignature={timeSignature} setTimeSignature={setTimeSignature} />
             <PlayControls play={play} musicControl={musicControl} beatNumber={beatNumber} duration={duration} />
-            <label>
-                <span>bars per line</span>
-                <input type="number"
-                    value={barsPerLine}
-                    min={2} max={16} onChange={({ currentTarget: { valueAsNumber } }) => setBarsPerLine(valueAsNumber)} />
-            </label>
-            <label>
-                <span>tempo</span>
-                <input type="number"
-                    value={tempo}
-                    min={2} max={12}
-                    onChange={({ currentTarget: { valueAsNumber } }) => setTempo(valueAsNumber)} />
-            </label>
-            <span>{15 * (tempo)} beats/min </span>
+            <TimingControls tempo={tempo} setTempo={setTempo} barsPerLine={barsPerLine} setBarsPerLine={setBarsPerLine} />
+
         </section>
         <section css={[styles.section, { flexDirection: 'column', alignItems: 'flex-start' }]}>
             {staves.map((stave, index) =>
-                <Fragment key={index}>
-                    <button onClick={() => dispatchStavesUpdate({ type: 'insert-new', index })}>add new stave</button>
-                    <StaveEditor
-                        index={index}
-                        dispatchStavesUpdate={dispatchStavesUpdate}
-                        stave={stave}
-                    />
-                </Fragment>
+                <StaveEditor key={index}
+                    index={index}
+                    dispatchStavesUpdate={dispatchStavesUpdate}
+                    stave={stave}
+                />
             )}
-            <button onClick={() => dispatchStavesUpdate({ type: 'insert-new' })}>add new stave</button>
         </section>
 
         <div css={styles.sideScroll}>
