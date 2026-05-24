@@ -1,4 +1,5 @@
-import { parseStaveNotes } from "./parse-stave-notes"
+import { parseStaveNotes } from "../src/lib/music/parse-stave-notes"
+import { expect, test, describe } from 'vitest';
 
 describe(parseStaveNotes.name, () => {
 
