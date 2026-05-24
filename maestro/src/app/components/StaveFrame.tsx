@@ -1,5 +1,5 @@
-import { ReactNode } from "react";
-import { Clef, TimeSignature } from "../lib/notation-utils";
+import type { ReactNode } from "react";
+import type { Clef, TimeSignature } from "../lib/notation-utils";
 
 interface Props {
     staveWidth: number,

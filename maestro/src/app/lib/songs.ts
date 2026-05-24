@@ -1,4 +1,4 @@
-import { BASE_CLEF, Clef, COMMON_TIME, THREE_FOUR, TimeSignature, TREBLE_CLEF } from "./notation-utils";
+import { BASE_CLEF, type Clef, COMMON_TIME, THREE_FOUR, type TimeSignature, TREBLE_CLEF } from "./notation-utils";
 import type {instruments} from './instruments'
 
 export type PieceStave = {

@@ -1,5 +1,5 @@
-import { ChangeEventHandler, Dispatch, SetStateAction } from "react";
-import { TimeSignature } from "../lib/notation-utils";
+import type { ChangeEventHandler, Dispatch, SetStateAction } from "react";
+import type { TimeSignature } from "../lib/notation-utils";
 import { css } from "@emotion/react";
 import { controlBorder } from "../lib/styles";
 

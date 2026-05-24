@@ -1,4 +1,4 @@
-import { Instrument, presetTones, presetNoises } from "sound-deck"
+import { type Instrument, presetTones, presetNoises } from "sound-deck"
 
 const BOING: Instrument = {
     soundType: 'tone',

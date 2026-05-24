@@ -1,4 +1,4 @@
-import { NotationItemTie } from "../../lib/notation-items";
+import { type NotationItemTie } from "../../lib/notation-items";
 import { placesFromMiddleC } from "../../lib/notation-utils";
 import { LOWER_STAVE_BAR, UPPER_STAVE_BAR } from "../../lib/stave-positions";
 

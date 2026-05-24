@@ -1,5 +1,5 @@
-import { ChangeEventHandler } from "react"
-import { Piece, pieces } from "../lib/songs"
+import type { ChangeEventHandler } from "react"
+import { type Piece, pieces } from "../lib/songs"
 import { controlBorder } from "../lib/styles"
 
 interface Props {

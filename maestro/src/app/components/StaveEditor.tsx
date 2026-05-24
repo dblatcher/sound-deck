@@ -1,9 +1,9 @@
 import { css } from "@emotion/react";
-import { Dispatch } from "react";
+import type { Dispatch } from "react";
 import { clefs, TREBLE_CLEF } from "../lib/notation-utils";
-import { PieceStave, StavesUpdate } from "../lib/songs";
+import type { PieceStave, StavesUpdate } from "../lib/songs";
 import { controlBorder } from "../lib/styles";
-import { instrumentNames, InstrumentName } from "../lib/instruments";
+import { instrumentNames, type InstrumentName } from "../lib/instruments";
 
 
 type Props = {

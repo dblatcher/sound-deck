@@ -1,9 +1,9 @@
 import { css } from "@emotion/react";
-import { Reducer, useReducer, useState } from "react";
-import { EnhancedStave, MusicControl, parseStaveNotes, playMusic } from "sound-deck";
+import { type Reducer, useReducer, useState } from "react";
+import { EnhancedStave, type MusicControl, parseStaveNotes, playMusic } from "sound-deck";
 import { useSoundDeck } from "../context/SoundDeckProvider";
 import { COMMON_TIME, TREBLE_CLEF } from "../lib/notation-utils";
-import { Piece, pieces, PieceStave, StavesUpdate } from "../lib/songs";
+import { type Piece, pieces, type PieceStave, type StavesUpdate } from "../lib/songs";
 import { PageTemplate } from "./PageTemplate";
 import { PieceDropDown } from "./PieceDropDown";
 import { PlayControls } from "./PlayControls";

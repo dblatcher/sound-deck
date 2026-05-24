@@ -1,5 +1,5 @@
-import { StaveNote } from "sound-deck";
-import { NotationItem } from "../../lib/notation-items";
+import type { StaveNote } from "sound-deck";
+import type { NotationItem } from "../../lib/notation-items";
 import { MusicalNote } from "./MusicalNote";
 import { MusicalRest } from "./MusicalRest";
 import { MusicalTie } from "./MusicalTie";

@@ -1,4 +1,4 @@
-import { StaveNote } from "sound-deck";
+import type { StaveNote } from "sound-deck";
 import { placesFromMiddleC } from "../../lib/notation-utils";
 import { LOWER_STAVE_BAR, UPPER_STAVE_BAR } from "../../lib/stave-positions";
 

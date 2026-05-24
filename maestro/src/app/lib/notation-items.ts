@@ -1,4 +1,4 @@
-import { StaveNote } from "sound-deck";
+import type { StaveNote } from "sound-deck";
 
 type NotationItemBase = {
     x: number,

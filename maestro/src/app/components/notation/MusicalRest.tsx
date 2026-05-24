@@ -1,4 +1,4 @@
-import { StaveNote } from "sound-deck";
+import type { StaveNote } from "sound-deck";
 import { STAVE_MIDDLE } from "../../lib/stave-positions";
 
 interface Props {

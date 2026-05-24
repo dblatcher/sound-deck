@@ -1,5 +1,5 @@
-import { NotationItem } from "./notation-items";
-import { Clef } from "./notation-utils";
+import type { NotationItem } from "./notation-items";
+import type { Clef } from "./notation-utils";
 
 
 

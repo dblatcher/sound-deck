@@ -1,9 +1,9 @@
-import { FunctionComponent, ReactNode, useEffect, useState } from "react";
-import { parseStaveNotes, StaveNote } from "sound-deck";
-import { ArrangedLines, arrangeLines } from "../lib/arrange-lines";
+import { type FunctionComponent, type ReactNode, useEffect, useState } from "react";
+import { parseStaveNotes, type StaveNote } from "sound-deck";
+import { type ArrangedLines, arrangeLines } from "../lib/arrange-lines";
 import { lastNoteOrRest, splitByBars, staveNotesToNotationItems } from "../lib/notation-items";
-import { TimeSignature } from "../lib/notation-utils";
-import { PieceStave } from "../lib/songs";
+import type { TimeSignature } from "../lib/notation-utils";
+import type { PieceStave } from "../lib/songs";
 import { DEFAULT_NOTE_SPACE, LEFT_SPACE } from "../lib/stave-positions";
 import { NotationSymbol } from "./notation/NotationSymbol";
 import { StaveFrame } from "./StaveFrame";
@@ -86,17 +86,17 @@ export const SheetMusic = ({ staves, beatNumber, barsPerLine, timeSignature, tem
                     const staveWidth = LEFT_SPACE + lastX + DEFAULT_NOTE_SPACE * (lastBeats + .5);
 
                     return (
-                        <div css={{
+                        <div  key={index}  css={{
                             width: staveWidth,
                             height: 120,
                             position: 'relative',
                         }}>
-                            <StaveFrame key={index}
+                            <StaveFrame
                                 timeSignature={line.lineIndex === 0 ? timeSignature : undefined}
                                 staveWidth={staveWidth}
                                 clef={clef}>
-                                {items.map((item, index) =>
-                                    <NotationSymbol key={index}
+                                {items.map((item, notationIndex) =>
+                                    <NotationSymbol key={notationIndex}
                                         middleC={clef.middleC}
                                         item={item}
                                         isCurrentNote={isCurrentNote}
