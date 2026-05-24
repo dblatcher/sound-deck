@@ -1,0 +1,44 @@
+{
+  "name": "sound-deck",
+  "version": "2.0.0",
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./dist/sound-deck.js",
+      "require": "./dist/sound-deck.cjs"
+    }
+  },
+  "main": "./dist/sound-deck.cjs",
+  "module": "./dist/sound-deck.js",
+  "types": "./dist/sound-deck.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "release": "npm test && npm run build && changelogen --release --push && npm publish",
+    "lint": "eslint . --fix",
+    "test": "vitest --run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest --coverage"
+  },
+  "devDependencies": {
+    "@antfu/eslint-config": "^4.19.0",
+    "@commitlint/cli": "^20.2.0",
+    "@commitlint/config-conventional": "^20.2.0",
+    "@types/node": "^22.19.3",
+    "@vitest/coverage-v8": "^4.0.16",
+    "camelcase": "^8.0.0",
+    "changelogen": "^0.6.2",
+    "eslint": "^9.39.2",
+    "lint-staged": "^16.2.7",
+    "typescript": "^5.9.3",
+    "vite": "^7.3.0",
+    "vite-plugin-dts": "^4.5.4",
+    "vitest": "^4.0.16"
+  },
+  "lint-staged": {
+    "*.ts": "pnpm run lint"
+  }
+}
