@@ -4,13 +4,14 @@
   "type": "module",
   "exports": {
     ".": {
+      "types": "./dist/index.d.ts",
       "import": "./dist/sound-deck.js",
       "require": "./dist/sound-deck.cjs"
     }
   },
   "main": "./dist/sound-deck.cjs",
   "module": "./dist/sound-deck.js",
-  "types": "./dist/sound-deck.d.ts",
+  "types": "./dist/index.d.ts",
   "files": [
     "dist"
   ],
