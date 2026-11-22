@@ -164,10 +164,12 @@ export const playMusic = (soundDeck: AbstractSoundDeck) => (staves: Array<Stave 
                 return
             }
 
-            enhancedStaves
-                .flatMap(stave => [stave.indexedNotes.get(time)]
-                    .map(note => note ? playNote(soundDeck, note, stave.instrument, (stave.volume ?? 1) * playState.volume, tempo) : null)
-                )
+            enhancedStaves.forEach(stave => {
+                const notesAtTime = stave.indexedNotes.get(time) ?? [];
+                notesAtTime.forEach(note => {
+                    playNote(soundDeck, note, stave.instrument, (stave.volume ?? 1) * playState.volume, tempo)
+                })
+            })
 
             if (playState.fadeRate) {
                 playState.volume -= playState.fadeRate

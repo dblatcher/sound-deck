@@ -1,4 +1,4 @@
-import { EnhancedStave, MusicControl, parseStaveNotes, playMusic, SoundControl, SoundDeck } from "../src";
+import { EnhancedStave, MusicControl, parseStaveNotes, PitchedNote, playMusic, SoundControl, SoundDeck } from "../src";
 
 
 const mySoundDeck = new SoundDeck(undefined, true);
@@ -63,5 +63,45 @@ document.body.appendChild(makePlayButton('ode to joy', () =>
             }, odeToJoy)
         ]
         , 6, false)));
+
+document.body.appendChild(makePlayButton('test chord', () => {
+
+    const cNote = new PitchedNote('C', 4);
+    const eNote = new PitchedNote('Eb', 4);
+    const gNote = new PitchedNote('G', 4);
+    const bFlatNote = new PitchedNote('Bb', 4);
+    const betweenBeats = 1
+
+    return playMusic(mySoundDeck)(
+        [
+            new EnhancedStave({
+                soundType: 'tone',
+                type: 'triangle',
+            }, [
+                {
+                    beats: 2,
+                    atBeat: betweenBeats*0,
+                    note: cNote
+                },
+                ...([cNote, eNote].map(note => ({
+                    beats: 2,
+                    atBeat: betweenBeats*1,
+                    note
+                }))),
+                ...([cNote, eNote, gNote].map(note => ({
+                    beats: 2,
+                    atBeat: betweenBeats*2,
+                    note
+                }))),
+                ...([cNote, eNote, gNote, bFlatNote].map(note => ({
+                    beats: 8,
+                    atBeat: betweenBeats*3,
+                    note
+                }))),
+
+            ])
+        ]
+        , 6, false)
+}));
 
 
