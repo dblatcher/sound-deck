@@ -1,4 +1,5 @@
-import { ReactNode, createContext, useContext } from 'react'
+import type { ReactNode } from 'react'
+import { createContext, useContext } from 'react'
 import { SoundDeck } from 'sound-deck'
 
 const SoundDeckContext = createContext<SoundDeck>(new SoundDeck())
